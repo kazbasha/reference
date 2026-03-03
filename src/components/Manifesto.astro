@@ -1,0 +1,273 @@
+---
+const blocks: [string, string][] = [
+  [
+    "Every great idea starts with a reference.",
+    "You see it and think\u00a0\u201cFuck\u2026 I wish I\u2019d done that\u201d",
+  ],
+  [
+    "That kind of work is an unfair advantage.",
+    "But there\u2019s a magic to making it happen.",
+  ],
+  [
+    "Somewhere along the way, we lost it.",
+    "We started listening to every opinion.",
+  ],
+  [
+    "We began calling anything\u2026creative.",
+    "Stopped working with our own hands.",
+  ],
+  [
+    "That made the work shite.",
+    "And slow. And expensive.",
+  ],
+  [
+    "Budgets shrank.",
+    "Big names faded.",
+  ],
+  [
+    "Turns out the world doesn\u2019t need bigger.",
+    "It needs better.",
+  ],
+  [
+    "Introducing Reference.",
+    "A creative studio run like a band.",
+  ],
+  [
+    "Small. Experienced. Hands-on.",
+    "Dangerously fast.",
+  ],
+  [
+    "From strategy to ideas to execution.",
+    "We handle it all.",
+  ],
+  [
+    "Bringing in the right talent for the job.",
+    "Not whoever\u2019s available on Tuesday.",
+  ],
+  [
+    "Because we care about the work.",
+    "And we\u2019re sick of all the slop.",
+  ],
+  [
+    "We\u2019re not here to follow the reference.",
+    "We\u2019re here to be it.",
+  ],
+];
+---
+
+<div class="manifesto">
+  {
+    blocks.map(([line1, line2], i) => (
+      <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0 }]}>
+        {i < 2 && (
+          <svg
+            class="perspective-grid"
+            viewBox="0 0 1600 900"
+            preserveAspectRatio="xMidYMid slice"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <g stroke="#986edf" stroke-width="1" fill="none" opacity="0.18">
+              {/* Radiating lines — top edge → bottom edge through VP(800,450) */}
+              <line x1="0"    y1="0" x2="1600" y2="900"/>
+              <line x1="200"  y1="0" x2="1400" y2="900"/>
+              <line x1="400"  y1="0" x2="1200" y2="900"/>
+              <line x1="600"  y1="0" x2="1000" y2="900"/>
+              <line x1="800"  y1="0" x2="800"  y2="900"/>
+              <line x1="1000" y1="0" x2="600"  y2="900"/>
+              <line x1="1200" y1="0" x2="400"  y2="900"/>
+              <line x1="1400" y1="0" x2="200"  y2="900"/>
+              <line x1="1600" y1="0" x2="0"    y2="900"/>
+              {/* Radiating lines — left edge → right edge through VP(800,450) */}
+              <line x1="0" y1="112" x2="1600" y2="787"/>
+              <line x1="0" y1="225" x2="1600" y2="675"/>
+              <line x1="0" y1="337" x2="1600" y2="562"/>
+              <line x1="0" y1="450" x2="1600" y2="450"/>
+              <line x1="0" y1="562" x2="1600" y2="337"/>
+              <line x1="0" y1="675" x2="1600" y2="225"/>
+              <line x1="0" y1="787" x2="1600" y2="112"/>
+              {/* Horizontal cross-sections — perspective-compressed toward VP */}
+              <line x1="0" y1="100" x2="1600" y2="100"/>
+              <line x1="0" y1="200" x2="1600" y2="200"/>
+              <line x1="0" y1="300" x2="1600" y2="300"/>
+              <line x1="0" y1="375" x2="1600" y2="375"/>
+              <line x1="0" y1="525" x2="1600" y2="525"/>
+              <line x1="0" y1="600" x2="1600" y2="600"/>
+              <line x1="0" y1="700" x2="1600" y2="700"/>
+              <line x1="0" y1="800" x2="1600" y2="800"/>
+            </g>
+          </svg>
+        )}
+        <div class="manifesto-inner" data-reveal>
+          <p class="manifesto-line">{line1}</p>
+          <p class="manifesto-line manifesto-line--two">{line2}</p>
+        </div>
+      </section>
+    ))
+  }
+
+  <!-- Closing CTA -->
+  <section class="manifesto-block manifesto-block--finale">
+    <div class="manifesto-inner manifesto-inner--finale" data-reveal>
+      <a class="contact-btn" href="#">GET IN TOUCH</a>
+    </div>
+  </section>
+</div>
+
+<style>
+  .manifesto-block {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(60px, 10vw, 140px) clamp(24px, 7vw, 100px);
+    background: #0a0a0a;
+    overflow: hidden;
+  }
+
+  .manifesto-block--alt {
+    background: #111111;
+  }
+
+  .manifesto-block--finale {
+    background: #000000;
+    min-height: 100svh;
+  }
+
+  /* ── Perspective grid ── */
+  .perspective-grid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Reveal state ── */
+  .manifesto-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .manifesto-line {
+    font-size: clamp(22px, 3.6vw, 58px);
+    font-weight: 400;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    color: #e8e4de;
+    text-wrap: balance;
+    /* initial hidden state — driven by JS adding .is-visible */
+    opacity: 0;
+    transform: translateY(36px);
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .manifesto-line--two {
+    margin-top: 0.3em;
+    transition-delay: 0.14s;
+  }
+
+  .manifesto-inner.is-visible .manifesto-line {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Finale CTA ── */
+  .contact-btn {
+    display: inline-block;
+    padding: clamp(14px, 1.6vw, 20px) clamp(36px, 4vw, 64px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #e8e4de;
+    font-size: clamp(10px, 0.9vw, 13px);
+    font-weight: 400;
+    letter-spacing: 0.26em;
+    text-decoration: none;
+    text-transform: uppercase;
+    /* reveal state */
+    opacity: 0;
+    transform: translateY(36px);
+    transition:
+      opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .manifesto-inner--finale.is-visible .contact-btn {
+    opacity: 1;
+    transform: translateY(0);
+    /* once revealed, fast transitions for hover only */
+    transition:
+      background 0.22s ease,
+      color 0.22s ease,
+      border-color 0.22s ease;
+  }
+
+  .contact-btn:hover {
+    background: #ffffff;
+    color: #0a0a0a;
+    border-color: #ffffff;
+  }
+</style>
+
+<script>
+  // ── Reveal on scroll ──
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target); // fire once
+        }
+      });
+    },
+    {
+      threshold: 0.22,
+      rootMargin: "0px 0px -40px 0px",
+    }
+  );
+
+  document.querySelectorAll("[data-reveal]").forEach((el) => observer.observe(el));
+
+  // ── Subtle parallax on manifesto inner text ──
+  function applyParallax() {
+    const inners = document.querySelectorAll<HTMLElement>(
+      ".manifesto-inner.is-visible"
+    );
+    const vh = window.innerHeight;
+
+    inners.forEach((inner) => {
+      const rect = inner.getBoundingClientRect();
+      // progress: -1 (below viewport center) → 0 (centered) → 1 (above)
+      const progress = (vh / 2 - (rect.top + rect.height / 2)) / vh;
+      // Clamp to prevent extreme values when section barely enters
+      const clamped = Math.max(-0.6, Math.min(0.6, progress));
+      inner.style.setProperty("--parallax-y", `${clamped * -22}px`);
+    });
+  }
+
+  window.addEventListener("scroll", applyParallax, { passive: true });
+  applyParallax();
+</script>
+
+<style>
+  /* Parallax Y applied via CSS variable set by JS */
+  .manifesto-inner.is-visible {
+    transform: translateY(var(--parallax-y, 0px));
+    /* Override the reveal transform once visible — keep as custom prop */
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Prevent the parallax transform competing with line transitions */
+  .manifesto-inner.is-visible .manifesto-line,
+  .manifesto-inner--finale.is-visible .manifesto-finale {
+    transform: none;
+  }
+</style>

@@ -1,121 +1,185 @@
 ---
 ---
 
-<main class="hero">
-  <div class="bg"></div>
+<section class="hero">
+  <!-- Background video — drop /public/video/hero.mp4 to activate -->
+  <div class="hero-bg" aria-hidden="true">
+    <video
+      class="hero-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      aria-hidden="true"
+    >
+      <source src="/video/hero.mp4" type="video/mp4" />
+    </video>
+  </div>
 
-  <section class="content" aria-label="Reference splash">
+  <!-- Vignette overlay -->
+  <div class="hero-overlay" aria-hidden="true"></div>
+
+  <!-- Content -->
+  <div class="hero-content">
     <img
-      class="logo"
+      class="hero-logo"
       src="/brand/reference-logo.svg"
       alt="Reference — Supersonic Creative"
     />
-
-    <p class="about">
-      Hello.<br /><br />
-      We're a couple of creative directors. Born in MENA. Raised in the UK.
-      Trusted by some of the best in the region.<br /><br />
-      We build strategy, shape platforms, crack big ideas, write campaigns, craft
-      treatments, develop films and stay close to production to make sure the
-      final thing hits as hard as the first thought.<br /><br />
-      When needed, we bring in our own trusted directors, designers, editors and
-      specialists and stay on it until it's right.<br /><br />
-      We make work that gets stolen. The kind people reference later and pretend
-      they thought of first.<br /><br />
-      We take on only a few projects at a time. That's how the work lands hard
-      and fast.<br /><br />
-      We call it Supersonic Creative.
-    </p>
-  </section>
-
-  <div class="pillRow">
-    <span class="pill"><span class="dot"></span> Coming soon</span>
   </div>
-</main>
+
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator" aria-hidden="true">
+    <div class="scroll-track">
+      <div class="scroll-thumb"></div>
+    </div>
+  </div>
+</section>
 
 <style>
   .hero {
-    --content-w: min(860px, 95vw);
-    min-height: 100svh;
-    display: grid;
-    grid-template-rows: 1fr auto;
-    padding: clamp(24px, 4vw, 60px);
-    box-sizing: border-box;
     position: relative;
+    height: 100svh;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a0a;
   }
 
-  .bg {
+  /* ── Background video ── */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.45;
+    /* Slightly oversized so parallax shift never reveals edges */
+    transform: scale(1.12);
+    will-change: transform;
+  }
+
+  /* CSS fallback shown when no video file is present */
+  .hero-bg::before {
+    content: "";
     position: absolute;
     inset: 0;
     background:
       radial-gradient(
-        900px 600px at 20% 25%,
-        rgba(120, 255, 170, 0.08),
-        transparent 60%
+        ellipse 90% 70% at 50% 40%,
+        rgba(18, 18, 28, 0.9),
+        transparent 80%
       ),
       radial-gradient(
-        900px 600px at 85% 70%,
-        rgba(120, 180, 255, 0.06),
-        transparent 55%
+        ellipse 60% 50% at 70% 60%,
+        rgba(12, 16, 22, 0.7),
+        transparent 70%
+      );
+  }
+
+  /* ── Vignette ── */
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(10, 10, 10, 0.5) 0%,
+        transparent 25%,
+        transparent 70%,
+        rgba(10, 10, 10, 0.9) 100%
       );
     pointer-events: none;
   }
 
-  .content {
+  /* ── Copy ── */
+  .hero-content {
     position: relative;
-    z-index: 1;
-    width: var(--content-w);
-    margin: 0 auto;
-    display: grid;
-    gap: 24px;
-    align-content: center;
-    justify-items: center;
+    z-index: 2;
     text-align: center;
   }
 
-  .logo {
-    width: var(--content-w);
+  .hero-logo {
+    width: clamp(260px, 52vw, 860px);
     height: auto;
     display: block;
+    animation: logo-spin 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
   }
 
-  .about {
-    font-family: "ObviouslyWide", system-ui, -apple-system, Segoe UI, Roboto,
-      Helvetica, Arial, sans-serif;
-    font-weight: 400;
-    font-size: clamp(13px, 1.2vw, 16px);
-    line-height: 1.55;
-    width: var(--content-w);
-    margin: 0;
-    color: rgba(255, 255, 255, 0.8);
+  @keyframes logo-spin {
+    0%   { opacity: 0; transform: perspective(1400px) rotateY(75deg) scale(0.94); }
+    65%  { opacity: 1; transform: perspective(1400px) rotateY(-6deg)  scale(1.01); }
+    100% { opacity: 1; transform: perspective(1400px) rotateY(0deg)   scale(1);   }
   }
 
-  .pillRow {
+  /* ── Scroll indicator ── */
+  .scroll-indicator {
+    position: absolute;
+    bottom: clamp(28px, 4vw, 52px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    animation: reveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) 1.4s both;
+  }
+
+  .scroll-track {
     position: relative;
-    z-index: 1;
-    display: flex;
-    justify-content: center;
+    width: 1px;
+    height: 54px;
+    background: rgba(255, 255, 255, 0.15);
+    overflow: hidden;
   }
 
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.06);
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(10px);
+  /* Animated thumb — travels top to bottom, loops */
+  .scroll-thumb {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
+    animation: scroll-travel 2.6s cubic-bezier(0.4, 0, 0.6, 1) 1.8s infinite;
   }
 
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: #7cffb2;
-    box-shadow: 0 0 18px rgba(124, 255, 178, 0.55);
+  @keyframes scroll-travel {
+    0%   { top: -40%; }
+    100% { top: 100%; }
+  }
+
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0);    }
   }
 </style>
+
+<script>
+  const hero = document.querySelector<HTMLElement>(".hero");
+  const video = document.querySelector<HTMLVideoElement>(".hero-video");
+
+  if (hero && video) {
+    window.addEventListener(
+      "scroll",
+      () => {
+        const scrollY = window.scrollY;
+        const heroH = hero.offsetHeight;
+        if (scrollY > heroH) return;
+        const progress = scrollY / heroH;
+        // scale(1.12) provides ~6% buffer each side; max shift is 7% — safe
+        video.style.transform = `scale(1.12) translateY(${-progress * 7}%)`;
+      },
+      { passive: true }
+    );
+  }
+</script>
