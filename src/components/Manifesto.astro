@@ -106,11 +106,56 @@ const blocks: [string, string][] = [
     ))
   }
 
-  <!-- Closing CTA -->
+  <!-- Closing CTA — portal -->
   <section class="manifesto-block manifesto-block--finale">
-    <div class="manifesto-inner manifesto-inner--finale" data-reveal>
-      <a class="contact-btn" href="#">GET IN TOUCH</a>
+
+    <!-- Flat regular grid — visible outside the portal -->
+    <svg
+      class="contact-grid"
+      viewBox="0 0 1600 900"
+      preserveAspectRatio="xMidYMid slice"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <g stroke="#986edf" stroke-width="1" fill="none">
+        <line x1="0" y1="75"  x2="1600" y2="75"/>
+        <line x1="0" y1="150" x2="1600" y2="150"/>
+        <line x1="0" y1="225" x2="1600" y2="225"/>
+        <line x1="0" y1="300" x2="1600" y2="300"/>
+        <line x1="0" y1="375" x2="1600" y2="375"/>
+        <line x1="0" y1="450" x2="1600" y2="450"/>
+        <line x1="0" y1="525" x2="1600" y2="525"/>
+        <line x1="0" y1="600" x2="1600" y2="600"/>
+        <line x1="0" y1="675" x2="1600" y2="675"/>
+        <line x1="0" y1="750" x2="1600" y2="750"/>
+        <line x1="0" y1="825" x2="1600" y2="825"/>
+        <line x1="107"  y1="0" x2="107"  y2="900"/>
+        <line x1="214"  y1="0" x2="214"  y2="900"/>
+        <line x1="321"  y1="0" x2="321"  y2="900"/>
+        <line x1="428"  y1="0" x2="428"  y2="900"/>
+        <line x1="535"  y1="0" x2="535"  y2="900"/>
+        <line x1="642"  y1="0" x2="642"  y2="900"/>
+        <line x1="749"  y1="0" x2="749"  y2="900"/>
+        <line x1="856"  y1="0" x2="856"  y2="900"/>
+        <line x1="963"  y1="0" x2="963"  y2="900"/>
+        <line x1="1070" y1="0" x2="1070" y2="900"/>
+        <line x1="1177" y1="0" x2="1177" y2="900"/>
+        <line x1="1284" y1="0" x2="1284" y2="900"/>
+        <line x1="1391" y1="0" x2="1391" y2="900"/>
+        <line x1="1498" y1="0" x2="1498" y2="900"/>
+      </g>
+    </svg>
+
+    <!-- Dark portal — circle that expands to fill screen on hover -->
+    <div class="contact-portal" aria-hidden="true">
+      <p class="portal-sub">hello@reference.studio</p>
     </div>
+
+    <!-- Circular trigger button — sits above the portal -->
+    <a class="contact-btn" href="mailto:hello@reference.studio">
+      <span class="contact-btn-label">GET IN TOUCH</span>
+    </a>
+
   </section>
 </div>
 
@@ -133,6 +178,7 @@ const blocks: [string, string][] = [
   .manifesto-block--finale {
     background: #000000;
     min-height: 100svh;
+    padding: 0; /* button is truly centred, no padding offset */
   }
 
   /* ── Perspective grid ── */
@@ -179,39 +225,89 @@ const blocks: [string, string][] = [
     transform: translateY(0);
   }
 
-  /* ── Finale CTA ── */
-  .contact-btn {
-    display: inline-block;
-    padding: clamp(14px, 1.6vw, 20px) clamp(36px, 4vw, 64px);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    color: #e8e4de;
-    font-size: clamp(10px, 0.9vw, 13px);
-    font-weight: 400;
-    letter-spacing: 0.26em;
-    text-decoration: none;
-    text-transform: uppercase;
-    /* reveal state */
-    opacity: 0;
-    transform: translateY(36px);
-    transition:
-      opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  /* ── Finale portal ── */
+  .contact-grid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    transform-origin: center;
+    animation: grid-pulse 4s linear infinite;
   }
 
-  .manifesto-inner--finale.is-visible .contact-btn {
+  @keyframes grid-pulse {
+    0%   { transform: scale(1);    opacity: 0.13; }
+    8%   { transform: scale(1.07); opacity: 0.28; }
+    28%  { transform: scale(1);    opacity: 0.13; }
+    100% { transform: scale(1);    opacity: 0.13; }
+  }
+
+  /* Dark circle — starts button-sized, expands to fill screen */
+  .contact-portal {
+    position: absolute;
+    inset: 0;
+    background: #07000e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 2vw, 28px);
+    clip-path: circle(48px at 50% 50%);
+    transition: clip-path 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .manifesto-block--finale.is-open .contact-portal {
+    clip-path: circle(120vmax at 50% 50%);
+  }
+
+  .portal-sub {
+    font-size: clamp(9px, 0.85vw, 12px);
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    color: rgba(152, 110, 223, 0.45);
+    text-transform: lowercase;
+    opacity: 0;
+    transition: opacity 0.4s ease 0.5s;
+  }
+
+  .manifesto-block--finale.is-open .portal-sub {
     opacity: 1;
-    transform: translateY(0);
-    /* once revealed, fast transitions for hover only */
-    transition:
-      background 0.22s ease,
-      color 0.22s ease,
-      border-color 0.22s ease;
+  }
+
+  /* Circular trigger button */
+  .contact-btn {
+    position: relative;
+    z-index: 2;
+    width: clamp(82px, 7vw, 96px);
+    height: clamp(82px, 7vw, 96px);
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(152, 110, 223, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .contact-btn-label {
+    display: block;
+    max-width: 54px;
+    text-align: center;
+    color: #986edf;
+    font-size: clamp(7px, 0.65vw, 9px);
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1.55;
   }
 
   .contact-btn:hover {
-    background: #ffffff;
-    color: #0a0a0a;
-    border-color: #ffffff;
+    border-color: rgba(152, 110, 223, 0.75);
   }
 </style>
 
@@ -253,6 +349,15 @@ const blocks: [string, string][] = [
 
   window.addEventListener("scroll", applyParallax, { passive: true });
   applyParallax();
+
+  // ── Portal expand/collapse on hover ──
+  const finale = document.querySelector<HTMLElement>(".manifesto-block--finale");
+  const portalBtn = finale?.querySelector<HTMLElement>(".contact-btn");
+
+  if (finale && portalBtn) {
+    portalBtn.addEventListener("mouseenter", () => finale.classList.add("is-open"));
+    portalBtn.addEventListener("mouseleave", () => finale.classList.remove("is-open"));
+  }
 </script>
 
 <style>
