@@ -146,14 +146,10 @@ const blocks: [string, string][] = [
       </g>
     </svg>
 
-    <!-- Dark portal — circle that expands to fill screen on hover -->
-    <div class="contact-portal" aria-hidden="true">
-      <p class="portal-sub">hello@reference.studio</p>
-    </div>
-
-    <!-- Circular trigger button — sits above the portal -->
+    <!-- Morphing button — circle → rectangle on hover -->
     <a class="contact-btn" href="mailto:hello@reference.studio">
-      <span class="contact-btn-label">GET IN TOUCH</span>
+      <span class="contact-btn-label">LET'S JAM</span>
+      <span class="contact-btn-email">hello@reference.studio</span>
     </a>
 
   </section>
@@ -244,46 +240,12 @@ const blocks: [string, string][] = [
     100% { transform: scale(1);    opacity: 0.13; }
   }
 
-  /* Dark circle — starts button-sized, expands to fill screen */
-  .contact-portal {
-    position: absolute;
-    inset: 0;
-    background: #07000e;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(12px, 2vw, 28px);
-    clip-path: circle(48px at 50% 50%);
-    transition: clip-path 0.85s cubic-bezier(0.16, 1, 0.3, 1);
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .manifesto-block--finale.is-open .contact-portal {
-    clip-path: circle(120vmax at 50% 50%);
-  }
-
-  .portal-sub {
-    font-size: clamp(9px, 0.85vw, 12px);
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    color: rgba(152, 110, 223, 0.45);
-    text-transform: lowercase;
-    opacity: 0;
-    transition: opacity 0.4s ease 0.5s;
-  }
-
-  .manifesto-block--finale.is-open .portal-sub {
-    opacity: 1;
-  }
-
-  /* Circular trigger button */
+  /* Morphing button — circle → rectangle */
   .contact-btn {
     position: relative;
     z-index: 2;
-    width: clamp(82px, 7vw, 96px);
-    height: clamp(82px, 7vw, 96px);
+    width: clamp(108px, 9vw, 124px);
+    height: clamp(108px, 9vw, 124px);
     border-radius: 50%;
     background: transparent;
     border: 1px solid rgba(152, 110, 223, 0.35);
@@ -291,23 +253,60 @@ const blocks: [string, string][] = [
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    transition: border-color 0.3s ease;
+    overflow: hidden;
+    transition:
+      width 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      border-radius 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s ease,
+      background 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .contact-btn:hover {
+    width: clamp(240px, 22vw, 320px);
+    border-radius: 4px;
+    border-color: rgba(152, 110, 223, 0.7);
+    background: #0d0318;
   }
 
   .contact-btn-label {
-    display: block;
-    max-width: 54px;
+    position: absolute;
+    max-width: 60px;
     text-align: center;
     color: #986edf;
     font-size: clamp(7px, 0.65vw, 9px);
     font-weight: 400;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    line-height: 1.55;
+    line-height: 1.65;
+    white-space: normal;
+    padding: 0 12px;
+    /* on hover-out: wait for email to finish fading before reappearing */
+    transition: opacity 0.2s ease 0.28s;
   }
 
-  .contact-btn:hover {
-    border-color: rgba(152, 110, 223, 0.75);
+  .contact-btn:hover .contact-btn-label {
+    opacity: 0;
+    /* on hover-in: fade out immediately */
+    transition: opacity 0.15s ease;
+  }
+
+  .contact-btn-email {
+    position: absolute;
+    color: rgba(152, 110, 223, 0.85);
+    font-size: clamp(9px, 0.8vw, 11px);
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: lowercase;
+    white-space: nowrap;
+    opacity: 0;
+    /* on hover-out: fade out quickly with no delay */
+    transition: opacity 0.18s ease;
+  }
+
+  .contact-btn:hover .contact-btn-email {
+    opacity: 1;
+    /* on hover-in: fade in after shape has expanded */
+    transition: opacity 0.25s ease 0.38s;
   }
 </style>
 
@@ -350,14 +349,6 @@ const blocks: [string, string][] = [
   window.addEventListener("scroll", applyParallax, { passive: true });
   applyParallax();
 
-  // ── Portal expand/collapse on hover ──
-  const finale = document.querySelector<HTMLElement>(".manifesto-block--finale");
-  const portalBtn = finale?.querySelector<HTMLElement>(".contact-btn");
-
-  if (finale && portalBtn) {
-    portalBtn.addEventListener("mouseenter", () => finale.classList.add("is-open"));
-    portalBtn.addEventListener("mouseleave", () => finale.classList.remove("is-open"));
-  }
 </script>
 
 <style>

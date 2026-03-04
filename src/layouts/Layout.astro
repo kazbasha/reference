@@ -61,6 +61,7 @@ const {
         color: #e8e4de;
         font-family: "ObviouslyWide", system-ui, -apple-system, sans-serif;
         overflow-x: hidden;
+        cursor: none;
       }
 
       h1, h2, h3, p {
@@ -92,6 +93,22 @@ const {
         85%  { transform: translate(2%,   9%);   }
         100% { transform: translate(0,    0);    }
       }
+
+      /* Custom cursor dot */
+      .cursor-dot {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 8px;
+        height: 8px;
+        background: #986edf;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        will-change: transform;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
     </style>
   </head>
   <body>
@@ -117,5 +134,42 @@ const {
     </svg>
 
     <slot />
+
+    <div class="cursor-dot" id="cursor-dot"></div>
+
+    <script>
+      const dot = document.getElementById("cursor-dot") as HTMLElement;
+      const R = 4; // half of 8px dot
+      let mx = 0, my = 0;
+      let cx = 0, cy = 0;
+      let visible = false;
+
+      document.addEventListener("mousemove", (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+        if (!visible) {
+          // Snap to position on first move so it doesn't slide in from (0,0)
+          cx = mx; cy = my;
+          dot.style.opacity = "1";
+          visible = true;
+        }
+      });
+
+      document.addEventListener("mouseleave", () => {
+        dot.style.opacity = "0";
+        visible = false;
+      });
+
+      document.addEventListener("mouseenter", () => {
+        if (visible) dot.style.opacity = "1";
+      });
+
+      (function animate() {
+        cx += (mx - cx) * 0.12;
+        cy += (my - cy) * 0.12;
+        dot.style.transform = `translate(${cx - R}px, ${cy - R}px)`;
+        requestAnimationFrame(animate);
+      })();
+    </script>
   </body>
 </html>

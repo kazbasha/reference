@@ -60,7 +60,7 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
-    opacity: 0.45;
+    opacity: 1;
     /* Slightly oversized so parallax shift never reveals edges */
     transform: scale(1.12);
     will-change: transform;
@@ -91,10 +91,10 @@
     background:
       linear-gradient(
         to bottom,
-        rgba(10, 10, 10, 0.5) 0%,
-        transparent 25%,
-        transparent 70%,
-        rgba(10, 10, 10, 0.9) 100%
+        rgba(10, 10, 10, 0.1) 0%,
+        transparent 15%,
+        transparent 80%,
+        rgba(10, 10, 10, 0.35) 100%
       );
     pointer-events: none;
   }
@@ -107,9 +107,12 @@
   }
 
   .hero-logo {
-    width: clamp(260px, 52vw, 860px);
+    width: clamp(180px, 36vw, 580px);
     height: auto;
     display: block;
+    will-change: transform;
+    /* Recolor logo to off-white #e8e4de: crush to black → invert to white → warm tint */
+    filter: brightness(0) invert(1) brightness(0.92) sepia(0.12);
     animation: logo-spin 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
   }
 
@@ -165,9 +168,11 @@
 </style>
 
 <script>
-  const hero = document.querySelector<HTMLElement>(".hero");
+  const hero  = document.querySelector<HTMLElement>(".hero");
   const video = document.querySelector<HTMLVideoElement>(".hero-video");
+  const logo  = document.querySelector<HTMLImageElement>(".hero-logo");
 
+  // ── Video parallax on scroll ──
   if (hero && video) {
     window.addEventListener(
       "scroll",
@@ -176,10 +181,54 @@
         const heroH = hero.offsetHeight;
         if (scrollY > heroH) return;
         const progress = scrollY / heroH;
-        // scale(1.12) provides ~6% buffer each side; max shift is 7% — safe
         video.style.transform = `scale(1.12) translateY(${-progress * 7}%)`;
       },
       { passive: true }
     );
+  }
+
+  // ── Logo 3D cursor tilt ──
+  if (hero && logo) {
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
+    let tiltActive = false;
+
+    // Wait for intro spin to finish, then release the animation so JS
+    // can own the transform. Without clearing it, fill-mode:both overrides
+    // inline styles in the cascade.
+    setTimeout(() => {
+      logo.style.animation = "none";
+      tiltActive = true;
+    }, 1800);
+
+    hero.addEventListener("mousemove", (e) => {
+      if (!tiltActive) return;
+      const rect = hero.getBoundingClientRect();
+      const cx = rect.left + rect.width  / 2;
+      const cy = rect.top  + rect.height / 2;
+      // Normalize -1 → 1 from center; clamp to prevent edge extremes
+      const nx = Math.max(-1, Math.min(1, (e.clientX - cx) / (rect.width  / 2)));
+      const ny = Math.max(-1, Math.min(1, (e.clientY - cy) / (rect.height / 2)));
+      targetY =  nx * 8;   // horizontal mouse → rotateY
+      targetX = -ny * 5;   // vertical mouse   → rotateX (inverted so it tips toward cursor)
+    });
+
+    hero.addEventListener("mouseleave", () => {
+      targetX = 0;
+      targetY = 0;
+    });
+
+    (function animate() {
+      const ease = 0.07;
+      currentX += (targetX - currentX) * ease;
+      currentY += (targetY - currentY) * ease;
+
+      if (tiltActive) {
+        logo.style.transform =
+          `perspective(1400px) rotateX(${currentX}deg) rotateY(${currentY}deg)`;
+      }
+
+      requestAnimationFrame(animate);
+    })();
   }
 </script>
