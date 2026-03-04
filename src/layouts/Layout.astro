@@ -51,7 +51,7 @@ const {
       }
 
       html {
-        scroll-behavior: smooth;
+        scroll-behavior: auto;
         overflow-x: hidden;
       }
 
@@ -138,6 +138,32 @@ const {
     <div class="cursor-dot" id="cursor-dot"></div>
 
     <script>
+      // ── Smooth scroll (fine pointer devices only) ──
+      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        let currentY = window.scrollY;
+        let velocity = 0;
+
+        window.addEventListener("wheel", (e) => {
+          e.preventDefault();
+          let delta = e.deltaY;
+          if (e.deltaMode === 1) delta *= 28;
+          if (e.deltaMode === 2) delta *= window.innerHeight;
+          velocity += delta * 0.14;              // dampen input heavily
+        }, { passive: false });
+
+        (function tick() {
+          velocity *= 0.80;                           // decay — eases out quickly
+          if (Math.abs(velocity) > 0.1) {
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            currentY = Math.max(0, Math.min(currentY + velocity, maxScroll));
+            window.scrollTo(0, currentY);
+          } else {
+            velocity = 0;
+          }
+          requestAnimationFrame(tick);
+        })();
+      }
+
       const dot = document.getElementById("cursor-dot") as HTMLElement;
       const R = 4; // half of 8px dot
       let mx = 0, my = 0;
@@ -165,8 +191,8 @@ const {
       });
 
       (function animate() {
-        cx += (mx - cx) * 0.12;
-        cy += (my - cy) * 0.12;
+        cx += (mx - cx) * 0.18;
+        cy += (my - cy) * 0.18;
         dot.style.transform = `translate(${cx - R}px, ${cy - R}px)`;
         requestAnimationFrame(animate);
       })();

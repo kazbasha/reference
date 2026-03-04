@@ -58,8 +58,8 @@ const blocks: [string, string][] = [
 <div class="manifesto">
   {
     blocks.map(([line1, line2], i) => (
-      <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0 }]}>
-        {i < 2 && (
+      <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0, "manifesto-block--first": i === 0, "manifesto-block--green": i === 1 }]}>
+        {i === 0 && (
           <svg
             class="perspective-grid"
             viewBox="0 0 1600 900"
@@ -100,8 +100,12 @@ const blocks: [string, string][] = [
         )}
         <div class="manifesto-inner" data-reveal>
           <p class="manifesto-line">{line1}</p>
-          <p class="manifesto-line manifesto-line--two">{line2}</p>
+          {i === 0
+            ? <p class="manifesto-line manifesto-line--two" set:html={line2.replace('Fuck', '<span class="burst-word">Fuck</span>')} />
+            : <p class="manifesto-line manifesto-line--two">{line2}</p>
+          }
         </div>
+        {i === 0 && <div class="burst-layer"></div>}
       </section>
     ))
   }
@@ -171,10 +175,50 @@ const blocks: [string, string][] = [
     background: #111111;
   }
 
+  .manifesto-block--green {
+    background: #071a0f;
+  }
+
   .manifesto-block--finale {
     background: #000000;
     min-height: 100svh;
     padding: 0; /* button is truly centred, no padding offset */
+  }
+
+  /* ── Moving background glow on first section ── */
+  .manifesto-block--first {
+    overflow: hidden;
+  }
+
+  .manifesto-block--first::before {
+    content: '';
+    position: absolute;
+    inset: -30%;
+    background: radial-gradient(
+      ellipse 55% 55% at 50% 50%,
+      rgba(152, 110, 223, 0.11) 0%,
+      transparent 65%
+    );
+    animation: glow-drift 14s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes glow-drift {
+    0%   { transform: translate(0%,   0%); }
+    25%  { transform: translate(18%, -12%); }
+    50%  { transform: translate(-12%, 16%); }
+    75%  { transform: translate(14%,  12%); }
+    100% { transform: translate(0%,   0%); }
+  }
+
+  /* ── Burst particle layer ── */
+  .burst-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 3;
   }
 
   /* ── Perspective grid ── */
@@ -185,6 +229,15 @@ const blocks: [string, string][] = [
     height: 100%;
     pointer-events: none;
     z-index: 0;
+  }
+
+  :global(.burst-word) {
+    transition: color 0.15s ease;
+    cursor: none;
+  }
+
+  :global(.burst-word:hover) {
+    color: #986edf;
   }
 
   /* ── Reveal state ── */
@@ -329,36 +382,43 @@ const blocks: [string, string][] = [
 
   document.querySelectorAll("[data-reveal]").forEach((el) => observer.observe(el));
 
-  // ── Subtle parallax on manifesto inner text ──
+  // ── Parallax + perspective on manifesto sections ──
   function applyParallax() {
-    const inners = document.querySelectorAll<HTMLElement>(
-      ".manifesto-inner.is-visible"
-    );
+    const inners = document.querySelectorAll<HTMLElement>(".manifesto-inner.is-visible");
     const vh = window.innerHeight;
 
     inners.forEach((inner) => {
-      const rect = inner.getBoundingClientRect();
-      // progress: -1 (below viewport center) → 0 (centered) → 1 (above)
+      const rect     = inner.getBoundingClientRect();
+      // progress: -1 (below center) → 0 (centered) → +1 (above center)
       const progress = (vh / 2 - (rect.top + rect.height / 2)) / vh;
-      // Clamp to prevent extreme values when section barely enters
-      const clamped = Math.max(-0.6, Math.min(0.6, progress));
-      inner.style.setProperty("--parallax-y", `${clamped * -22}px`);
+      const clamped  = Math.max(-0.8, Math.min(0.8, progress));
+      const translateY = clamped * -110;
+      const rotateX    = clamped *   7;  // degrees — tips toward/away from viewer
+      inner.style.transform = `perspective(900px) rotateX(${rotateX}deg) translateY(${translateY}px)`;
     });
   }
 
+  // ── Entire manifesto rises up as hero scrolls away ──
+  const manifestoEl = document.querySelector<HTMLElement>('.manifesto');
+
+  function applyEntrance() {
+    if (!manifestoEl) return;
+    const progress = Math.min(1, Math.max(0, window.scrollY / window.innerHeight));
+    // Pull the whole manifesto upward — sections travel together, no gaps
+    manifestoEl.style.transform = `translateY(${progress * -200}px)`;
+  }
+
   window.addEventListener("scroll", applyParallax, { passive: true });
+  window.addEventListener("scroll", applyEntrance, { passive: true });
   applyParallax();
+  applyEntrance();
 
 </script>
 
 <style>
-  /* Parallax Y applied via CSS variable set by JS */
+  /* Parallax transform applied directly via JS — no transition so it tracks scroll instantly */
   .manifesto-inner.is-visible {
-    transform: translateY(var(--parallax-y, 0px));
-    /* Override the reveal transform once visible — keep as custom prop */
-    transition:
-      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   /* Prevent the parallax transform competing with line transitions */
@@ -367,3 +427,65 @@ const blocks: [string, string][] = [
     transform: none;
   }
 </style>
+
+<script>
+  const burstWord  = document.querySelector('.burst-word');
+  const burstLayer = document.querySelector<HTMLElement>('.burst-layer');
+
+  if (burstWord && burstLayer) {
+    const word = burstWord as Element;
+    function rand(a: number, b: number) { return a + Math.random() * (b - a); }
+
+    const BG = `fill="#e8e4de"`;
+    const S  = `stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"`;
+    const H  = `<circle cx="20" cy="20" r="17" ${BG}/>`;   // filled head
+    const FACES = [
+      // WOW — round eyes, raised brows, O-mouth
+      `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<path d="M9,10 Q13,7 17,10"/><path d="M23,10 Q27,7 31,10"/><circle cx="13" cy="16" r="3.5"/><circle cx="27" cy="16" r="3.5"/><ellipse cx="20" cy="27" rx="5" ry="5.5"/></svg>`,
+      // LAUGHING — squint eyes, open grin
+      `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<path d="M9,15 Q13,10 17,15"/><path d="M23,15 Q27,10 31,15"/><path d="M10,23 Q15,21 20,22 Q25,21 30,23"/><path d="M10,23 Q20,36 30,23"/></svg>`,
+      // SHOCKED — rect eyes, raised brows, oval mouth
+      `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<path d="M9,10 Q13,7 17,10"/><path d="M23,10 Q27,7 31,10"/><rect x="10" y="12" width="8" height="7" rx="1"/><rect x="22" y="12" width="8" height="7" rx="1"/><ellipse cx="20" cy="28" rx="5" ry="5.5"/></svg>`,
+      // THINKING — one raised brow, eyes looking up, chin touch
+      `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<path d="M9,13 Q13,10 17,13"/><path d="M22,11 Q27,8 31,12"/><circle cx="13" cy="17" r="2.5"/><circle cx="27" cy="15" r="2.5"/><path d="M15,27 Q18,25 22,26"/><path d="M26,31 Q28,29 30,27"/></svg>`,
+      // CRAZY — swirl eye + X eye, wavy grin
+      `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<circle cx="13" cy="16" r="5"/><circle cx="13" cy="16" r="2"/><path d="M23,11 L31,21"/><path d="M31,11 L23,21"/><path d="M9,27 Q12,24 15,27 Q18,30 21,27 Q24,24 27,27"/></svg>`,
+      // SMUG — arched brow, hooded eye, lopsided smirk
+      `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<path d="M9,12 Q13,9 17,12"/><path d="M22,10 Q27,8 31,12"/><circle cx="13" cy="17" r="2.5"/><circle cx="27" cy="16" r="2.5"/><path d="M24,13.5 Q27,12 30,13.5"/><path d="M13,26 Q18,24 22,26 Q26,29 28,27"/></svg>`,
+      // STAR-EYED — asterisk eyes, big smile
+      `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<path d="M13,10.5 L13,20.5 M8,15.5 L18,15.5 M9.5,12 L16.5,19 M16.5,12 L9.5,19"/><path d="M27,10.5 L27,20.5 M22,15.5 L32,15.5 M23.5,12 L30.5,19 M30.5,12 L23.5,19"/><path d="M10,26 Q20,36 30,26"/></svg>`,
+      // DISGUSTED — furrowed brows, squinted lines, frown
+      `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<path d="M9,14 Q13,17 17,14"/><path d="M23,14 Q27,17 31,14"/><line x1="10" y1="17" x2="16" y2="17"/><line x1="24" y1="17" x2="30" y2="17"/><path d="M12,28 Q20,23 28,28"/></svg>`,
+    ];
+
+    function spawnBurst() {
+      const rect = word.getBoundingClientRect();
+
+      for (let i = 0; i < 8; i++) {
+        const size = rand(48, 72);
+        const el   = document.createElement('div');
+        el.style.cssText = `position:fixed;pointer-events:none;z-index:9998;width:${size}px;height:${size}px;top:0;left:0;`;
+        el.innerHTML = FACES[Math.floor(Math.random() * FACES.length)];
+        document.body.appendChild(el);
+
+        let x   = rect.left + rand(0, rect.width)  - size / 2;
+        let y   = rect.top  + rand(-6, 6)           - size / 2;
+        let vx  = rand(-9, 9);
+        let vy  = rand(-13, -5);
+        let rot = rand(0, 360);
+        const vr = rand(-6, 6);
+        (function tick() {
+          vy  += 0.6;
+          x   += vx;
+          y   += vy;
+          rot += vr;
+          el.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg)`;
+          if (y < window.innerHeight + size) requestAnimationFrame(tick);
+          else el.remove();
+        })();
+      }
+    }
+
+    word.addEventListener('mouseenter', spawnBurst);
+  }
+</script>

@@ -172,8 +172,11 @@
   const video = document.querySelector<HTMLVideoElement>(".hero-video");
   const logo  = document.querySelector<HTMLImageElement>(".hero-logo");
 
-  // ── Video parallax on scroll ──
-  if (hero && video) {
+  // ── Parallax on scroll ──
+  const heroContent = document.querySelector<HTMLElement>(".hero-content");
+  const scrollIndicator = document.querySelector<HTMLElement>(".scroll-indicator");
+
+  if (hero) {
     window.addEventListener(
       "scroll",
       () => {
@@ -181,7 +184,22 @@
         const heroH = hero.offsetHeight;
         if (scrollY > heroH) return;
         const progress = scrollY / heroH;
-        video.style.transform = `scale(1.12) translateY(${-progress * 7}%)`;
+
+        // Video drifts up slowly (deep layer)
+        if (video) {
+          video.style.transform = `scale(1.12) translateY(${-progress * 7}%)`;
+        }
+
+        // Logo drifts up at ~1/3 scroll speed and fades out (mid layer)
+        if (heroContent) {
+          heroContent.style.transform = `translateY(${-progress * 28}%)`;
+          heroContent.style.opacity = String(Math.max(0, 1 - progress * 2.2));
+        }
+
+        // Scroll indicator fades out quickly
+        if (scrollIndicator) {
+          scrollIndicator.style.opacity = String(Math.max(0, 1 - progress * 5));
+        }
       },
       { passive: true }
     );
