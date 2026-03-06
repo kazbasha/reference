@@ -1,0 +1,392 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Contact — Reference" description="Get in touch with Reference — Supersonic creative.">
+  <main class="contact-page">
+
+    <!-- Background grid -->
+    <svg class="contact-grid" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g stroke="#986edf" stroke-width="1" fill="none">
+        <line x1="0" y1="75"  x2="1600" y2="75"/>
+        <line x1="0" y1="150" x2="1600" y2="150"/>
+        <line x1="0" y1="225" x2="1600" y2="225"/>
+        <line x1="0" y1="300" x2="1600" y2="300"/>
+        <line x1="0" y1="375" x2="1600" y2="375"/>
+        <line x1="0" y1="450" x2="1600" y2="450"/>
+        <line x1="0" y1="525" x2="1600" y2="525"/>
+        <line x1="0" y1="600" x2="1600" y2="600"/>
+        <line x1="0" y1="675" x2="1600" y2="675"/>
+        <line x1="0" y1="750" x2="1600" y2="750"/>
+        <line x1="0" y1="825" x2="1600" y2="825"/>
+        <line x1="107"  y1="0" x2="107"  y2="900"/>
+        <line x1="214"  y1="0" x2="214"  y2="900"/>
+        <line x1="321"  y1="0" x2="321"  y2="900"/>
+        <line x1="428"  y1="0" x2="428"  y2="900"/>
+        <line x1="535"  y1="0" x2="535"  y2="900"/>
+        <line x1="642"  y1="0" x2="642"  y2="900"/>
+        <line x1="749"  y1="0" x2="749"  y2="900"/>
+        <line x1="856"  y1="0" x2="856"  y2="900"/>
+        <line x1="963"  y1="0" x2="963"  y2="900"/>
+        <line x1="1070" y1="0" x2="1070" y2="900"/>
+        <line x1="1177" y1="0" x2="1177" y2="900"/>
+        <line x1="1284" y1="0" x2="1284" y2="900"/>
+        <line x1="1391" y1="0" x2="1391" y2="900"/>
+        <line x1="1498" y1="0" x2="1498" y2="900"/>
+      </g>
+    </svg>
+
+    <div class="contact-inner">
+
+      <!-- Back link -->
+      <a class="back-link" href="/">
+        <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M0.646 5.354a.5.5 0 0 1 0-.708L4.293.999a.5.5 0 1 1 .707.708L1.707 5l3.293 3.293a.5.5 0 0 1-.707.708L.646 5.354zM16 5.5H1v-1h15v1z" fill="currentColor"/>
+        </svg>
+        Back
+      </a>
+
+      <!-- Heading -->
+      <div class="contact-heading" data-reveal>
+        <p class="contact-eyebrow">Get in touch</p>
+        <h1 class="contact-title">Let's<br/>Jam.</h1>
+      </div>
+
+      <!-- Form -->
+      <form class="contact-form" id="contact-form" novalidate data-reveal data-reveal-delay="0.18s">
+        <div class="field-row">
+          <div class="field">
+            <input class="field-input" id="name" name="name" type="text" placeholder=" " required autocomplete="name" />
+            <label class="field-label" for="name">Your name</label>
+          </div>
+          <div class="field">
+            <input class="field-input" id="company" name="company" type="text" placeholder=" " required autocomplete="organization" />
+            <label class="field-label" for="company">Company</label>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <input class="field-input" id="email" name="email" type="email" placeholder=" " required autocomplete="email" />
+            <label class="field-label" for="email">Email address</label>
+          </div>
+          <div class="field">
+            <input class="field-input" id="phone" name="phone" type="tel" placeholder=" " autocomplete="tel" />
+            <label class="field-label" for="phone">Phone — for a callback</label>
+          </div>
+        </div>
+        <div class="form-footer">
+          <button class="submit-btn" type="submit">
+            <span class="submit-label">Send it</span>
+            <span class="submit-arrow" aria-hidden="true">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 6.5H17M12 1l5.5 5.5L12 11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Success state (hidden by default) -->
+      <div class="contact-success" id="contact-success" aria-live="polite">
+        <p class="success-line">We've got your details.</p>
+        <p class="success-line success-line--two">We'll be in touch shortly.</p>
+      </div>
+
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .contact-page {
+    position: relative;
+    min-height: 100svh;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ── Background grid ── */
+  .contact-grid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    transform-origin: center;
+    animation: grid-pulse 4s linear infinite;
+  }
+
+  @keyframes grid-pulse {
+    0%   { transform: scale(1);    opacity: 0.10; }
+    8%   { transform: scale(1.07); opacity: 0.22; }
+    28%  { transform: scale(1);    opacity: 0.10; }
+    100% { transform: scale(1);    opacity: 0.10; }
+  }
+
+  /* ── Inner wrapper ── */
+  .contact-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: clamp(320px, 88vw, 900px);
+    padding: clamp(48px, 8vw, 100px) 0 clamp(60px, 8vw, 100px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(32px, 5vw, 60px);
+  }
+
+  /* ── Back link ── */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(232, 228, 222, 0.4);
+    text-decoration: none;
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+    align-self: flex-start;
+  }
+
+  .back-link:hover {
+    color: #986edf;
+  }
+
+  /* ── Heading ── */
+  .contact-heading {
+    opacity: 0;
+    transform: translateY(36px);
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .contact-heading.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .contact-eyebrow {
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #986edf;
+    margin-bottom: 0.6em;
+  }
+
+  .contact-title {
+    font-size: clamp(52px, 8vw, 120px);
+    font-weight: 500;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: #e8e4de;
+  }
+
+  /* ── Form ── */
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 3vw, 36px);
+    opacity: 0;
+    transform: translateY(36px);
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0s),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0s);
+  }
+
+  .contact-form.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(16px, 3vw, 48px);
+  }
+
+  @media (max-width: 600px) {
+    .field-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Floating label field ── */
+  .field {
+    position: relative;
+  }
+
+  .field-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(232, 228, 222, 0.15);
+    padding: 22px 0 10px;
+    font-family: "ObviouslyWide", system-ui, -apple-system, sans-serif;
+    font-size: clamp(13px, 1.1vw, 16px);
+    font-weight: 400;
+    color: #e8e4de;
+    outline: none;
+    transition: border-color 0.3s ease;
+    caret-color: #986edf;
+  }
+
+  .field-input:focus {
+    border-color: #986edf;
+  }
+
+  .field-label {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    font-size: clamp(11px, 0.9vw, 13px);
+    letter-spacing: 0.08em;
+    color: rgba(232, 228, 222, 0.38);
+    pointer-events: none;
+    transition:
+      top 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      font-size 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.22s ease;
+  }
+
+  /* Float label up when input has value or is focused */
+  .field-input:focus + .field-label,
+  .field-input:not(:placeholder-shown) + .field-label {
+    top: 4px;
+    font-size: clamp(9px, 0.65vw, 10px);
+    letter-spacing: 0.14em;
+    color: #986edf;
+  }
+
+  /* ── Form footer + submit ── */
+  .form-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: clamp(4px, 1vw, 12px);
+  }
+
+  .submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: transparent;
+    border: 1px solid rgba(152, 110, 223, 0.35);
+    border-radius: 4px;
+    padding: 14px 28px;
+    font-family: "ObviouslyWide", system-ui, -apple-system, sans-serif;
+    font-size: clamp(9px, 0.7vw, 11px);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #986edf;
+    cursor: none;
+    transition:
+      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s ease,
+      gap 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .submit-btn:hover {
+    background: #0d0318;
+    border-color: rgba(152, 110, 223, 0.7);
+    gap: 22px;
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .submit-arrow {
+    display: flex;
+    align-items: center;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .submit-btn:hover .submit-arrow {
+    transform: translateX(4px);
+  }
+
+  /* ── Success state ── */
+  .contact-success {
+    display: none;
+    flex-direction: column;
+    gap: 0.3em;
+  }
+
+  .contact-success.is-visible {
+    display: flex;
+  }
+
+  .success-line {
+    font-size: clamp(22px, 3.6vw, 58px);
+    font-weight: 400;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    color: #e8e4de;
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .success-line--two {
+    transition-delay: 0.14s;
+  }
+
+  .contact-success.is-visible .success-line {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+
+<script>
+  // ── Reveal on mount ──
+  const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
+  revealEls.forEach((el) => {
+    const delay = el.dataset.revealDelay ?? "0s";
+    el.style.setProperty("--reveal-delay", delay);
+    // Small rAF delay so the transition fires after paint
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => el.classList.add("is-visible"));
+    });
+  });
+
+  // ── Form submission ──
+  const form    = document.getElementById("contact-form") as HTMLFormElement | null;
+  const success = document.getElementById("contact-success") as HTMLElement | null;
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const btn = form.querySelector<HTMLButtonElement>(".submit-btn");
+    if (btn) btn.disabled = true;
+
+    const data = new FormData(form);
+
+    try {
+      // POST to /api/contact — wire up your own endpoint or form service here.
+      // Works out-of-the-box with Netlify Forms (add data-netlify="true" to the form).
+      await fetch("/api/contact", {
+        method: "POST",
+        body: data,
+      });
+    } catch {
+      // Silently proceed to success — the endpoint may not exist yet.
+    }
+
+    // Show success state
+    form.style.transition = "opacity 0.4s ease";
+    form.style.opacity = "0";
+    setTimeout(() => {
+      form.style.display = "none";
+      if (success) {
+        success.classList.add("is-visible");
+      }
+    }, 400);
+  });
+</script>
