@@ -2,7 +2,7 @@
 const blocks: [string, string][] = [
   [
     "Every great idea starts with a reference.",
-    "You see it and think\u00a0\u201cFuck\u2026 I wish I\u2019d done that\u201d",
+    "You see it and think\u00a0\u201cFuck I wish I\u2019d done that\u201d",
   ],
   [
     "That kind of work is an unfair advantage.",
@@ -13,12 +13,12 @@ const blocks: [string, string][] = [
     "We started listening to every opinion.",
   ],
   [
-    "We began calling anything\u2026creative.",
+    "We began calling anything creative.",
     "Stopped working with our own hands.",
   ],
   [
-    "That made the work shite.",
-    "And slow. And expensive.",
+    "That made the work slow,",
+    "expensive and shite.",
   ],
   [
     "Budgets shrank.",
@@ -138,12 +138,7 @@ const ads = [
           : <div class="manifesto-inner" data-reveal>
               {i === 0
                 ? <p class="manifesto-line" set:html={`${line1} ${line2.replace('Fuck', '<span class="burst-word">Fuck</span>')}`} />
-                : i === 2
-                  ? <p class="manifesto-line">{line1} {line2}</p>
-                  : <>
-                      <p class="manifesto-line">{line1}</p>
-                      <p class="manifesto-line manifesto-line--two">{line2}</p>
-                    </>
+                : <p class="manifesto-line">{line1} {line2}</p>
               }
             </div>
         }

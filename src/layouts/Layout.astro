@@ -176,6 +176,68 @@ const {
         opacity: 0;
         transition: opacity 0.2s ease;
       }
+
+      /* Music toggle */
+      .music-toggle {
+        position: fixed;
+        right: 20px;
+        bottom: 24px;
+        z-index: 8000;
+        background: none;
+        border: none;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 7px;
+        font-family: "ObviouslyWide", system-ui, sans-serif;
+        font-size: 9px;
+        font-weight: 400;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: rgba(232, 228, 222, 0.35);
+        writing-mode: vertical-rl;
+        transition: color 0.25s ease;
+      }
+
+      .music-toggle:hover {
+        color: rgba(232, 228, 222, 0.8);
+      }
+
+      .music-toggle__dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+        transition: background 0.25s ease;
+      }
+
+      .music-toggle.is-playing {
+        color: rgba(232, 228, 222, 0.6);
+      }
+
+      .music-toggle.is-playing .music-toggle__dot {
+        background: #986edf;
+        animation: dot-pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes dot-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: 0.4; transform: scale(0.65); }
+      }
+
+      .music-toggle--on-light {
+        color: rgba(26, 26, 26, 0.45);
+      }
+
+      .music-toggle--on-light:hover {
+        color: rgba(26, 26, 26, 0.8);
+      }
+
+      .music-toggle--on-light.is-playing {
+        color: rgba(26, 26, 26, 0.6);
+      }
     </style>
   </head>
   <body>
@@ -202,6 +264,16 @@ const {
     <slot />
 
     <div class="cursor-dot" id="cursor-dot"></div>
+
+    <!-- Background music -->
+    <audio id="bg-music" loop preload="none">
+      <source src="/audio/website-audio.ogg" type="audio/ogg" />
+    </audio>
+
+    <button class="music-toggle" id="music-toggle" aria-label="Toggle music">
+      <span class="music-toggle__dot"></span>
+      <span class="music-toggle__text">Music On</span>
+    </button>
 
     <script>
       // ── Smooth scroll (non-Safari fine pointer devices only) ──
@@ -292,6 +364,62 @@ const {
           if (e.clientX >= r.left && e.clientX <= r.right &&
               e.clientY >= r.top  && e.clientY <= r.bottom) {
             window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        });
+      }
+
+      // ── Music toggle ──
+      const music       = document.getElementById("bg-music") as HTMLAudioElement;
+      const musicToggle = document.getElementById("music-toggle") as HTMLButtonElement;
+
+      if (music && musicToggle) {
+        const musicToggleText = musicToggle.querySelector(".music-toggle__text") as HTMLElement;
+
+        // Light/dark background detection
+        const lightSectionsForToggle = Array.from(document.querySelectorAll<HTMLElement>(
+          ".manifesto-block--first, .manifesto-block--third"
+        ));
+        function updateMusicToggleColor() {
+          const tr = musicToggle.getBoundingClientRect();
+          const onLight = lightSectionsForToggle.some((s) => {
+            const r = s.getBoundingClientRect();
+            return r.top < tr.bottom && r.bottom > tr.top;
+          });
+          musicToggle.classList.toggle("music-toggle--on-light", onLight);
+        }
+        window.addEventListener("scroll", updateMusicToggleColor, { passive: true });
+        updateMusicToggleColor();
+
+        function startMusic() {
+          music.play().then(() => {
+            musicToggle.classList.add("is-playing");
+            if (musicToggleText) musicToggleText.textContent = "Music On";
+          }).catch(() => {});
+        }
+
+        // Attempt autoplay immediately
+        startMusic();
+
+        // If blocked, play on first user interaction
+        function onFirstInteraction() {
+          if (music.paused) startMusic();
+          document.removeEventListener("click", onFirstInteraction);
+          document.removeEventListener("keydown", onFirstInteraction);
+          document.removeEventListener("touchstart", onFirstInteraction);
+        }
+        document.addEventListener("click", onFirstInteraction);
+        document.addEventListener("keydown", onFirstInteraction);
+        document.addEventListener("touchstart", onFirstInteraction);
+
+        musicToggle.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (music.paused) {
+            startMusic();
+            if (musicToggleText) musicToggleText.textContent = "Music On";
+          } else {
+            music.pause();
+            musicToggle.classList.remove("is-playing");
+            if (musicToggleText) musicToggleText.textContent = "Off";
           }
         });
       }
