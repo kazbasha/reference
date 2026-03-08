@@ -570,72 +570,76 @@ const ads = [
   const hscrollContainer = hscrollSection?.querySelector<HTMLElement>('.manifesto-hscroll');
   const hscrollText      = hscrollContainer?.querySelector<HTMLElement>('.manifesto-hscroll-text');
 
+  let adItems: HTMLElement[] = [];
+
   if (hscrollSection && hscrollContainer && hscrollText) {
-    const section   = hscrollSection;
-    const container = hscrollContainer;
-    const text      = hscrollText;
-    const adItems   = Array.from(container.querySelectorAll<HTMLElement>('.ad-item'));
-    // Assign staggered exit thresholds: items that appeared first exit first, spread 0.74→0.97
+    adItems = Array.from(hscrollContainer.querySelectorAll<HTMLElement>('.ad-item'));
     const sortedByEntry = [...adItems].sort((a, b) =>
       parseFloat(a.dataset.threshold ?? '0') - parseFloat(b.dataset.threshold ?? '0')
     );
     sortedByEntry.forEach((item, i) => {
       item.dataset.exitThreshold = (0.74 + (i / (sortedByEntry.length - 1)) * 0.23).toFixed(3);
     });
-    // Size the section so scroll distance = full text travel (vpW → -textW)
-    const textW = text.scrollWidth;
+    const textW = hscrollText.scrollWidth;
     const vpW   = window.innerWidth;
     const vpH   = window.innerHeight;
-    section.style.minHeight = `${textW + vpW + vpH}px`;
-
-    function applyHscroll() {
-      const rect        = section.getBoundingClientRect();
-      const vh          = window.innerHeight;
-      const sh          = section.offsetHeight;
-      const active      = rect.top < vh && rect.bottom > 0;
-      container.style.opacity = active ? '1' : '0';
-      const scrollRange = sh - vh;
-      const progress    = Math.max(0, Math.min(1, -rect.top / scrollRange));
-      // Travel from right edge of viewport → fully off-screen left
-      const tw = text.scrollWidth;
-      const vw = window.innerWidth;
-      const tx = vw - progress * (vw + tw);
-      text.style.transform = `translateX(${tx}px)`;
-      adItems.forEach((item) => {
-        const enter = parseFloat(item.dataset.threshold ?? '0');
-        const exit  = parseFloat(item.dataset.exitThreshold ?? '1');
-        item.classList.toggle('is-visible', progress >= enter && progress < exit);
-      });
-    }
-
-    window.addEventListener("scroll", applyHscroll, { passive: true });
-    applyHscroll();
+    hscrollSection.style.minHeight = `${textW + vpW + vpH}px`;
   }
 
-  window.addEventListener("scroll", applyParallax, { passive: true });
-  applyParallax();
+  function applyHscroll() {
+    if (!hscrollSection || !hscrollContainer || !hscrollText) return;
+    const rect        = hscrollSection.getBoundingClientRect();
+    const vh          = window.innerHeight;
+    const sh          = hscrollSection.offsetHeight;
+    const active      = rect.top < vh && rect.bottom > 0;
+    hscrollContainer.style.opacity = active ? '1' : '0';
+    const scrollRange = sh - vh;
+    const progress    = Math.max(0, Math.min(1, -rect.top / scrollRange));
+    const tw = hscrollText.scrollWidth;
+    const vw = window.innerWidth;
+    const tx = vw - progress * (vw + tw);
+    hscrollText.style.transform = `translateX(${tx}px)`;
+    adItems.forEach((item) => {
+      const enter = parseFloat(item.dataset.threshold ?? '0');
+      const exit  = parseFloat(item.dataset.exitThreshold ?? '1');
+      item.classList.toggle('is-visible', progress >= enter && progress < exit);
+    });
+  }
 
   // ── Grid overlay: stays viewport-aligned, lines purple → dark as section scrolls in ──
   const thirdSection   = document.querySelector<HTMLElement>('.manifesto-block--third');
   const thirdGridSvg   = document.querySelector<SVGSVGElement>('.third-grid');
   const thirdGridGroup = document.querySelector<SVGGElement>('.third-grid-lines');
 
-  if (thirdSection && thirdGridSvg && thirdGridGroup) {
-    function applyGridColor() {
-      const rect = thirdSection!.getBoundingClientRect();
-      const vh   = window.innerHeight;
-      // Counter-scroll so the SVG stays pinned to the viewport top (matching fixed bg)
-      thirdGridSvg!.style.transform = `translateY(${-rect.top}px)`;
-      // Colour: starts matching purple bg (invisible), transitions to dark
-      const progress = Math.max(0, Math.min(1, (vh - rect.top) / vh));
-      const r = Math.round(0x98 + (0x1a - 0x98) * progress);
-      const g = Math.round(0x6e + (0x1a - 0x6e) * progress);
-      const b = Math.round(0xdf + (0x1a - 0xdf) * progress);
-      thirdGridGroup!.setAttribute('stroke', `rgb(${r},${g},${b})`);
-    }
-    window.addEventListener('scroll', applyGridColor, { passive: true });
+  function applyGridColor() {
+    if (!thirdSection || !thirdGridSvg || !thirdGridGroup) return;
+    const rect = thirdSection.getBoundingClientRect();
+    const vh   = window.innerHeight;
+    thirdGridSvg.style.transform = `translateY(${-rect.top}px)`;
+    const progress = Math.max(0, Math.min(1, (vh - rect.top) / vh));
+    const r = Math.round(0x98 + (0x1a - 0x98) * progress);
+    const g = Math.round(0x6e + (0x1a - 0x6e) * progress);
+    const b = Math.round(0xdf + (0x1a - 0xdf) * progress);
+    thirdGridGroup.style.stroke = `rgb(${r},${g},${b})`;
+  }
+
+  // ── Single RAF-throttled scroll handler ──
+  function runScrollHandlers() {
+    if (hscrollSection && hscrollContainer && hscrollText) applyHscroll();
+    applyParallax();
     applyGridColor();
   }
+
+  let scrollRaf = 0;
+  window.addEventListener("scroll", () => {
+    if (scrollRaf) return;
+    scrollRaf = requestAnimationFrame(() => {
+      runScrollHandlers();
+      scrollRaf = 0;
+    });
+  }, { passive: true });
+
+  runScrollHandlers();
 
 </script>
 

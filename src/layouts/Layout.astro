@@ -17,6 +17,10 @@ const {
     <title>{title}</title>
     <meta name="description" content={description} />
 
+    <style is:global>
+      *, *::before, *::after { cursor: none !important; }
+    </style>
+
     <style>
       @font-face {
         font-family: "ObviouslyWide";
@@ -79,42 +83,82 @@ const {
         opacity: 0.038;
       }
 
-      .grain rect {
-        animation: grain-shift 9s steps(7) infinite;
-      }
 
-      @keyframes grain-shift {
-        0%   { transform: translate(0,    0);    }
-        14%  { transform: translate(-6%, -10%);  }
-        28%  { transform: translate(4%,  -4%);   }
-        42%  { transform: translate(-3%,  7%);   }
-        57%  { transform: translate(6%,   3%);   }
-        71%  { transform: translate(-4%, -6%);   }
-        85%  { transform: translate(2%,   9%);   }
-        100% { transform: translate(0,    0);    }
-      }
-
-      /* Brand symbol */
-      .brand-symbol {
+      /* Brand mark */
+      .brand-mark {
         position: fixed;
         top: 24px;
         left: 24px;
         z-index: 8000;
         display: block;
-        width: 32px;
         height: 32px;
-        opacity: 0.9;
-        transition: opacity 0.2s ease;
+        width: 32px;
+        opacity: 0;
+        pointer-events: none; /* always none — hover/click handled in JS */
+        transition: opacity 0.4s ease, width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
-      .brand-symbol:hover {
+      .brand-mark.is-visible {
         opacity: 1;
       }
 
-      .brand-symbol img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
+      .brand-mark__symbol,
+      .brand-mark__logo {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: left center;
+        pointer-events: none;
+        transition: opacity 0.25s ease, filter 0.3s ease;
+        /* Convert to white for dark-background sections */
+        filter: brightness(0) invert(1);
+      }
+
+      .brand-mark__symbol {
+        width: 32px;
+        height: 32px;
+        background-image: url('/brand/reference-symbol.svg');
+      }
+
+      .brand-mark__logo {
+        width: 160px;
+        height: 36px;
+        background-image: url('/brand/reference-logo.svg');
+        opacity: 0;
+        clip-path: inset(0 100% 8% 0);
+        transition: opacity 0s, filter 0.3s ease;
+      }
+
+      /* JS adds .is-hovered instead of :hover */
+      .brand-mark.is-hovered .brand-mark__symbol {
+        opacity: 0;
+      }
+
+      .brand-mark.is-hovered .brand-mark__logo {
+        opacity: 1;
+        animation: logo-wipe 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @keyframes logo-wipe {
+        from { clip-path: inset(0 100% 8% 0); }
+        to   { clip-path: inset(0 0%   8% 0); }
+      }
+
+      .brand-mark.is-hovered {
+        width: 160px;
+        height: 36px;
+      }
+
+      /* Inherit currentColor per section */
+      .brand-mark { color: #e8e4de; }
+      .brand-mark--on-light { color: #1a1a1a; }
+
+      /* Dark mode — off-white section */
+      .brand-mark--on-light .brand-mark__symbol,
+      .brand-mark--on-light .brand-mark__logo {
+        filter: brightness(0);
       }
 
       /* Custom cursor dot */
@@ -135,10 +179,11 @@ const {
     </style>
   </head>
   <body>
-    <!-- Brand symbol — top left -->
-    <a href="/" class="brand-symbol" aria-label="Reference">
-      <img src="/brand/reference-symbol.svg" alt="" width="32" height="32" />
-    </a>
+    <!-- Brand mark — top left, hidden until past hero -->
+    <div class="brand-mark" id="brand-mark" role="button" aria-label="Back to top">
+      <div class="brand-mark__symbol"></div>
+      <div class="brand-mark__logo"></div>
+    </div>
 
     <!-- Grain texture — feTurbulence fractalNoise -->
     <svg class="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -151,14 +196,7 @@ const {
         />
         <feColorMatrix type="saturate" values="0" />
       </filter>
-      <!-- Oversized rect so animated translate never reveals edges -->
-      <rect
-        width="200%"
-        height="200%"
-        x="-50%"
-        y="-50%"
-        filter="url(#grain-filter)"
-      />
+      <rect width="100%" height="100%" filter="url(#grain-filter)" />
     </svg>
 
     <slot />
@@ -166,13 +204,15 @@ const {
     <div class="cursor-dot" id="cursor-dot"></div>
 
     <script>
-      // ── Smooth scroll (fine pointer devices only) ──
-      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      // ── Smooth scroll (non-Safari fine pointer devices only) ──
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      if (!isSafari && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
         let currentY = window.scrollY;
         let velocity = 0;
 
         window.addEventListener("wheel", (e) => {
           e.preventDefault();
+          currentY = window.scrollY; // re-sync in case position changed externally
           let delta = e.deltaY;
           if (e.deltaMode === 1) delta *= 28;
           if (e.deltaMode === 2) delta *= window.innerHeight;
@@ -204,18 +244,9 @@ const {
         if (!visible) {
           // Snap to position on first move so it doesn't slide in from (0,0)
           cx = mx; cy = my;
-          dot.style.opacity = "1";
           visible = true;
         }
-      });
-
-      document.addEventListener("mouseleave", () => {
-        dot.style.opacity = "0";
-        visible = false;
-      });
-
-      document.addEventListener("mouseenter", () => {
-        if (visible) dot.style.opacity = "1";
+        dot.style.opacity = "1";
       });
 
       (function animate() {
@@ -224,6 +255,46 @@ const {
         dot.style.transform = `translate(${cx - R}px, ${cy - R}px)`;
         requestAnimationFrame(animate);
       })();
+
+      // ── Brand mark: hover + click via coordinate tracking (pointer-events stays none) ──
+      const brandMark     = document.getElementById("brand-mark") as HTMLElement;
+      if (brandMark) {
+        const hero          = document.querySelector<HTMLElement>(".hero");
+        const lightSections = Array.from(document.querySelectorAll<HTMLElement>(
+          ".manifesto-block--first, .manifesto-block--third"
+        ));
+
+        function updateBrandMark() {
+          const pastHero = hero
+            ? hero.getBoundingClientRect().bottom <= 0
+            : window.scrollY > window.innerHeight * 0.8;
+          brandMark.classList.toggle("is-visible", pastHero);
+          const onLight = lightSections.some((s) => {
+            const r = s.getBoundingClientRect();
+            return r.top < window.innerHeight && r.bottom > 0;
+          });
+          brandMark.classList.toggle("brand-mark--on-light", onLight);
+        }
+        window.addEventListener("scroll", updateBrandMark, { passive: true });
+        updateBrandMark();
+
+        // Hover: check if mouse is over the brand mark area on every mousemove
+        document.addEventListener("mousemove", (e) => {
+          const r = brandMark.getBoundingClientRect();
+          const over = e.clientX >= r.left && e.clientX <= r.right &&
+                       e.clientY >= r.top  && e.clientY <= r.bottom;
+          brandMark.classList.toggle("is-hovered", over);
+        });
+
+        // Click: scroll to top if click lands within brand mark bounds
+        document.addEventListener("click", (e) => {
+          const r = brandMark.getBoundingClientRect();
+          if (e.clientX >= r.left && e.clientX <= r.right &&
+              e.clientY >= r.top  && e.clientY <= r.bottom) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        });
+      }
     </script>
   </body>
 </html>
