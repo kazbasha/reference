@@ -115,7 +115,7 @@ const ads = [
 <div class="manifesto">
   {
     blocks.map(([line1, line2], i) => (
-      <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0, "manifesto-block--first": i === 0, "manifesto-block--green": i === 1 }]}>
+      <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0, "manifesto-block--first": i === 0, "manifesto-block--green": i === 1, "manifesto-block--third": i === 2 }]}>
         {i === 1
           ? <div class="manifesto-hscroll">
               {ads.map((ad) => {
@@ -138,14 +138,38 @@ const ads = [
           : <div class="manifesto-inner" data-reveal>
               {i === 0
                 ? <p class="manifesto-line" set:html={`${line1} ${line2.replace('Fuck', '<span class="burst-word">Fuck</span>')}`} />
-                : <>
-                    <p class="manifesto-line">{line1}</p>
-                    <p class="manifesto-line manifesto-line--two">{line2}</p>
-                  </>
+                : i === 2
+                  ? <p class="manifesto-line">{line1} {line2}</p>
+                  : <>
+                      <p class="manifesto-line">{line1}</p>
+                      <p class="manifesto-line manifesto-line--two">{line2}</p>
+                    </>
               }
             </div>
         }
         {i === 0 && <div class="burst-layer"></div>}
+        {i === 2 && (
+          <svg class="third-grid" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g class="third-grid-lines" stroke="#986edf" stroke-width="1" fill="none" opacity="0.35">
+              <line x1="0"    y1="0" x2="1600" y2="900"/>
+              <line x1="200"  y1="0" x2="1400" y2="900"/>
+              <line x1="400"  y1="0" x2="1200" y2="900"/>
+              <line x1="600"  y1="0" x2="1000" y2="900"/>
+              <line x1="800"  y1="0" x2="800"  y2="900"/>
+              <line x1="1000" y1="0" x2="600"  y2="900"/>
+              <line x1="1200" y1="0" x2="400"  y2="900"/>
+              <line x1="1400" y1="0" x2="200"  y2="900"/>
+              <line x1="1600" y1="0" x2="0"    y2="900"/>
+              <line x1="0" y1="112" x2="1600" y2="787"/>
+              <line x1="0" y1="225" x2="1600" y2="675"/>
+              <line x1="0" y1="337" x2="1600" y2="562"/>
+              <line x1="0" y1="450" x2="1600" y2="450"/>
+              <line x1="0" y1="562" x2="1600" y2="337"/>
+              <line x1="0" y1="675" x2="1600" y2="225"/>
+              <line x1="0" y1="787" x2="1600" y2="112"/>
+            </g>
+          </svg>
+        )}
       </section>
     ))
   }
@@ -263,6 +287,33 @@ const ads = [
 
   .manifesto-block--first .manifesto-line {
     color: #1a1a1a;
+  }
+
+  /* ── Third section: dark green bg, purple text ── */
+  .manifesto-block--third {
+    background: #986edf;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .manifesto-block--third .manifesto-line {
+    color: #1a1a1a;
+  }
+
+  .third-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .manifesto-block--third .manifesto-inner {
+    position: relative;
+    z-index: 1;
   }
 
   /* ── Horizontal scroll text (i===1) ── */
@@ -563,6 +614,28 @@ const ads = [
 
   window.addEventListener("scroll", applyParallax, { passive: true });
   applyParallax();
+
+  // ── Grid overlay: stays viewport-aligned, lines purple → dark as section scrolls in ──
+  const thirdSection   = document.querySelector<HTMLElement>('.manifesto-block--third');
+  const thirdGridSvg   = document.querySelector<SVGSVGElement>('.third-grid');
+  const thirdGridGroup = document.querySelector<SVGGElement>('.third-grid-lines');
+
+  if (thirdSection && thirdGridSvg && thirdGridGroup) {
+    function applyGridColor() {
+      const rect = thirdSection!.getBoundingClientRect();
+      const vh   = window.innerHeight;
+      // Counter-scroll so the SVG stays pinned to the viewport top (matching fixed bg)
+      thirdGridSvg!.style.transform = `translateY(${-rect.top}px)`;
+      // Colour: starts matching purple bg (invisible), transitions to dark
+      const progress = Math.max(0, Math.min(1, (vh - rect.top) / vh));
+      const r = Math.round(0x98 + (0x1a - 0x98) * progress);
+      const g = Math.round(0x6e + (0x1a - 0x6e) * progress);
+      const b = Math.round(0xdf + (0x1a - 0xdf) * progress);
+      thirdGridGroup!.setAttribute('stroke', `rgb(${r},${g},${b})`);
+    }
+    window.addEventListener('scroll', applyGridColor, { passive: true });
+    applyGridColor();
+  }
 
 </script>
 
