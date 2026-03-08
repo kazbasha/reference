@@ -523,6 +523,13 @@ const ads = [
     const container = hscrollContainer;
     const text      = hscrollText;
     const adItems   = Array.from(container.querySelectorAll<HTMLElement>('.ad-item'));
+    // Assign staggered exit thresholds: items that appeared first exit first, spread 0.74→0.97
+    const sortedByEntry = [...adItems].sort((a, b) =>
+      parseFloat(a.dataset.threshold ?? '0') - parseFloat(b.dataset.threshold ?? '0')
+    );
+    sortedByEntry.forEach((item, i) => {
+      item.dataset.exitThreshold = (0.74 + (i / (sortedByEntry.length - 1)) * 0.23).toFixed(3);
+    });
     // Size the section so scroll distance = full text travel (vpW → -textW)
     const textW = text.scrollWidth;
     const vpW   = window.innerWidth;
@@ -543,9 +550,9 @@ const ads = [
       const tx = vw - progress * (vw + tw);
       text.style.transform = `translateX(${tx}px)`;
       adItems.forEach((item) => {
-        if (progress >= parseFloat(item.dataset.threshold ?? '0')) {
-          item.classList.add('is-visible');
-        }
+        const enter = parseFloat(item.dataset.threshold ?? '0');
+        const exit  = parseFloat(item.dataset.exitThreshold ?? '1');
+        item.classList.toggle('is-visible', progress >= enter && progress < exit);
       });
     }
 
