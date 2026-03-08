@@ -108,14 +108,6 @@ const ads = [
       <line x1="0" y1="562" x2="1600" y2="337"/>
       <line x1="0" y1="675" x2="1600" y2="225"/>
       <line x1="0" y1="787" x2="1600" y2="112"/>
-      <line x1="0" y1="100" x2="1600" y2="100"/>
-      <line x1="0" y1="200" x2="1600" y2="200"/>
-      <line x1="0" y1="300" x2="1600" y2="300"/>
-      <line x1="0" y1="375" x2="1600" y2="375"/>
-      <line x1="0" y1="525" x2="1600" y2="525"/>
-      <line x1="0" y1="600" x2="1600" y2="600"/>
-      <line x1="0" y1="700" x2="1600" y2="700"/>
-      <line x1="0" y1="800" x2="1600" y2="800"/>
     </g>
   </svg>
 </div>
@@ -144,10 +136,12 @@ const ads = [
               <p class="manifesto-hscroll-text">{line1}{"   "}{line2}</p>
             </div>
           : <div class="manifesto-inner" data-reveal>
-              <p class="manifesto-line">{line1}</p>
               {i === 0
-                ? <p class="manifesto-line manifesto-line--two" set:html={line2.replace('Fuck', '<span class="burst-word">Fuck</span>')} />
-                : <p class="manifesto-line manifesto-line--two">{line2}</p>
+                ? <p class="manifesto-line" set:html={`${line1} ${line2.replace('Fuck', '<span class="burst-word">Fuck</span>')}`} />
+                : <>
+                    <p class="manifesto-line">{line1}</p>
+                    <p class="manifesto-line manifesto-line--two">{line2}</p>
+                  </>
               }
             </div>
         }
@@ -259,9 +253,16 @@ const ads = [
     100% { transform: translate(0%,   0%); }
   }
 
-  /* ── First section: no special bg needed, bg comes from .manifesto-bg ── */
+  /* ── First section: light background, inverted from the rest ── */
   .manifesto-block--first {
     overflow: hidden;
+    background: #e8e4de;
+    position: relative;
+    z-index: 1;
+  }
+
+  .manifesto-block--first .manifesto-line {
+    color: #1a1a1a;
   }
 
   /* ── Horizontal scroll text (i===1) ── */
@@ -586,7 +587,8 @@ const ads = [
     const word = burstWord as Element;
     function rand(a: number, b: number) { return a + Math.random() * (b - a); }
 
-    const BG = `fill="#e8e4de"`;
+    const FILL_COLORS = ['#e8e4de', '#986edf', '#1a5c3a'];
+    const BG = `fill="none"`;
     const S  = `stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"`;
     const H  = `<circle cx="20" cy="20" r="17" ${BG}/>`;   // filled head
     const FACES = [
@@ -614,7 +616,8 @@ const ads = [
       for (let i = 0; i < 8; i++) {
         const size = rand(48, 72);
         const el   = document.createElement('div');
-        el.style.cssText = `position:fixed;pointer-events:none;z-index:9998;width:${size}px;height:${size}px;top:0;left:0;`;
+        const bgColor = FILL_COLORS[Math.floor(Math.random() * FILL_COLORS.length)];
+        el.style.cssText = `position:fixed;pointer-events:none;z-index:9998;width:${size}px;height:${size}px;top:0;left:0;border-radius:50%;background:${bgColor};`;
         el.innerHTML = FACES[Math.floor(Math.random() * FACES.length)];
         document.body.appendChild(el);
 
