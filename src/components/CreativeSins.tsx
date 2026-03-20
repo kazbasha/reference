@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 
 const sins = [
@@ -19,16 +19,26 @@ const sins = [
   },
 ];
 
-function SinCard({ src, alt, text, idx }: { src: string; alt: string; text: string; idx: number }) {
+const offsets = [
+  { rotate: '-4deg', translateY: '18px',  maxW: '260px' },
+  { rotate:  '2deg', translateY: '-22px', maxW: '240px' },
+  { rotate:  '5deg', translateY: '8px',   maxW: '255px' },
+];
+
+function SinCard({ src, alt, text, idx, isTouch }: {
+  src: string; alt: string; text: string; idx: number; isTouch: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
+  const filterId = `edges-${idx}`;
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-9,  9]), { stiffness: 300, damping: 28 });
   const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [ 7, -7]), { stiffness: 300, damping: 28 });
-  const scale   = useSpring(hovered ? 1.04 : 1,                          { stiffness: 260, damping: 22 });
+  const scale   = useSpring(hovered ? 1.04 : 1, { stiffness: 260, damping: 22 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isTouch) return;
     const r = e.currentTarget.getBoundingClientRect();
     mouseX.set((e.clientX - r.left) / r.width  - 0.5);
     mouseY.set((e.clientY - r.top)  / r.height - 0.5);
@@ -42,28 +52,35 @@ function SinCard({ src, alt, text, idx }: { src: string; alt: string; text: stri
 
   return (
     <div
-      style={{ perspective: '700px' }}
+      style={{ perspective: isTouch ? 'none' : '700px' }}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => !isTouch && setHovered(true)}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={() => setHovered(true)}
+      onTouchEnd={() => setTimeout(() => setHovered(false), 1200)}
     >
-      {/* Edge-detection filter */}
-      <svg width="0" height="0" style={{ position: 'absolute', overflow: 'hidden' }} aria-hidden="true">
-        <defs>
-          <filter id={`edges-${idx}`} colorInterpolationFilters="sRGB" x="-5%" y="-5%" width="110%" height="110%">
-            <feConvolveMatrix in="SourceGraphic" kernelMatrix="-1 -1 -1  -1 8 -1  -1 -1 -1" order="3" divisor="1" result="edges"/>
-            <feComponentTransfer in="edges" result="bright">
-              <feFuncR type="linear" slope="6"/>
-              <feFuncG type="linear" slope="6"/>
-              <feFuncB type="linear" slope="6"/>
-            </feComponentTransfer>
-            <feMorphology in="bright" operator="dilate" radius="1"/>
-          </filter>
-        </defs>
-      </svg>
+      {/* Edge-detection filter — only on non-touch */}
+      {!isTouch && (
+        <svg width="0" height="0" style={{ position: 'absolute', overflow: 'hidden' }} aria-hidden="true">
+          <defs>
+            <filter id={filterId} colorInterpolationFilters="sRGB" x="-5%" y="-5%" width="110%" height="110%">
+              <feConvolveMatrix in="SourceGraphic" kernelMatrix="-1 -1 -1  -1 8 -1  -1 -1 -1" order="3" divisor="1" result="edges"/>
+              <feComponentTransfer in="edges" result="bright">
+                <feFuncR type="linear" slope="6"/>
+                <feFuncG type="linear" slope="6"/>
+                <feFuncB type="linear" slope="6"/>
+              </feComponentTransfer>
+              <feMorphology in="bright" operator="dilate" radius="1"/>
+            </filter>
+          </defs>
+        </svg>
+      )}
 
       <motion.div
-        style={{ rotateX, rotateY, scale, transformStyle: 'preserve-3d', position: 'relative' }}
+        style={isTouch
+          ? { scale, position: 'relative' }
+          : { rotateX, rotateY, scale, position: 'relative' }
+        }
         className="cursor-none"
       >
         {/* Subtle glow */}
@@ -86,7 +103,7 @@ function SinCard({ src, alt, text, idx }: { src: string; alt: string; text: stri
           transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         />
 
-        {/* Purple multiply overlay — tints image to match site palette */}
+        {/* Purple multiply overlay */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -97,21 +114,23 @@ function SinCard({ src, alt, text, idx }: { src: string; alt: string; text: stri
           }}
         />
 
-        {/* Edge-only image — fades in on hover */}
-        <motion.img
-          src={src}
-          alt={alt}
-          aria-hidden="true"
-          className="block w-full h-auto"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            mixBlendMode: 'screen',
-            filter: `url(#edges-${idx})`,
-          }}
-          animate={{ opacity: hovered ? 0.9 : 0 }}
-          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        />
+        {/* Edge-only image — desktop only */}
+        {!isTouch && (
+          <motion.img
+            src={src}
+            alt={alt}
+            aria-hidden="true"
+            className="block w-full h-auto"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              mixBlendMode: 'screen',
+              filter: `url(#${filterId})`,
+            }}
+            animate={{ opacity: hovered ? 0.9 : 0 }}
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          />
+        )}
 
         {/* Reveal text */}
         <motion.div
@@ -139,14 +158,13 @@ function SinCard({ src, alt, text, idx }: { src: string; alt: string; text: stri
   );
 }
 
-// Per-poster offsets: [rotate, translateY, scale]
-const offsets = [
-  { rotate: '-4deg',  translateY: '18px',  maxW: '260px' },
-  { rotate:  '2deg',  translateY: '-22px', maxW: '240px' },
-  { rotate:  '5deg',  translateY: '8px',   maxW: '255px' },
-];
-
 export default function CreativeSins() {
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    setIsTouch(!window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+  }, []);
+
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-center bg-transparent w-full max-w-4xl mx-auto px-6">
       {sins.map((sin, idx) => (
@@ -158,7 +176,7 @@ export default function CreativeSins() {
             transform: `rotate(${offsets[idx].rotate}) translateY(${offsets[idx].translateY})`,
           }}
         >
-          <SinCard {...sin} idx={idx} />
+          <SinCard {...sin} idx={idx} isTouch={isTouch} />
         </div>
       ))}
     </div>
