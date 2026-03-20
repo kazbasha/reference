@@ -160,20 +160,24 @@ function SinCard({ src, alt, text, idx, isTouch }: {
 
 export default function CreativeSins() {
   const [isTouch, setIsTouch] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setIsTouch(!window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+    const touch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const mobile = window.innerWidth < 768;
+    setIsTouch(touch);
+    setIsMobile(mobile);
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-center bg-transparent w-full max-w-4xl mx-auto px-6">
+    <div className="flex flex-col md:flex-row gap-3 md:gap-8 items-center justify-center bg-transparent w-full max-w-4xl mx-auto px-4">
       {sins.map((sin, idx) => (
         <div
           key={sin.src}
           className="w-full md:w-1/3"
           style={{
-            maxWidth: offsets[idx].maxW,
-            transform: `rotate(${offsets[idx].rotate}) translateY(${offsets[idx].translateY})`,
+            maxWidth: isMobile ? '160px' : offsets[idx].maxW,
+            transform: `rotate(${offsets[idx].rotate})`,
           }}
         >
           <SinCard {...sin} idx={idx} isTouch={isTouch} />
