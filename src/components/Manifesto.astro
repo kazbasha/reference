@@ -596,8 +596,11 @@ const ads = [
 
   document.querySelectorAll("[data-reveal]").forEach((el) => observer.observe(el));
 
-  // ── Parallax + perspective on manifesto sections ──
+  // ── Parallax + perspective on manifesto sections (desktop only) ──
+  const isTouch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
   function applyParallax() {
+    if (isTouch) return;
     const inners = document.querySelectorAll<HTMLElement>(".manifesto-inner.is-visible");
     const vh = window.innerHeight;
 
@@ -661,7 +664,7 @@ const ads = [
     if (!thirdSection || !thirdGridSvg || !thirdGridGroup) return;
     const rect = thirdSection.getBoundingClientRect();
     const vh   = window.innerHeight;
-    thirdGridSvg.style.transform = `translateY(${-rect.top}px)`;
+    if (!isTouch) thirdGridSvg.style.transform = `translateY(${-rect.top}px)`;
     const progress = Math.max(0, Math.min(1, (vh - rect.top) / vh));
     const r = Math.round(0x98 + (0x1a - 0x98) * progress);
     const g = Math.round(0x6e + (0x1a - 0x6e) * progress);
