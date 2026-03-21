@@ -109,7 +109,7 @@ const ads = [
 <div class="manifesto">
   {
     blocks.map(([line1, line2], i) => (
-      <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0, "manifesto-block--first": i === 0, "manifesto-block--green": i === 1, "manifesto-block--third": i === 2, "manifesto-block--words": i === 3 }]}>
+      <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0, "manifesto-block--first": i === 0, "manifesto-block--green": i === 1, "manifesto-block--third": i === 2, "manifesto-block--words": i === 3, "manifesto-block--bigger": i === 4 }]}>
         {i === 1
           ? <div class="manifesto-hscroll">
               {ads.map((ad) => {
@@ -137,6 +137,22 @@ const ads = [
           : i === 3
           ? <div class="word-scroll-overlay">
               <span class="word-scroll-word" aria-hidden="true"></span>
+              <span class="word-scroll-sr">{line1} {line2}</span>
+            </div>
+          : i === 4
+          ? <div class="bigger-overlay">
+              <div class="bigger-inner">
+                <p class="bigger-top"></p>
+                <div class="bigger-word-wrap">
+                  {'BIGGER'.split('').map(l => (
+                    <div class="bigger-letter-wrap">
+                      <div class="bigger-zone bigger-zone--top"><span class="bigger-glyph">{l}</span></div>
+                      <div class="bigger-zone bigger-zone--mid"><span class="bigger-glyph">{l}</span></div>
+                      <div class="bigger-zone bigger-zone--bot"><span class="bigger-glyph">{l}</span></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <span class="word-scroll-sr">{line1} {line2}</span>
             </div>
           : <div class="manifesto-inner" data-reveal>
@@ -555,6 +571,101 @@ const ads = [
     white-space: nowrap;
   }
 
+  /* ── Bigger section (i===4) ── */
+  .manifesto-block--bigger {
+    /* min-height set by JS */
+    background: transparent;
+  }
+
+  .bigger-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 50svh clamp(24px, 7vw, 100px) 0;
+    overflow: visible;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: 0;
+  }
+
+  .bigger-overlay.is-active {
+    opacity: 1;
+  }
+
+  .bigger-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: visible;
+  }
+
+  .bigger-top {
+    font-size: clamp(14px, 2.4vw, 39px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: #e8e4de;
+    line-height: 1.18;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  .bigger-top span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(-14px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .bigger-word-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin-top: 0.1em;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  /* Per-letter wrapper — three stacked zones, reads as one word */
+  .bigger-letter-wrap {
+    display: inline-flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  /* Each zone clips its copy of the glyph to its band only */
+  .bigger-zone {
+    overflow: hidden;
+    height: 0; /* driven by JS */
+    flex-shrink: 0;
+    position: relative; /* required for z-index in flex */
+  }
+
+  /* Top and bottom zones render above the mid zone so overlapping pixels hide the seam */
+  .bigger-zone--top,
+  .bigger-zone--bot {
+    z-index: 1;
+  }
+
+
+  .bigger-glyph {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 12vw, 180px);
+    font-weight: 400;
+    color: #e8e4de;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
+    position: relative; /* top offset set by JS per zone */
+  }
+
   /* ── Finale portal ── */
   .contact-grid {
     position: absolute;
@@ -726,11 +837,12 @@ const ads = [
   const wordSection = document.querySelector<HTMLElement>('.manifesto-block--words');
   const wordOverlay = wordSection?.querySelector<HTMLElement>('.word-scroll-overlay');
   const wordEl      = wordOverlay?.querySelector<HTMLElement>('.word-scroll-word');
-  const scrollWords = ['That', 'made', 'the', 'work', 'slow,', 'expensive', 'and', 'shite.', 'Budgets', 'shrank.', 'Big', 'names', 'faded.'];
+  const scrollWords   = ['That', 'made', 'the', 'work', 'slow,', 'expensive', 'and', 'shite.', 'Budgets', 'shrank.', 'Big', 'names', 'faded.'];
+  const purpleWords   = new Set(['slow,', 'expensive', 'shite.', 'shrank.', 'faded.']);
   let wordIdx = -1;
 
   if (wordSection) {
-    wordSection.style.minHeight = `${window.innerHeight * 2.5}px`;
+    wordSection.style.minHeight = `${window.innerHeight * 3.2}px`;
   }
 
   function applyWordScroll() {
@@ -750,22 +862,201 @@ const ads = [
       const isLast = idx === scrollWords.length - 1;
       wordEl.classList.remove('is-in');
       void wordEl.offsetWidth;
+      const isPurple = purpleWords.has(scrollWords[idx]);
+      wordEl.style.color = '';
+      const letterColor = (char: string) =>
+        isPurple && /[a-zA-Z]/.test(char) ? '#986edf' : '#e8e4de';
       if (isLast) {
         wordEl.innerHTML = '';
         scrollWords[idx].split('').forEach((char) => {
           const span = document.createElement('span');
           span.textContent = char;
           span.style.display = 'inline-block';
+          span.style.color = letterColor(char);
           const dissolveDelay = (0.4 + Math.random() * 1.4).toFixed(2);
           const dissolveDur   = (0.2 + Math.random() * 0.4).toFixed(2);
           span.style.animation = `letter-appear 0.25s cubic-bezier(0.16,1,0.3,1) forwards, letter-dissolve ${dissolveDur}s ease-in ${dissolveDelay}s forwards`;
           wordEl.appendChild(span);
         });
+      } else if (isPurple) {
+        const m = scrollWords[idx].match(/^([a-zA-Z]+)([^a-zA-Z]*)$/);
+        wordEl.innerHTML = m && m[2]
+          ? `<span style="color:#986edf">${m[1]}</span><span style="color:#e8e4de">${m[2]}</span>`
+          : `<span style="color:#986edf">${scrollWords[idx]}</span>`;
+        wordEl.classList.add('is-in');
       } else {
+        wordEl.style.color = '#e8e4de';
         wordEl.textContent = scrollWords[idx];
         wordEl.classList.add('is-in');
       }
     }
+  }
+
+  // ── Bigger section (i===4) ──
+  const biggerSection  = document.querySelector<HTMLElement>('.manifesto-block--bigger');
+  const biggerOverlay  = biggerSection?.querySelector<HTMLElement>('.bigger-overlay');
+  const biggerInner    = biggerOverlay?.querySelector<HTMLElement>('.bigger-inner');
+  const biggerTop      = biggerOverlay?.querySelector<HTMLElement>('.bigger-top');
+  const biggerWordWrap = biggerOverlay?.querySelector<HTMLElement>('.bigger-word-wrap');
+  const biggerTopText  = "Turns out the world doesn\u2019t need";
+  if (biggerSection) {
+    biggerSection.style.minHeight = `${window.innerHeight * 8}px`;
+  }
+
+  if (biggerTop) {
+    biggerTopText.split('').forEach((char) => {
+      const span = document.createElement('span');
+      span.textContent = char === ' ' ? '\u00a0' : char;
+      biggerTop.appendChild(span);
+    });
+  }
+
+  // ── Calibrate BIGGER font-size to match top line width ──
+  function calibrateBIGGERFontSize() {
+    if (!biggerTop || !biggerWordWrap) return;
+    const glyphs = Array.from(biggerWordWrap.querySelectorAll<HTMLElement>('.bigger-glyph'));
+    if (!glyphs.length) return;
+    glyphs.forEach(el => { el.style.fontSize = ''; }); // reset to CSS clamp before measuring
+    const topW   = biggerTop.offsetWidth;
+    const biggerW = biggerWordWrap.offsetWidth;
+    if (topW <= 0 || biggerW <= 0) return;
+    const currentFS = parseFloat(getComputedStyle(glyphs[0]).fontSize);
+    const newFS = Math.round(currentFS * topW / biggerW);
+    glyphs.forEach(el => { el.style.fontSize = `${newFS}px`; });
+    natLetterHeights.length = 0; // clear cached cap metrics — font size changed
+  }
+  document.fonts.ready.then(calibrateBIGGERFontSize);
+  window.addEventListener('resize', calibrateBIGGERFontSize, { passive: true });
+
+  // Per-letter zone split: top 70% fixed, mid 11% stretchable, bot 19% fixed
+  const TOP_FRAC = 0.70;
+  const BOT_FRAC = 0.19;
+
+  // Measure the actual ink bounds of Bebas Neue at a given fontSize using a canvas.
+  // Returns { leadingPx, capHeight } relative to the CSS em-box top.
+  function measureCapMetrics(fontSize: number): { leadingPx: number; capHeight: number } {
+    const cv  = document.createElement('canvas');
+    const cw  = Math.ceil(fontSize * 2);
+    const ch  = Math.ceil(fontSize * 2.5);
+    cv.width  = cw;
+    cv.height = ch;
+    const ctx = cv.getContext('2d')!;
+    ctx.font      = `400 ${fontSize}px 'Bebas Neue', sans-serif`;
+    ctx.fillStyle = '#fff';
+    // Draw 'G' at baseline = 1.8 × fontSize so the full cap fits in frame
+    const baseline = Math.round(fontSize * 1.8);
+    ctx.fillText('G', 2, baseline);
+    const { data } = ctx.getImageData(0, 0, cw, ch);
+    let inkTop = ch, inkBot = 0;
+    for (let y = 0; y < ch; y++)
+      for (let x = 0; x < cw; x++)
+        if (data[(y * cw + x) * 4 + 3] > 10) {
+          if (y < inkTop) inkTop = y;
+          if (y > inkBot) inkBot = y;
+        }
+    // Bebas Neue is all-caps: ink bottom ≈ baseline.
+    // CSS em-box top = baseline - ascender × fontSize (ascender ≈ 0.80 for Bebas Neue).
+    const cssEmTop  = baseline - Math.round(fontSize * 0.80);
+    const leadingPx = Math.max(0, inkTop - cssEmTop);
+    const capHeight = inkBot - inkTop + 1;
+    return { leadingPx, capHeight };
+  }
+
+  const natLetterHeights: number[] = [];
+
+  function applyBiggerSection() {
+    if (!biggerSection || !biggerOverlay || !biggerWordWrap || !biggerTop) return;
+    const rect   = biggerSection.getBoundingClientRect();
+    const vh     = window.innerHeight;
+    const sh     = biggerSection.offsetHeight;
+    const active = rect.top < vh && rect.bottom > 0;
+    biggerOverlay.classList.toggle('is-active', active);
+    if (!active) return;
+
+    const scrollRange = sh - vh;
+    const progress    = Math.max(0, Math.min(1, -rect.top / scrollRange));
+
+    // Top line: letters slide in left→right over first 20% of scroll
+    const topLetters = Array.from(biggerTop.children) as HTMLElement[];
+    topLetters.forEach((el, i) => {
+      const threshold = (i / Math.max(topLetters.length - 1, 1)) * 0.2;
+      const visible   = progress >= threshold;
+      el.style.opacity   = visible ? '1' : '0';
+      el.style.transform = visible ? 'translateX(0)' : 'translateX(-14px)';
+    });
+
+    biggerWordWrap.style.opacity = progress >= 0.08 ? '1' : '0';
+
+    // Translate inner up when BIGGER overflows the lower half of the viewport
+    if (biggerInner) {
+      const topLineH  = biggerTop.offsetHeight;
+      const biggerH   = biggerWordWrap.offsetHeight;
+      const overflowY = Math.max(0, topLineH + biggerH - vh * 0.5);
+      biggerInner.style.transform = `translateY(-${overflowY}px)`;
+    }
+
+    // Mid zone stretches the 11% cap strip to fill the gap between top and bottom slices
+    // sy 1→15: MID_FRAC=0.11 × 15 gives ~2.5× cap height at full scroll
+    const stretchLocal = Math.max(0, Math.min(1, (progress - 0.38) / 0.62));
+    const sy = 1 + stretchLocal * 14;
+
+    const wraps = Array.from(biggerWordWrap.querySelectorAll<HTMLElement>('.bigger-letter-wrap'));
+    wraps.forEach((wrap, i) => {
+      const topZone  = wrap.children[0] as HTMLElement;
+      const midZone  = wrap.children[1] as HTMLElement;
+      const botZone  = wrap.children[2] as HTMLElement;
+      const topGlyph = topZone?.firstElementChild as HTMLElement;
+      const midGlyph = midZone?.firstElementChild as HTMLElement;
+      const botGlyph = botZone?.firstElementChild as HTMLElement;
+      if (!topGlyph || !midGlyph || !botGlyph) return;
+
+      // Cache natural height + set static glyph offsets once per letter
+      if (!natLetterHeights[i]) {
+        const fontSize = parseFloat(getComputedStyle(topGlyph).fontSize);
+        const { leadingPx, capHeight } = measureCapMetrics(fontSize);
+        natLetterHeights[i] = capHeight; // natH = actual measured cap height
+        const nh = natLetterHeights[i];
+        const tH = Math.round(nh * TOP_FRAC);
+        const mH = Math.round(nh * (1 - TOP_FRAC - BOT_FRAC));
+        // Overlap in px: top/bot zones extend this many px into the mid zone
+        // so the seam never cuts through a curve
+        const ov = Math.round(nh * 0.04);
+        // Shift all glyphs up so cap-top aligns with each zone's top edge
+        topGlyph.style.top = `-${leadingPx}px`;
+        // Top zone eats into mid zone by ov px; negative margin keeps layout tight
+        topZone.style.marginBottom = `-${ov}px`;
+        // Mid glyph: show the 11% cap strip and stretch it downward from its top edge
+        midGlyph.style.top             = `-${leadingPx + tH}px`;
+        midGlyph.style.transformOrigin = `50% ${leadingPx + tH}px`;
+        // Bot zone starts ov px earlier into mid zone; negative margin keeps layout tight
+        botGlyph.style.top = `-${leadingPx + tH + mH - ov}px`;
+        botZone.style.marginTop = `-${ov}px`;
+      }
+
+      const natH = natLetterHeights[i];
+      const topH = Math.round(natH * TOP_FRAC);
+      const botH = Math.round(natH * BOT_FRAC);
+      const midH = natH - topH - botH;
+
+      // Phase 1 — reveal top→mid→bot, staggered by letter (progress 0.08 → 0.35)
+      const revealStart = 0.08 + i * 0.02;
+      const revealLocal = Math.max(0, Math.min(1, (progress - revealStart) / 0.18));
+      const revealEased = 1 - Math.pow(1 - revealLocal, 3);
+      const revealH     = revealEased * natH;
+
+      const ov        = Math.round(natH * 0.04);
+      const rawTopH   = Math.round(Math.min(revealH, topH));
+      // Once top is fully revealed, extend it by ov px into mid zone
+      const topZoneH  = revealH >= topH ? rawTopH + ov : rawTopH;
+      const midReveal = Math.max(0, Math.min(1, (revealH - topH) / midH));
+      const midZoneH  = Math.round(midReveal * midH * sy);
+
+      topZone.style.height = `${topZoneH}px`;
+      midZone.style.height = `${midZoneH}px`;
+      // Bottom zone always full height + overlap so it extends ov px into mid zone
+      botZone.style.height = `${botH + ov}px`;
+      midGlyph.style.transform = `scaleY(${sy})`;
+    });
   }
 
   // ── Grid overlay: stays viewport-aligned, lines purple → dark as section scrolls in ──
@@ -790,6 +1081,7 @@ const ads = [
     if (hscrollSection && hscrollContainer && hscrollText) applyHscroll();
     applyParallax();
     applyWordScroll();
+    applyBiggerSection();
     applyGridColor();
   }
 
