@@ -143,16 +143,28 @@ const ads = [
           ? <div class="bigger-overlay">
               <div class="bigger-inner">
                 <p class="bigger-top"></p>
-                <div class="bigger-word-wrap">
-                  {'BIGGER'.split('').map(l => (
-                    <div class="bigger-letter-wrap">
-                      <div class="bigger-zone bigger-zone--top"><span class="bigger-glyph">{l}</span></div>
-                      <div class="bigger-zone bigger-zone--mid"><span class="bigger-glyph">{l}</span></div>
-                      <div class="bigger-zone bigger-zone--bot"><span class="bigger-glyph">{l}</span></div>
-                    </div>
-                  ))}
+                <div class="bigger-word-area">
+                  <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:visible;pointer-events:none">
+                    <defs>
+                      <filter id="handdrawn-filter" x="-10%" y="-150%" width="120%" height="400%">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.72" numOctaves="2" seed="7" result="noise"/>
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+                      </filter>
+                    </defs>
+                  </svg>
+                  <div class="bigger-word-wrap">
+                    {'BIGGER'.split('').map(l => (
+                      <div class="bigger-letter-wrap">
+                        <div class="bigger-zone bigger-zone--top"><span class="bigger-glyph">{l}</span></div>
+                        <div class="bigger-zone bigger-zone--mid"><span class="bigger-glyph">{l}</span></div>
+                        <div class="bigger-zone bigger-zone--bot"><span class="bigger-glyph">{l}</span></div>
+                      </div>
+                    ))}
+                  </div>
+                  <div class="bigger-strike"></div>
                 </div>
               </div>
+              <p class="bigger-replace">It needs better.</p>
               <span class="word-scroll-sr">{line1} {line2}</span>
             </div>
           : <div class="manifesto-inner" data-reveal>
@@ -587,7 +599,7 @@ const ads = [
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 50svh clamp(24px, 7vw, 100px) 0;
+    padding: 44svh clamp(24px, 7vw, 100px) 0;
     overflow: visible;
     pointer-events: none;
     opacity: 0;
@@ -623,13 +635,49 @@ const ads = [
     transition: opacity 0.25s ease, transform 0.25s ease;
   }
 
+  .bigger-word-area {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0.1em;
+  }
+
   .bigger-word-wrap {
     display: flex;
     align-items: flex-start;
     gap: 0;
-    margin-top: 0.1em;
     opacity: 0;
     transition: opacity 0.25s ease;
+  }
+
+  .bigger-strike {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0;
+    height: 14px;
+    background: #e8230a;
+    transform: translateY(-50%);
+    pointer-events: none;
+    filter: url(#handdrawn-filter);
+    border-radius: 3px;
+  }
+
+  .bigger-replace {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(14px, 2.4vw, 39px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.18;
+    color: #e8e4de;
+    white-space: nowrap;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
   }
 
   /* Per-letter wrapper — three stacked zones, reads as one word */
@@ -898,9 +946,11 @@ const ads = [
   const biggerInner    = biggerOverlay?.querySelector<HTMLElement>('.bigger-inner');
   const biggerTop      = biggerOverlay?.querySelector<HTMLElement>('.bigger-top');
   const biggerWordWrap = biggerOverlay?.querySelector<HTMLElement>('.bigger-word-wrap');
+  const biggerStrike   = biggerOverlay?.querySelector<HTMLElement>('.bigger-strike');
+  const biggerReplace  = biggerOverlay?.querySelector<HTMLElement>('.bigger-replace');
   const biggerTopText  = "Turns out the world doesn\u2019t need";
   if (biggerSection) {
-    biggerSection.style.minHeight = `${window.innerHeight * 8}px`;
+    biggerSection.style.minHeight = `${window.innerHeight * 12}px`;
   }
 
   if (biggerTop) {
@@ -964,6 +1014,17 @@ const ads = [
 
   const natLetterHeights: number[] = [];
 
+  // Pre-compute seeded random cut directions for each letter in BIGGER (6 letters)
+  const _sr = (n: number) => (Math.abs(Math.sin(n * 127.1 + 311.7)) * 43758.5453) % 1;
+  const cutDirections = Array.from({ length: 6 }, (_, i) => ({
+    topX: (_sr(i * 7 + 0) - 0.5) * 340,      // ±170px horizontal
+    topY: -(_sr(i * 7 + 1) * 200 + 120),      // −120 to −320px (flies up)
+    topR: (_sr(i * 7 + 2) - 0.5) * 100,       // ±50deg rotation
+    botX: (_sr(i * 7 + 3) - 0.5) * 340,       // ±170px horizontal
+    botY:  _sr(i * 7 + 4) * 200 + 120,        // +120 to +320px (flies down)
+    botR: (_sr(i * 7 + 5) - 0.5) * 100,       // ±50deg rotation
+  }));
+
   function applyBiggerSection() {
     if (!biggerSection || !biggerOverlay || !biggerWordWrap || !biggerTop) return;
     const rect   = biggerSection.getBoundingClientRect();
@@ -976,29 +1037,48 @@ const ads = [
     const scrollRange = sh - vh;
     const progress    = Math.max(0, Math.min(1, -rect.top / scrollRange));
 
-    // Top line: letters slide in left→right over first 20% of scroll
+    // Top line: letters slide in — gated at 0.03 min so 'T' never appears alone
     const topLetters = Array.from(biggerTop.children) as HTMLElement[];
     topLetters.forEach((el, i) => {
-      const threshold = (i / Math.max(topLetters.length - 1, 1)) * 0.2;
+      const threshold = 0.03 + (i / Math.max(topLetters.length - 1, 1)) * 0.06;
       const visible   = progress >= threshold;
       el.style.opacity   = visible ? '1' : '0';
       el.style.transform = visible ? 'translateX(0)' : 'translateX(-14px)';
     });
 
-    biggerWordWrap.style.opacity = progress >= 0.08 ? '1' : '0';
-
-    // Translate inner up when BIGGER overflows the lower half of the viewport
+    // "Turns out…" and BIGGER travel up together until top line exits viewport (0.40 → 0.62)
+    const topExitLocal = Math.max(0, Math.min(1, (progress - 0.40) / 0.22));
+    const topExitE     = topExitLocal * topExitLocal; // ease-in: accelerates upward
+    const topLineH     = biggerTop.offsetHeight;
+    // Translate the full inner block — both lines move as one unit
     if (biggerInner) {
-      const topLineH  = biggerTop.offsetHeight;
-      const biggerH   = biggerWordWrap.offsetHeight;
-      const overflowY = Math.max(0, topLineH + biggerH - vh * 0.5);
-      biggerInner.style.transform = `translateY(-${overflowY}px)`;
+      biggerInner.style.transform = `translateY(-${topExitE * (vh * 0.5 + topLineH)}px)`;
+    }
+    // Keep top line fully opaque — no fade, it just travels out of frame
+
+    // BIGGER fade-in (0.04); fades out after cut (0.78 → 0.82)
+    const biggerFadeOut = Math.max(0, Math.min(1, (progress - 0.78) / 0.04));
+    biggerWordWrap.style.opacity = progress >= 0.04 ? String(1 - biggerFadeOut) : '0';
+
+    // Mid zone stretches: progress 0.10 → 0.55
+    const stretchLocal = Math.max(0, Math.min(1, (progress - 0.10) / 0.45));
+    const sy = 1 + stretchLocal * 14;
+
+    // Red strikethrough — only after "Turns out…" is gone (0.65 → 0.76), fades out (0.76 → 0.80)
+    const strikeP    = Math.max(0, Math.min(1, (progress - 0.65) / 0.11));
+    const strikeOutP = Math.max(0, Math.min(1, (progress - 0.76) / 0.04));
+    if (biggerStrike) {
+      const wordAreaTop = biggerStrike.parentElement!.getBoundingClientRect().top;
+      biggerStrike.style.width   = `${strikeP * 100}%`;
+      biggerStrike.style.opacity = String(1 - strikeOutP);
+      biggerStrike.style.top     = `${vh / 2 - wordAreaTop}px`;
     }
 
-    // Mid zone stretches the 11% cap strip to fill the gap between top and bottom slices
-    // sy 1→15: MID_FRAC=0.11 × 15 gives ~2.5× cap height at full scroll
-    const stretchLocal = Math.max(0, Math.min(1, (progress - 0.38) / 0.62));
-    const sy = 1 + stretchLocal * 14;
+    // "It needs better." fades in after strike (0.78 → 0.86)
+    if (biggerReplace) {
+      const replaceP = Math.max(0, Math.min(1, (progress - 0.78) / 0.08));
+      biggerReplace.style.opacity = String(replaceP);
+    }
 
     const wraps = Array.from(biggerWordWrap.querySelectorAll<HTMLElement>('.bigger-letter-wrap'));
     wraps.forEach((wrap, i) => {
@@ -1038,9 +1118,9 @@ const ads = [
       const botH = Math.round(natH * BOT_FRAC);
       const midH = natH - topH - botH;
 
-      // Phase 1 — reveal top→mid→bot, staggered by letter (progress 0.08 → 0.35)
-      const revealStart = 0.08 + i * 0.02;
-      const revealLocal = Math.max(0, Math.min(1, (progress - revealStart) / 0.18));
+      // Phase 1 — reveal top→mid→bot, staggered by letter (progress 0.04 → 0.18)
+      const revealStart = 0.04 + i * 0.01;
+      const revealLocal = Math.max(0, Math.min(1, (progress - revealStart) / 0.10));
       const revealEased = 1 - Math.pow(1 - revealLocal, 3);
       const revealH     = revealEased * natH;
 
@@ -1056,6 +1136,31 @@ const ads = [
       // Bottom zone always full height + overlap so it extends ov px into mid zone
       botZone.style.height = `${botH + ov}px`;
       midGlyph.style.transform = `scaleY(${sy})`;
+
+      // Per-letter cut: as red line passes each letter, halves fly apart dramatically
+      if (strikeP > 0 && biggerWordWrap) {
+        const wrapRect   = wrap.getBoundingClientRect();
+        const wwRect     = biggerWordWrap.getBoundingClientRect();
+        const letterMidX = wrapRect.left - wwRect.left + wrapRect.width * 0.5;
+        const lineX      = strikeP * biggerWordWrap.offsetWidth;
+        // 0 = line hasn't reached this letter, 1 = fully cut (transition over 25% of letter width)
+        const cutP = Math.max(0, Math.min(1, (lineX - letterMidX) / (wrapRect.width * 0.25)));
+        if (cutP > 0) {
+          // Ease-in-cubic: pieces accelerate as they fly
+          const cutE = cutP * cutP * cutP;
+          const dir  = cutDirections[i];
+          // Collapse the mid zone immediately so no stretched strip shows between the flying halves
+          midZone.style.height = `${Math.round(midZoneH * Math.max(0, 1 - cutP * 4))}px`;
+          topZone.style.transform = `translate(${dir.topX * cutE}px, ${dir.topY * cutE}px) rotate(${dir.topR * cutE}deg)`;
+          botZone.style.transform = `translate(${dir.botX * cutE}px, ${dir.botY * cutE}px) rotate(${dir.botR * cutE}deg)`;
+        } else {
+          topZone.style.transform = '';
+          botZone.style.transform = '';
+        }
+      } else {
+        topZone.style.transform = '';
+        botZone.style.transform = '';
+      }
     });
   }
 
