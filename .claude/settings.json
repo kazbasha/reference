@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx astro:*)",
+      "Bash(node -e \"const fs = require\\(''fs''\\); const content = fs.readFileSync\\(''src/components/Manifesto.astro'', ''utf8''\\); const matches = content.match\\(/applyBiggerSection/g\\); console.log\\(''applyBiggerSection occurrences:'', matches ? matches.length : 0\\);\")"
+    ]
+  }
+}

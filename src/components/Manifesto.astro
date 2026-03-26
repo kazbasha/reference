@@ -1,5 +1,33 @@
 ---
 import CreativeSins from './CreativeSins.tsx';
+
+const introSlides = [
+  {
+    title: "Run like\na band",
+    body: "Small. Tight. Experienced. Hands-on from start to finish. No passengers. Everyone plays. No one's just holding a tambourine.",
+  },
+  {
+    title: "Dangerously\nfast",
+    body: "Because we're run like a band. The same people thinking it, making it, and delivering it. No layers. No delays.",
+  },
+  {
+    title: "End-\nto-end",
+    body: "Strategy to concept to execution. We stay on it the whole way. Because the best work falls apart the moment it's handed over.",
+  },
+  {
+    title: "The right\ntalent",
+    body: "We bring in the right people when required. People we trust, we've worked with. Not whoever's free on Tuesday.",
+  },
+  {
+    title: "We really\ncare",
+    body: "Taste. Detail. Standards. We sweat the bits others rush past. Because we're sick of all the slop.",
+  },
+  {
+    title: "Our\npartners",
+    body: "Brands, agencies, production houses, directors. The ones who give a shit about the work. They come back for a reason.",
+  },
+];
+
 const blocks: [string, string][] = [
   [
     "Every great idea starts with a reference.",
@@ -24,22 +52,6 @@ const blocks: [string, string][] = [
   [
     "Introducing Reference.",
     "A creative studio run like a band.",
-  ],
-  [
-    "Small. Experienced. Hands-on.",
-    "Dangerously fast.",
-  ],
-  [
-    "From strategy to ideas to execution.",
-    "We handle it all.",
-  ],
-  [
-    "Bringing in the right talent for the job.",
-    "Not whoever\u2019s available on Tuesday.",
-  ],
-  [
-    "Because we care about the work.",
-    "And we\u2019re sick of all the slop.",
   ],
   [
     "We\u2019re not here to follow the reference.",
@@ -109,7 +121,8 @@ const ads = [
 <div class="manifesto">
   {
     blocks.map(([line1, line2], i) => (
-      <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0, "manifesto-block--first": i === 0, "manifesto-block--green": i === 1, "manifesto-block--third": i === 2, "manifesto-block--words": i === 3, "manifesto-block--bigger": i === 4 }]}>
+      <Fragment>
+      <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0, "manifesto-block--first": i === 0, "manifesto-block--green": i === 1, "manifesto-block--third": i === 2, "manifesto-block--words": i === 3, "manifesto-block--bigger": i === 4, "manifesto-block--intro": i === 5, "manifesto-block--closing": i === 6 }]}>
         {i === 1
           ? <div class="manifesto-hscroll">
               {ads.map((ad) => {
@@ -131,7 +144,11 @@ const ads = [
             </div>
           : i === 2
           ? <div class="lost-diagram" data-reveal>
-              <p class="lost-diagram__headline">{line1}</p>
+              <p class="lost-diagram__headline" aria-label={line1}>
+                {line1.split(' ').map((word, wi) => (
+                  <span class="lost-word" data-wi={wi}>{word}&nbsp;</span>
+                ))}
+              </p>
               <CreativeSins client:visible />
             </div>
           : i === 3
@@ -167,6 +184,30 @@ const ads = [
               <p class="bigger-replace">It needs better.</p>
               <span class="word-scroll-sr">{line1} {line2}</span>
             </div>
+          : i === 5
+          ? <div class="intro-inner" data-reveal>
+              <div class="intro-headline">
+                <span class="intro-say">Say hello to</span>
+                <span class="intro-say intro-say--brand">Reference.</span>
+              </div>
+              <div class="intro-slider">
+                <div class="intro-slides-track">
+                  {introSlides.map((slide) => (
+                    <div class="intro-slide">
+                      <h3 class="intro-slide-title" set:html={slide.title.replace('\n', '<br/>')} />
+                      <p class="intro-slide-body">{slide.body}</p>
+                    </div>
+                  ))}
+                </div>
+                <div class="intro-slider-nav">
+                  <span class="intro-slider-counter">01 / 06</span>
+                  <div class="intro-slider-arrows">
+                    <button class="intro-slider-btn intro-slider-prev" aria-label="Previous">←</button>
+                    <button class="intro-slider-btn intro-slider-next" aria-label="Next">→</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           : <div class="manifesto-inner" data-reveal>
               {i === 0
                 ? <p class="manifesto-line" set:html={`${line1} ${line2.replace('Fuck', '<span class="burst-word">Fuck</span>')}`} />
@@ -198,6 +239,33 @@ const ads = [
           </svg>
         )}
       </section>
+      {i === 5 && (
+        <div class="partners-bar" aria-label="Our partners">
+          <div class="partners-track">
+            {[
+              { src: "/images/Partners-Copa90-2.jpg",   alt: "Copa90" },
+              { src: "/images/Partners-Goodpeople.jpg", alt: "Good People" },
+              { src: "/images/Partners-Ogilvy.jpg",     alt: "Ogilvy" },
+              { src: "/images/Partners-StudioOne.jpg",  alt: "Studio One" },
+              { src: "/images/Partners-TeamLewis.jpg",  alt: "Team Lewis" },
+              { src: "/images/Partners-VML.jpg",        alt: "VML" },
+              { src: "/images/Partners-Vice.jpg",       alt: "Vice" },
+              { src: "/images/Partners-Copa90-2.jpg",   alt: "Copa90" },
+              { src: "/images/Partners-Goodpeople.jpg", alt: "Good People" },
+              { src: "/images/Partners-Ogilvy.jpg",     alt: "Ogilvy" },
+              { src: "/images/Partners-StudioOne.jpg",  alt: "Studio One" },
+              { src: "/images/Partners-TeamLewis.jpg",  alt: "Team Lewis" },
+              { src: "/images/Partners-VML.jpg",        alt: "VML" },
+              { src: "/images/Partners-Vice.jpg",       alt: "Vice" },
+            ].map(({ src, alt }) => (
+              <div class="partner-item">
+                <img src={src} alt={alt} class="partner-logo" loading="lazy" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      </Fragment>
     ))
   }
 
@@ -266,6 +334,51 @@ const ads = [
     background: transparent;
   }
 
+  /* ── Partner logos marquee ── */
+  .partners-bar {
+    background: #000000;
+    overflow: hidden;
+    padding: clamp(20px, 3vw, 40px) 0;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .partners-track {
+    display: flex;
+    align-items: center;
+    gap: clamp(60px, 8vw, 120px);
+    width: max-content;
+    animation: partners-scroll 22s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  @keyframes partners-scroll {
+    from { transform: translate3d(-50%, 0, 0); }
+    to   { transform: translate3d(0%, 0, 0); }
+  }
+
+  .partner-item {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .partner-logo {
+    height: clamp(60px, 7.5vw, 110px);
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(1) brightness(1.8);
+    opacity: 0.6;
+    transition: opacity 0.2s, filter 0.2s;
+  }
+
+  .partner-logo:hover {
+    opacity: 1;
+    filter: grayscale(0) brightness(1);
+  }
+
   .manifesto-block--finale {
     background: #000000;
     min-height: 100svh;
@@ -314,6 +427,146 @@ const ads = [
 
   .manifesto-block--first .manifesto-line {
     color: #1a1a1a;
+  }
+
+  /* ── Closing section (i===6): off-white bg matching first section ── */
+  .manifesto-block--closing {
+    overflow: hidden;
+    background: #e8e4de;
+    position: relative;
+    z-index: 1;
+  }
+
+  .manifesto-block--closing .manifesto-line {
+    color: #1a1a1a;
+  }
+
+  /* ── Intro section (i===5): racing green bg, "Say hello to" + slider ── */
+  .manifesto-block--intro {
+    background: #0a3d1f;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(48px, 8vw, 100px) 0 0;
+    overflow: hidden;
+  }
+
+  .intro-inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* "Say hello to [logo]" headline */
+  .intro-headline {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 2vw, 28px);
+    padding: 0 clamp(24px, 7vw, 100px) clamp(32px, 4vw, 60px);
+    flex-wrap: wrap;
+  }
+
+  .intro-say {
+    font-size: clamp(22px, 3.5vw, 54px);
+    font-weight: 400;
+    color: #e8e4de;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .intro-say--brand {
+    color: #986edf;
+  }
+
+  /* Slider */
+  .intro-slider {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .intro-slides-track {
+    display: flex;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  .intro-slide {
+    min-width: 85%;
+    padding: clamp(32px, 5vw, 72px) clamp(24px, 7vw, 100px);
+    display: flex;
+    align-items: flex-start;
+    gap: clamp(24px, 5vw, 80px);
+    border-top: 1px solid rgba(232, 228, 222, 0.2);
+    box-sizing: border-box;
+  }
+
+  .intro-slide-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 5vw, 80px);
+    font-weight: 400;
+    line-height: 0.82;
+    color: #e8e4de;
+    margin: 0;
+    flex-shrink: 0;
+    width: clamp(160px, 25vw, 380px);
+    text-transform: uppercase;
+  }
+
+  .intro-slide-body {
+    font-size: clamp(14px, 1.5vw, 22px);
+    line-height: 1.55;
+    color: rgba(232, 228, 222, 0.75);
+    margin: 0;
+    padding-top: 0;
+    max-width: 520px;
+  }
+
+  /* Nav row */
+  .intro-slider-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: clamp(16px, 2vw, 28px);
+    padding: clamp(20px, 3vw, 40px) clamp(24px, 7vw, 100px);
+    border-top: 1px solid rgba(232, 228, 222, 0.2);
+  }
+
+  .intro-slider-counter {
+    font-size: clamp(12px, 1.2vw, 18px);
+    color: rgba(232, 228, 222, 0.5);
+    letter-spacing: 0.1em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .intro-slider-arrows {
+    display: flex;
+    gap: 8px;
+  }
+
+  .intro-slider-btn {
+    background: none;
+    border: 1px solid rgba(232, 228, 222, 0.35);
+    color: #e8e4de;
+    width: clamp(36px, 3.5vw, 52px);
+    height: clamp(36px, 3.5vw, 52px);
+    border-radius: 50%;
+    font-size: clamp(14px, 1.4vw, 20px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .intro-slider-btn:hover {
+    background: rgba(232, 228, 222, 0.1);
+    border-color: rgba(232, 228, 222, 0.7);
+  }
+
+  .intro-slider-btn:disabled {
+    opacity: 0.25;
+    cursor: default;
   }
 
   /* ── Third section: dark green bg, purple text ── */
@@ -508,16 +761,24 @@ const ads = [
     max-width: 640px;
     position: relative;
     z-index: 1;
-    opacity: 0;
-    transform: translateY(28px);
-    transition:
-      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .lost-diagram.is-visible .lost-diagram__headline {
+  .lost-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(28px) skewX(-4deg);
+    filter: blur(10px);
+    transition:
+      opacity  0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      filter   0.55s ease;
+    will-change: opacity, transform, filter;
+  }
+
+  .lost-word.is-revealed {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) skewX(0deg);
+    filter: blur(0px);
   }
 
 
@@ -599,7 +860,7 @@ const ads = [
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 44svh clamp(24px, 7vw, 100px) 0;
+    padding: 28svh clamp(24px, 7vw, 100px) 0;
     overflow: visible;
     pointer-events: none;
     opacity: 0;
@@ -619,6 +880,8 @@ const ads = [
   }
 
   .bigger-top {
+    position: relative;
+    z-index: 10;
     font-size: clamp(14px, 2.4vw, 39px);
     font-weight: 400;
     letter-spacing: -0.01em;
@@ -840,6 +1103,31 @@ const ads = [
     });
   }
 
+  // ── Intro slider (i===5) ──
+  {
+    const track   = document.querySelector<HTMLElement>('.intro-slides-track');
+    const prevBtn = document.querySelector<HTMLButtonElement>('.intro-slider-prev');
+    const nextBtn = document.querySelector<HTMLButtonElement>('.intro-slider-next');
+    const counter = document.querySelector<HTMLElement>('.intro-slider-counter');
+    const total   = 6;
+    let   current = 0;
+
+    function goTo(idx: number) {
+      current = Math.max(0, Math.min(total - 1, idx));
+      const slideW = (track?.parentElement as HTMLElement)?.offsetWidth ?? 0;
+      if (track) track.style.transform = `translateX(-${current * slideW * 0.85}px)`;
+      if (counter) counter.textContent = `${String(current + 1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`;
+      if (prevBtn) prevBtn.disabled = current === 0;
+      if (nextBtn) nextBtn.disabled = current === total - 1;
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(current - 1));
+    nextBtn?.addEventListener('click', () => goTo(current + 1));
+    goTo(0);
+
+    window.addEventListener('resize', () => goTo(current), { passive: true });
+  }
+
   // ── Horizontal scroll text ──
   const hscrollSection   = document.querySelector<HTMLElement>('.manifesto-block--green');
   const hscrollContainer = hscrollSection?.querySelector<HTMLElement>('.manifesto-hscroll');
@@ -966,24 +1254,21 @@ const ads = [
     if (!biggerTop || !biggerWordWrap) return;
     const glyphs = Array.from(biggerWordWrap.querySelectorAll<HTMLElement>('.bigger-glyph'));
     if (!glyphs.length) return;
-    glyphs.forEach(el => { el.style.fontSize = ''; }); // reset to CSS clamp before measuring
+    glyphs.forEach(el => { el.style.fontSize = ''; });
     const topW   = biggerTop.offsetWidth;
     const biggerW = biggerWordWrap.offsetWidth;
     if (topW <= 0 || biggerW <= 0) return;
     const currentFS = parseFloat(getComputedStyle(glyphs[0]).fontSize);
     const newFS = Math.round(currentFS * topW / biggerW);
     glyphs.forEach(el => { el.style.fontSize = `${newFS}px`; });
-    natLetterHeights.length = 0; // clear cached cap metrics — font size changed
+    natLetterHeights.length = 0;
   }
   document.fonts.ready.then(calibrateBIGGERFontSize);
   window.addEventListener('resize', calibrateBIGGERFontSize, { passive: true });
 
-  // Per-letter zone split: top 70% fixed, mid 11% stretchable, bot 19% fixed
   const TOP_FRAC = 0.70;
   const BOT_FRAC = 0.19;
 
-  // Measure the actual ink bounds of Bebas Neue at a given fontSize using a canvas.
-  // Returns { leadingPx, capHeight } relative to the CSS em-box top.
   function measureCapMetrics(fontSize: number): { leadingPx: number; capHeight: number } {
     const cv  = document.createElement('canvas');
     const cw  = Math.ceil(fontSize * 2);
@@ -993,7 +1278,6 @@ const ads = [
     const ctx = cv.getContext('2d')!;
     ctx.font      = `400 ${fontSize}px 'Bebas Neue', sans-serif`;
     ctx.fillStyle = '#fff';
-    // Draw 'G' at baseline = 1.8 × fontSize so the full cap fits in frame
     const baseline = Math.round(fontSize * 1.8);
     ctx.fillText('G', 2, baseline);
     const { data } = ctx.getImageData(0, 0, cw, ch);
@@ -1004,8 +1288,6 @@ const ads = [
           if (y < inkTop) inkTop = y;
           if (y > inkBot) inkBot = y;
         }
-    // Bebas Neue is all-caps: ink bottom ≈ baseline.
-    // CSS em-box top = baseline - ascender × fontSize (ascender ≈ 0.80 for Bebas Neue).
     const cssEmTop  = baseline - Math.round(fontSize * 0.80);
     const leadingPx = Math.max(0, inkTop - cssEmTop);
     const capHeight = inkBot - inkTop + 1;
@@ -1014,15 +1296,14 @@ const ads = [
 
   const natLetterHeights: number[] = [];
 
-  // Pre-compute seeded random cut directions for each letter in BIGGER (6 letters)
   const _sr = (n: number) => (Math.abs(Math.sin(n * 127.1 + 311.7)) * 43758.5453) % 1;
   const cutDirections = Array.from({ length: 6 }, (_, i) => ({
-    topX: (_sr(i * 7 + 0) - 0.5) * 340,      // ±170px horizontal
-    topY: -(_sr(i * 7 + 1) * 200 + 120),      // −120 to −320px (flies up)
-    topR: (_sr(i * 7 + 2) - 0.5) * 100,       // ±50deg rotation
-    botX: (_sr(i * 7 + 3) - 0.5) * 340,       // ±170px horizontal
-    botY:  _sr(i * 7 + 4) * 200 + 120,        // +120 to +320px (flies down)
-    botR: (_sr(i * 7 + 5) - 0.5) * 100,       // ±50deg rotation
+    topX: (_sr(i * 7 + 0) - 0.5) * 340,
+    topY: -(_sr(i * 7 + 1) * 200 + 120),
+    topR: (_sr(i * 7 + 2) - 0.5) * 100,
+    botX: (_sr(i * 7 + 3) - 0.5) * 340,
+    botY:  _sr(i * 7 + 4) * 200 + 120,
+    botR: (_sr(i * 7 + 5) - 0.5) * 100,
   }));
 
   function applyBiggerSection() {
@@ -1037,7 +1318,6 @@ const ads = [
     const scrollRange = sh - vh;
     const progress    = Math.max(0, Math.min(1, -rect.top / scrollRange));
 
-    // Top line: letters slide in — gated at 0.03 min so 'T' never appears alone
     const topLetters = Array.from(biggerTop.children) as HTMLElement[];
     topLetters.forEach((el, i) => {
       const threshold = 0.03 + (i / Math.max(topLetters.length - 1, 1)) * 0.06;
@@ -1046,25 +1326,22 @@ const ads = [
       el.style.transform = visible ? 'translateX(0)' : 'translateX(-14px)';
     });
 
-    // "Turns out…" and BIGGER travel up together until top line exits viewport (0.40 → 0.62)
     const topExitLocal = Math.max(0, Math.min(1, (progress - 0.40) / 0.22));
-    const topExitE     = topExitLocal * topExitLocal; // ease-in: accelerates upward
+    const topExitE     = topExitLocal * topExitLocal;
     const topLineH     = biggerTop.offsetHeight;
-    // Translate the full inner block — both lines move as one unit
     if (biggerInner) {
       biggerInner.style.transform = `translateY(-${topExitE * (vh * 0.5 + topLineH)}px)`;
     }
-    // Keep top line fully opaque — no fade, it just travels out of frame
 
-    // BIGGER fade-in (0.04); fades out after cut (0.78 → 0.82)
     const biggerFadeOut = Math.max(0, Math.min(1, (progress - 0.78) / 0.04));
-    biggerWordWrap.style.opacity = progress >= 0.04 ? String(1 - biggerFadeOut) : '0';
+    // BIGGER fades in smoothly once top line is fully in (~0.09)
+    const wrapReveal = Math.max(0, Math.min(1, (progress - 0.12) / 0.04));
+    biggerWordWrap.style.opacity = String(wrapReveal * (1 - biggerFadeOut));
 
-    // Mid zone stretches: progress 0.10 → 0.55
-    const stretchLocal = Math.max(0, Math.min(1, (progress - 0.10) / 0.45));
+    // Stretch only starts once BIGGER is fully revealed (~0.28)
+    const stretchLocal = Math.max(0, Math.min(1, (progress - 0.28) / 0.40));
     const sy = 1 + stretchLocal * 14;
 
-    // Red strikethrough — only after "Turns out…" is gone (0.65 → 0.76), fades out (0.76 → 0.80)
     const strikeP    = Math.max(0, Math.min(1, (progress - 0.65) / 0.11));
     const strikeOutP = Math.max(0, Math.min(1, (progress - 0.76) / 0.04));
     if (biggerStrike) {
@@ -1074,7 +1351,6 @@ const ads = [
       biggerStrike.style.top     = `${vh / 2 - wordAreaTop}px`;
     }
 
-    // "It needs better." fades in after strike (0.78 → 0.86)
     if (biggerReplace) {
       const replaceP = Math.max(0, Math.min(1, (progress - 0.78) / 0.08));
       biggerReplace.style.opacity = String(replaceP);
@@ -1090,25 +1366,18 @@ const ads = [
       const botGlyph = botZone?.firstElementChild as HTMLElement;
       if (!topGlyph || !midGlyph || !botGlyph) return;
 
-      // Cache natural height + set static glyph offsets once per letter
       if (!natLetterHeights[i]) {
         const fontSize = parseFloat(getComputedStyle(topGlyph).fontSize);
         const { leadingPx, capHeight } = measureCapMetrics(fontSize);
-        natLetterHeights[i] = capHeight; // natH = actual measured cap height
+        natLetterHeights[i] = capHeight;
         const nh = natLetterHeights[i];
         const tH = Math.round(nh * TOP_FRAC);
         const mH = Math.round(nh * (1 - TOP_FRAC - BOT_FRAC));
-        // Overlap in px: top/bot zones extend this many px into the mid zone
-        // so the seam never cuts through a curve
         const ov = Math.round(nh * 0.04);
-        // Shift all glyphs up so cap-top aligns with each zone's top edge
         topGlyph.style.top = `-${leadingPx}px`;
-        // Top zone eats into mid zone by ov px; negative margin keeps layout tight
         topZone.style.marginBottom = `-${ov}px`;
-        // Mid glyph: show the 11% cap strip and stretch it downward from its top edge
         midGlyph.style.top             = `-${leadingPx + tH}px`;
         midGlyph.style.transformOrigin = `50% ${leadingPx + tH}px`;
-        // Bot zone starts ov px earlier into mid zone; negative margin keeps layout tight
         botGlyph.style.top = `-${leadingPx + tH + mH - ov}px`;
         botZone.style.marginTop = `-${ov}px`;
       }
@@ -1118,38 +1387,35 @@ const ads = [
       const botH = Math.round(natH * BOT_FRAC);
       const midH = natH - topH - botH;
 
-      // Phase 1 — reveal top→mid→bot, staggered by letter (progress 0.04 → 0.18)
-      const revealStart = 0.04 + i * 0.01;
+      // Reveal starts after top line is fully in, letters staggered
+      const revealStart = 0.12 + i * 0.012;
       const revealLocal = Math.max(0, Math.min(1, (progress - revealStart) / 0.10));
       const revealEased = 1 - Math.pow(1 - revealLocal, 3);
       const revealH     = revealEased * natH;
 
       const ov        = Math.round(natH * 0.04);
       const rawTopH   = Math.round(Math.min(revealH, topH));
-      // Once top is fully revealed, extend it by ov px into mid zone
       const topZoneH  = revealH >= topH ? rawTopH + ov : rawTopH;
       const midReveal = Math.max(0, Math.min(1, (revealH - topH) / midH));
       const midZoneH  = Math.round(midReveal * midH * sy);
+      // Bot zone only opens once top + natural mid are fully revealed
+      const botReveal = Math.max(0, Math.min(1, (revealH - topH - midH) / botH));
+      const botZoneH  = Math.round(botReveal * (botH + ov));
 
       topZone.style.height = `${topZoneH}px`;
       midZone.style.height = `${midZoneH}px`;
-      // Bottom zone always full height + overlap so it extends ov px into mid zone
-      botZone.style.height = `${botH + ov}px`;
+      botZone.style.height = `${botZoneH}px`;
       midGlyph.style.transform = `scaleY(${sy})`;
 
-      // Per-letter cut: as red line passes each letter, halves fly apart dramatically
       if (strikeP > 0 && biggerWordWrap) {
         const wrapRect   = wrap.getBoundingClientRect();
         const wwRect     = biggerWordWrap.getBoundingClientRect();
         const letterMidX = wrapRect.left - wwRect.left + wrapRect.width * 0.5;
         const lineX      = strikeP * biggerWordWrap.offsetWidth;
-        // 0 = line hasn't reached this letter, 1 = fully cut (transition over 25% of letter width)
         const cutP = Math.max(0, Math.min(1, (lineX - letterMidX) / (wrapRect.width * 0.25)));
         if (cutP > 0) {
-          // Ease-in-cubic: pieces accelerate as they fly
           const cutE = cutP * cutP * cutP;
           const dir  = cutDirections[i];
-          // Collapse the mid zone immediately so no stretched strip shows between the flying halves
           midZone.style.height = `${Math.round(midZoneH * Math.max(0, 1 - cutP * 4))}px`;
           topZone.style.transform = `translate(${dir.topX * cutE}px, ${dir.topY * cutE}px) rotate(${dir.topR * cutE}deg)`;
           botZone.style.transform = `translate(${dir.botX * cutE}px, ${dir.botY * cutE}px) rotate(${dir.botR * cutE}deg)`;
@@ -1164,8 +1430,23 @@ const ads = [
     });
   }
 
-  // ── Grid overlay: stays viewport-aligned, lines purple → dark as section scrolls in ──
+  // ── Third section headline: scroll-driven word reveal ──
   const thirdSection   = document.querySelector<HTMLElement>('.manifesto-block--third');
+  const lostWords      = Array.from(document.querySelectorAll<HTMLElement>('.lost-word'));
+
+  function applyLostHeadline() {
+    if (!thirdSection || lostWords.length === 0) return;
+    const rect     = thirdSection.getBoundingClientRect();
+    const vh       = window.innerHeight;
+    // 0 when section bottom enters viewport, 1 when section is 55% scrolled in
+    const progress = Math.max(0, Math.min(1, (vh - rect.top) / (vh * 0.55)));
+    lostWords.forEach((word, i) => {
+      const threshold = i / (lostWords.length + 1);
+      word.classList.toggle('is-revealed', progress >= threshold);
+    });
+  }
+
+  // ── Grid overlay: stays viewport-aligned, lines purple → dark as section scrolls in ──
   const thirdGridSvg   = document.querySelector<SVGSVGElement>('.third-grid');
   const thirdGridGroup = document.querySelector<SVGGElement>('.third-grid-lines');
 
@@ -1188,6 +1469,7 @@ const ads = [
     applyWordScroll();
     applyBiggerSection();
     applyGridColor();
+    applyLostHeadline();
   }
 
   let scrollRaf = 0;
