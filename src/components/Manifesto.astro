@@ -158,6 +158,10 @@ const ads = [
             </div>
           : i === 4
           ? <div class="bigger-overlay">
+              <!-- God-rays fanning up from behind BIGGER -->
+              <div class="bigger-rays" aria-hidden="true"></div>
+              <!-- Haze bloom around the word -->
+              <div class="bigger-haze" aria-hidden="true"></div>
               <div class="bigger-inner">
                 <p class="bigger-top"></p>
                 <div class="bigger-word-area">
@@ -850,6 +854,79 @@ const ads = [
     background: transparent;
   }
 
+  /* ── Cinematic atmosphere layers ── */
+
+  .bigger-overlay.is-active {
+    opacity: 1;
+    background: #080808;
+  }
+
+  /* Layer 2: God-rays fanning upward from BIGGER's base */
+  .bigger-rays {
+    position: fixed;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    background:
+      /* Central beam — brightest */
+      conic-gradient(
+        from 267deg at 50% 92%,
+        transparent  0deg,
+        rgba(255,255,255,0.055) 2.5deg,
+        transparent  5deg,
+        transparent  8deg,
+        rgba(255,255,255,0.035) 10.5deg,
+        transparent  13deg,
+        transparent  17deg,
+        rgba(255,255,255,0.07)  20deg,
+        transparent  23deg,
+        transparent  27deg,
+        rgba(255,255,255,0.04)  29.5deg,
+        transparent  32deg,
+        transparent  35deg,
+        rgba(255,255,255,0.06)  38deg,
+        transparent  41deg,
+        transparent  45deg,
+        rgba(255,255,255,0.035) 47.5deg,
+        transparent  50deg,
+        transparent  54deg,
+        rgba(255,255,255,0.05)  57deg,
+        transparent  60deg,
+        transparent  64deg,
+        rgba(255,255,255,0.04)  66.5deg,
+        transparent  69deg,
+        transparent  73deg,
+        rgba(255,255,255,0.055) 76deg,
+        transparent  79deg,
+        transparent  82deg,
+        rgba(255,255,255,0.03)  85deg,
+        transparent  88deg,
+        transparent  91deg
+      ),
+      /* Soft hotspot at the origin point */
+      radial-gradient(ellipse 30% 25% at 50% 92%, rgba(255,255,255,0.12) 0%, transparent 100%);
+    /* Clip rays so they only fan upward, not below the origin */
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 18%, black 100%);
+    mask-image: linear-gradient(to top, transparent 0%, black 18%, black 100%);
+  }
+
+  /* Layer 3: Haze bloom — warm luminous cloud behind the word */
+  .bigger-haze {
+    position: fixed;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    background:
+      /* Main glow sitting just below mid-screen where BIGGER lives */
+      radial-gradient(ellipse 70% 35% at 50% 68%, rgba(200,190,170,0.13) 0%, rgba(180,170,150,0.06) 50%, transparent 100%),
+      /* Deep edge vignette */
+      radial-gradient(ellipse 110% 90% at 50% 50%, transparent 40%, rgba(0,0,0,0.75) 100%),
+      /* Bottom darkness — ground shadow */
+      linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 30%);
+  }
+
   .bigger-overlay {
     position: fixed;
     top: 0;
@@ -912,6 +989,7 @@ const ads = [
     gap: 0;
     opacity: 0;
     transition: opacity 0.25s ease;
+    filter: drop-shadow(0 0 28px rgba(255,252,240,0.28)) drop-shadow(0 0 70px rgba(255,248,220,0.12));
   }
 
   .bigger-strike {
@@ -958,10 +1036,10 @@ const ads = [
     position: relative; /* required for z-index in flex */
   }
 
-  /* Top and bottom zones render above the mid zone so overlapping pixels hide the seam */
+  /* Top and bottom zones overlap mid zone slightly to hide seams */
   .bigger-zone--top,
   .bigger-zone--bot {
-    z-index: 1;
+    position: relative;
   }
 
 
@@ -1236,6 +1314,8 @@ const ads = [
   const biggerWordWrap = biggerOverlay?.querySelector<HTMLElement>('.bigger-word-wrap');
   const biggerStrike   = biggerOverlay?.querySelector<HTMLElement>('.bigger-strike');
   const biggerReplace  = biggerOverlay?.querySelector<HTMLElement>('.bigger-replace');
+  const biggerRays     = biggerOverlay?.querySelector<HTMLElement>('.bigger-rays');
+  const biggerHaze     = biggerOverlay?.querySelector<HTMLElement>('.bigger-haze');
   const biggerTopText  = "Turns out the world doesn\u2019t need";
   if (biggerSection) {
     biggerSection.style.minHeight = `${window.innerHeight * 12}px`;
@@ -1341,6 +1421,13 @@ const ads = [
     // Stretch only starts once BIGGER is fully revealed (~0.28)
     const stretchLocal = Math.max(0, Math.min(1, (progress - 0.28) / 0.40));
     const sy = 1 + stretchLocal * 14;
+
+    // Atmosphere: rays + haze build in as BIGGER reveals, fade after strike
+    const atmosIn  = Math.max(0, Math.min(1, (progress - 0.10) / 0.18));
+    const atmosOut = Math.max(0, Math.min(1, (progress - 0.76) / 0.06));
+    const atmosA   = atmosIn * (1 - atmosOut);
+    if (biggerRays) biggerRays.style.opacity = String(atmosA * 0.9);
+    if (biggerHaze) biggerHaze.style.opacity = String(atmosA);
 
     const strikeP    = Math.max(0, Math.min(1, (progress - 0.65) / 0.11));
     const strikeOutP = Math.max(0, Math.min(1, (progress - 0.76) / 0.04));
