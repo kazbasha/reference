@@ -158,8 +158,6 @@ const ads = [
             </div>
           : i === 4
           ? <div class="bigger-overlay">
-              <!-- God-rays fanning up from behind BIGGER -->
-              <div class="bigger-rays" aria-hidden="true"></div>
               <!-- Haze bloom around the word -->
               <div class="bigger-haze" aria-hidden="true"></div>
               <div class="bigger-inner">
@@ -857,60 +855,9 @@ const ads = [
 
   .bigger-overlay.is-active {
     opacity: 1;
-    background: #080808;
   }
 
-  /* Layer 2: God-rays fanning upward from BIGGER's base */
-  .bigger-rays {
-    position: fixed;
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 1;
-    background:
-      /* Central beam — brightest */
-      conic-gradient(
-        from 267deg at 50% 92%,
-        transparent  0deg,
-        rgba(255,255,255,0.055) 2.5deg,
-        transparent  5deg,
-        transparent  8deg,
-        rgba(255,255,255,0.035) 10.5deg,
-        transparent  13deg,
-        transparent  17deg,
-        rgba(255,255,255,0.07)  20deg,
-        transparent  23deg,
-        transparent  27deg,
-        rgba(255,255,255,0.04)  29.5deg,
-        transparent  32deg,
-        transparent  35deg,
-        rgba(255,255,255,0.06)  38deg,
-        transparent  41deg,
-        transparent  45deg,
-        rgba(255,255,255,0.035) 47.5deg,
-        transparent  50deg,
-        transparent  54deg,
-        rgba(255,255,255,0.05)  57deg,
-        transparent  60deg,
-        transparent  64deg,
-        rgba(255,255,255,0.04)  66.5deg,
-        transparent  69deg,
-        transparent  73deg,
-        rgba(255,255,255,0.055) 76deg,
-        transparent  79deg,
-        transparent  82deg,
-        rgba(255,255,255,0.03)  85deg,
-        transparent  88deg,
-        transparent  91deg
-      ),
-      /* Soft hotspot at the origin point */
-      radial-gradient(ellipse 30% 25% at 50% 92%, rgba(255,255,255,0.12) 0%, transparent 100%);
-    /* Clip rays so they only fan upward, not below the origin */
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 18%, black 100%);
-    mask-image: linear-gradient(to top, transparent 0%, black 18%, black 100%);
-  }
-
-  /* Layer 3: Haze bloom — warm luminous cloud behind the word */
+  /* Haze bloom — warm luminous cloud behind the word */
   .bigger-haze {
     position: fixed;
     inset: 0;
@@ -1009,9 +956,52 @@ const ads = [
   }
 
   /* ── Target cursor — active during BIGGER interactive phase ── */
-  body.bigger-aim-mode,
-  body.bigger-aim-mode * {
-    cursor: url('/cursors/target-icon-64.png') 32 32, crosshair !important;
+  :global(body.bigger-aim-mode),
+  :global(body.bigger-aim-mode) * {
+    cursor: none !important;
+  }
+
+  :global(#bigger-aim-cursor) {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    width: 64px;
+    height: 64px;
+    transform: translate(-50%, -50%);
+    display: none;
+  }
+
+  /* ── Splatters + shake — :global because elements are JS-created ── */
+  :global(.bigger-splat) {
+    position: fixed;
+    z-index: 9999;
+    width: clamp(160px, 22vw, 320px);
+    height: auto;
+    transform-origin: center center;
+    animation: splat-life 2s ease-out forwards;
+    pointer-events: none;
+    will-change: opacity, transform;
+  }
+
+  @keyframes splat-life {
+    0%   { opacity: 0; transform: translate(-50%, -50%) var(--splat-rot) scale(0.3); }
+    5%   { opacity: 1; transform: translate(-50%, -50%) var(--splat-rot) scale(1.06); }
+    9%   { opacity: 1; transform: translate(-50%, -50%) var(--splat-rot) scale(1); }
+    75%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) var(--splat-rot) scale(1); }
+  }
+
+  .bigger-overlay.is-shaking {
+    animation: site-shake 0.25s ease-out;
+  }
+
+  @keyframes site-shake {
+    0%   { transform: translate(0,0)      rotate(0deg); }
+    20%  { transform: translate(-3px,2px) rotate(-0.3deg); }
+    40%  { transform: translate(3px,-2px) rotate(0.3deg); }
+    60%  { transform: translate(-2px,1px) rotate(-0.2deg); }
+    80%  { transform: translate(1px,-1px) rotate(0.1deg); }
+    100% { transform: translate(0,0)      rotate(0deg); }
   }
 
   /* Per-letter wrapper — three stacked zones, reads as one word */
@@ -1306,7 +1296,6 @@ const ads = [
   const biggerTop      = biggerOverlay?.querySelector<HTMLElement>('.bigger-top');
   const biggerWordWrap = biggerOverlay?.querySelector<HTMLElement>('.bigger-word-wrap');
   const biggerReplace  = biggerOverlay?.querySelector<HTMLElement>('.bigger-replace');
-  const biggerRays     = biggerOverlay?.querySelector<HTMLElement>('.bigger-rays');
   const biggerHaze     = biggerOverlay?.querySelector<HTMLElement>('.bigger-haze');
   const biggerTopText  = "Turns out the world doesn\u2019t need";
   if (biggerSection) {
@@ -1419,7 +1408,7 @@ const ads = [
     // Top line starts centered, floats up to top as BIGGER grows
     if (biggerInner) {
       const overlayPadTop = parseFloat(getComputedStyle(biggerOverlay).paddingTop);
-      const centerOffset  = Math.max(0, vh / 2 - (biggerTop?.offsetHeight ?? 0) / 2 - overlayPadTop);
+      const centerOffset  = Math.max(0, vh * 0.35 - (biggerTop?.offsetHeight ?? 0) / 2 - overlayPadTop);
       const ty = centerOffset * (1 - stretchLocal);
       biggerInner.style.transform = `translateY(${ty}px)`;
     }
@@ -1428,7 +1417,6 @@ const ads = [
     const atmosIn  = Math.max(0, Math.min(1, (progress - 0.10) / 0.18));
     const atmosOut = Math.max(0, Math.min(1, (progress - 0.76) / 0.06));
     const atmosA   = atmosIn * (1 - atmosOut);
-    if (biggerRays) biggerRays.style.opacity = String(atmosA * 0.9);
     if (biggerHaze) biggerHaze.style.opacity = String(atmosA);
 
 
@@ -1503,7 +1491,62 @@ const ads = [
     // Cursor on once BIGGER has finished stretching to fill the screen (~0.68)
     const aimOn = progress >= 0.66 && biggerOverlay.classList.contains('is-active');
     document.body.classList.toggle('bigger-aim-mode', aimOn);
+    if (aimCursorEl) aimCursorEl.style.display = aimOn ? 'block' : 'none';
   }
+
+  // ── Splatter shooting interaction ──
+  // One base image; hue-rotate gives colour variety
+  const splatHues  = [0, 45, 90, 150, 200, 270, 320]; // spread across spectrum
+  const splatAudio = new Audio('/splatters/splatter-sound.mp3');
+  splatAudio.volume = 0.6;
+
+  function triggerShake() {
+    if (!biggerOverlay) return;
+    biggerOverlay.classList.remove('is-shaking');
+    void biggerOverlay.offsetWidth;
+    biggerOverlay.classList.add('is-shaking');
+    biggerOverlay.addEventListener('animationend', () => {
+      biggerOverlay.classList.remove('is-shaking');
+    }, { once: true });
+  }
+
+  function spawnSplat(x: number, y: number) {
+    const hue = splatHues[Math.floor(Math.random() * splatHues.length)];
+    const rot = Math.random() * 360;
+    const img = document.createElement('img');
+    img.src   = '/splatters/splatter-blue.png';
+    img.className = 'bigger-splat';
+    img.style.left = `${x}px`;
+    img.style.top  = `${y}px`;
+    img.style.setProperty('--splat-rot', `rotate(${rot}deg)`);
+    img.style.filter = `hue-rotate(${hue}deg)`;
+    document.body.appendChild(img);
+
+    const sfx = splatAudio.cloneNode() as HTMLAudioElement;
+    sfx.play().catch(() => {});
+
+    setTimeout(() => img.remove(), 2200);
+  }
+
+  // JS-driven cursor element — bypasses all browser cursor reset behaviour
+  const aimCursorEl = document.createElement('div');
+  aimCursorEl.id = 'bigger-aim-cursor';
+  const aimCursorImg = document.createElement('img');
+  aimCursorImg.src = '/cursors/target-icon-64.png';
+  aimCursorImg.style.cssText = 'width:100%;height:100%;display:block';
+  aimCursorEl.appendChild(aimCursorImg);
+  document.body.appendChild(aimCursorEl);
+
+  window.addEventListener('mousemove', (e) => {
+    aimCursorEl.style.left = `${e.clientX}px`;
+    aimCursorEl.style.top  = `${e.clientY}px`;
+  }, { passive: true });
+
+  window.addEventListener('click', (e) => {
+    if (!document.body.classList.contains('bigger-aim-mode')) return;
+    spawnSplat(e.clientX, e.clientY);
+    triggerShake();
+  });
 
   // ── Third section headline: scroll-driven word reveal ──
   const thirdSection   = document.querySelector<HTMLElement>('.manifesto-block--third');
