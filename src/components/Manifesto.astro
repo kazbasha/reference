@@ -182,7 +182,6 @@ const ads = [
                       </div>
                     ))}
                   </div>
-                  <div class="bigger-strike"></div>
                 </div>
               </div>
               <p class="bigger-replace">It needs better.</p>
@@ -937,7 +936,7 @@ const ads = [
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 28svh clamp(24px, 7vw, 100px) 0;
+    padding: clamp(30px, 5vh, 60px) clamp(24px, 7vw, 100px) 0;
     overflow: visible;
     pointer-events: none;
     opacity: 0;
@@ -992,18 +991,6 @@ const ads = [
     filter: drop-shadow(0 0 28px rgba(255,252,240,0.28)) drop-shadow(0 0 70px rgba(255,248,220,0.12));
   }
 
-  .bigger-strike {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 0;
-    height: 14px;
-    background: #e8230a;
-    transform: translateY(-50%);
-    pointer-events: none;
-    filter: url(#handdrawn-filter);
-    border-radius: 3px;
-  }
 
   .bigger-replace {
     position: absolute;
@@ -1019,6 +1006,12 @@ const ads = [
     opacity: 0;
     margin: 0;
     pointer-events: none;
+  }
+
+  /* ── Target cursor — active during BIGGER interactive phase ── */
+  body.bigger-aim-mode,
+  body.bigger-aim-mode * {
+    cursor: url('/cursors/target-icon-64.png') 32 32, crosshair !important;
   }
 
   /* Per-letter wrapper — three stacked zones, reads as one word */
@@ -1312,7 +1305,6 @@ const ads = [
   const biggerInner    = biggerOverlay?.querySelector<HTMLElement>('.bigger-inner');
   const biggerTop      = biggerOverlay?.querySelector<HTMLElement>('.bigger-top');
   const biggerWordWrap = biggerOverlay?.querySelector<HTMLElement>('.bigger-word-wrap');
-  const biggerStrike   = biggerOverlay?.querySelector<HTMLElement>('.bigger-strike');
   const biggerReplace  = biggerOverlay?.querySelector<HTMLElement>('.bigger-replace');
   const biggerRays     = biggerOverlay?.querySelector<HTMLElement>('.bigger-rays');
   const biggerHaze     = biggerOverlay?.querySelector<HTMLElement>('.bigger-haze');
@@ -1406,12 +1398,6 @@ const ads = [
       el.style.transform = visible ? 'translateX(0)' : 'translateX(-14px)';
     });
 
-    const topExitLocal = Math.max(0, Math.min(1, (progress - 0.40) / 0.22));
-    const topExitE     = topExitLocal * topExitLocal;
-    const topLineH     = biggerTop.offsetHeight;
-    if (biggerInner) {
-      biggerInner.style.transform = `translateY(-${topExitE * (vh * 0.5 + topLineH)}px)`;
-    }
 
     const biggerFadeOut = Math.max(0, Math.min(1, (progress - 0.78) / 0.04));
     // BIGGER fades in smoothly once top line is fully in (~0.09)
@@ -1419,8 +1405,24 @@ const ads = [
     biggerWordWrap.style.opacity = String(wrapReveal * (1 - biggerFadeOut));
 
     // Stretch only starts once BIGGER is fully revealed (~0.28)
+    // Cap sy so BIGGER fills viewport from its natural position to ~40px from bottom
     const stretchLocal = Math.max(0, Math.min(1, (progress - 0.28) / 0.40));
-    const sy = 1 + stretchLocal * 14;
+    const natH0    = natLetterHeights[0] || 1;
+    const topH0    = Math.round(natH0 * TOP_FRAC);
+    const botH0    = Math.round(natH0 * BOT_FRAC);
+    const midH0    = natH0 - topH0 - botH0;
+    const wwTop    = biggerWordWrap.getBoundingClientRect().top;
+    const availH   = vh - wwTop - 40;
+    const syCap    = Math.max(1, (availH - topH0 - botH0) / midH0);
+    const sy       = Math.min(1 + stretchLocal * 14, syCap);
+
+    // Top line starts centered, floats up to top as BIGGER grows
+    if (biggerInner) {
+      const overlayPadTop = parseFloat(getComputedStyle(biggerOverlay).paddingTop);
+      const centerOffset  = Math.max(0, vh / 2 - (biggerTop?.offsetHeight ?? 0) / 2 - overlayPadTop);
+      const ty = centerOffset * (1 - stretchLocal);
+      biggerInner.style.transform = `translateY(${ty}px)`;
+    }
 
     // Atmosphere: rays + haze build in as BIGGER reveals, fade after strike
     const atmosIn  = Math.max(0, Math.min(1, (progress - 0.10) / 0.18));
@@ -1429,14 +1431,6 @@ const ads = [
     if (biggerRays) biggerRays.style.opacity = String(atmosA * 0.9);
     if (biggerHaze) biggerHaze.style.opacity = String(atmosA);
 
-    const strikeP    = Math.max(0, Math.min(1, (progress - 0.65) / 0.11));
-    const strikeOutP = Math.max(0, Math.min(1, (progress - 0.76) / 0.04));
-    if (biggerStrike) {
-      const wordAreaTop = biggerStrike.parentElement!.getBoundingClientRect().top;
-      biggerStrike.style.width   = `${strikeP * 100}%`;
-      biggerStrike.style.opacity = String(1 - strikeOutP);
-      biggerStrike.style.top     = `${vh / 2 - wordAreaTop}px`;
-    }
 
     if (biggerReplace) {
       const replaceP = Math.max(0, Math.min(1, (progress - 0.78) / 0.08));
@@ -1494,27 +1488,21 @@ const ads = [
       botZone.style.height = `${botZoneH}px`;
       midGlyph.style.transform = `scaleY(${sy})`;
 
-      if (strikeP > 0 && biggerWordWrap) {
-        const wrapRect   = wrap.getBoundingClientRect();
-        const wwRect     = biggerWordWrap.getBoundingClientRect();
-        const letterMidX = wrapRect.left - wwRect.left + wrapRect.width * 0.5;
-        const lineX      = strikeP * biggerWordWrap.offsetWidth;
-        const cutP = Math.max(0, Math.min(1, (lineX - letterMidX) / (wrapRect.width * 0.25)));
-        if (cutP > 0) {
-          const cutE = cutP * cutP * cutP;
-          const dir  = cutDirections[i];
-          midZone.style.height = `${Math.round(midZoneH * Math.max(0, 1 - cutP * 4))}px`;
-          topZone.style.transform = `translate(${dir.topX * cutE}px, ${dir.topY * cutE}px) rotate(${dir.topR * cutE}deg)`;
-          botZone.style.transform = `translate(${dir.botX * cutE}px, ${dir.botY * cutE}px) rotate(${dir.botR * cutE}deg)`;
-        } else {
-          topZone.style.transform = '';
-          botZone.style.transform = '';
-        }
-      } else {
-        topZone.style.transform = '';
-        botZone.style.transform = '';
-      }
+      topZone.style.transform = '';
+      botZone.style.transform = '';
     });
+  }
+
+  // ── Target cursor: active once BIGGER is fully stretched on screen ──
+  function applyBiggerSectionWithShoot() {
+    applyBiggerSection();
+    if (!biggerOverlay || !biggerSection) return;
+    const rect     = biggerSection.getBoundingClientRect();
+    const sh       = biggerSection.offsetHeight;
+    const progress = Math.max(0, Math.min(1, -rect.top / (sh - window.innerHeight)));
+    // Cursor on once BIGGER has finished stretching to fill the screen (~0.68)
+    const aimOn = progress >= 0.66 && biggerOverlay.classList.contains('is-active');
+    document.body.classList.toggle('bigger-aim-mode', aimOn);
   }
 
   // ── Third section headline: scroll-driven word reveal ──
@@ -1554,7 +1542,7 @@ const ads = [
     if (hscrollSection && hscrollContainer && hscrollText) applyHscroll();
     applyParallax();
     applyWordScroll();
-    applyBiggerSection();
+    applyBiggerSectionWithShoot();
     applyGridColor();
     applyLostHeadline();
   }
