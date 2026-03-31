@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 const sins = [
   {
@@ -28,38 +28,108 @@ const offsets = [
 function SinCard({ src, alt, text, idx, isTouch }: {
   src: string; alt: string; text: string; idx: number; isTouch: boolean;
 }) {
-  const [hovered, setHovered] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const [glow,    setGlow]    = useState(false);
   const filterId = `edges-${idx}`;
 
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-9,  9]), { stiffness: 300, damping: 28 });
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [ 7, -7]), { stiffness: 300, damping: 28 });
-  const scale   = useSpring(hovered ? 1.04 : 1, { stiffness: 260, damping: 22 });
+  const cardOuterRef   = useRef<HTMLDivElement>(null);
+  const tiltRef        = useRef<HTMLDivElement>(null);
+  const flipRef        = useRef<HTMLDivElement>(null);
+  const backContentRef = useRef<HTMLDivElement>(null);
+
+  // ── Scroll-driven flip on touch devices ──────────────────────
+  // Each card flips when it enters the centre 40% of the viewport,
+  // so they naturally trigger one at a time as the user scrolls.
+  useEffect(() => {
+    if (!isTouch) return;
+    const el = cardOuterRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const hit = entry.isIntersecting;
+        setFlipped(hit);
+        setGlow(hit);
+      },
+      { rootMargin: '-30% 0px -30% 0px', threshold: 0 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isTouch]);
+
+  // ── Flip spring ──────────────────────────────────────────────
+  const flipTarget = useMotionValue(0);
+  const flipY      = useSpring(flipTarget, { stiffness: 65, damping: 15 });
+
+  useEffect(() => {
+    const unsub = flipY.onChange((v) => {
+      if (flipRef.current) {
+        flipRef.current.style.transform = `rotateY(${v}deg)`;
+      }
+      // Back content fades in as card approaches face-on (90° → 180°)
+      const backOpacity = Math.max(0, Math.min(1, (v - 90) / 90));
+      if (backContentRef.current) {
+        backContentRef.current.style.opacity = String(backOpacity);
+      }
+    });
+    return unsub;
+  }, [flipY]);
+
+  useEffect(() => {
+    flipTarget.set(flipped ? 180 : 0);
+  }, [flipped, flipTarget]);
+
+  // ── Mouse tilt (desktop only) ─────────────────────────────────
+  const rafRef   = useRef<number | null>(null);
+  const tiltVals = useRef({ x: 0, y: 0 });
+
+  const applyTilt = (x: number, y: number) => {
+    tiltVals.current = { x, y };
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (tiltRef.current && !flipped) {
+        tiltRef.current.style.transform = `rotateX(${x}deg) rotateY(${y}deg)`;
+      }
+    });
+  };
+
+  const resetTilt = () => {
+    if (tiltRef.current) tiltRef.current.style.transform = '';
+  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isTouch) return;
+    if (isTouch || flipped) return;
     const r = e.currentTarget.getBoundingClientRect();
-    mouseX.set((e.clientX - r.left) / r.width  - 0.5);
-    mouseY.set((e.clientY - r.top)  / r.height - 0.5);
+    const nx = (e.clientX - r.left) / r.width  - 0.5;
+    const ny = (e.clientY - r.top)  / r.height - 0.5;
+    applyTilt(ny * -6, nx * 8);
   };
 
-  const handleMouseLeave = () => {
-    setHovered(false);
-    mouseX.set(0);
-    mouseY.set(0);
+  const handleEnter = () => {
+    if (isTouch) return;
+    resetTilt();
+    setGlow(true);
+    setFlipped(true);
   };
+
+  const handleLeave = () => {
+    if (isTouch) return;
+    setFlipped(false);
+    setGlow(false);
+  };
+
+  useEffect(() => () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); }, []);
 
   return (
     <div
-      style={{ perspective: isTouch ? 'none' : '700px' }}
+      ref={cardOuterRef}
+      style={{ perspective: '900px' }}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => !isTouch && setHovered(true)}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={() => setHovered(true)}
-      onTouchEnd={() => setTimeout(() => setHovered(false), 1200)}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
     >
-      {/* Edge-detection filter — only on non-touch */}
+      {/* SVG edge filter */}
       {!isTouch && (
         <svg width="0" height="0" style={{ position: 'absolute', overflow: 'hidden' }} aria-hidden="true">
           <defs>
@@ -76,84 +146,87 @@ function SinCard({ src, alt, text, idx, isTouch }: {
         </svg>
       )}
 
-      <motion.div
-        style={isTouch
-          ? { scale, position: 'relative' }
-          : { rotateX, rotateY, scale, position: 'relative' }
-        }
-        className="cursor-none"
-      >
-        {/* Subtle glow */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          animate={{
-            boxShadow: hovered
-              ? '0 0 28px 6px rgba(152,110,223,0.4), 0 0 60px 12px rgba(152,110,223,0.15)'
-              : '0 0 0px 0px rgba(152,110,223,0)',
-          }}
-          transition={{ duration: 0.4 }}
-        />
+      {/* Tilt wrapper — mouse parallax only */}
+      <div ref={tiltRef} style={{ transformStyle: 'preserve-3d' }}>
 
-        {/* Normal image — fades out on hover */}
-        <motion.img
-          src={src}
-          alt={alt}
-          className="block w-full h-auto"
-          animate={{ opacity: hovered ? 0 : 1 }}
-          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        />
+        {/* Flip wrapper — spring-driven via ref */}
+        <div ref={flipRef} style={{ transformStyle: 'preserve-3d', position: 'relative' }}>
 
-        {/* Purple multiply overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: '#986edf',
-            mixBlendMode: 'multiply',
-            opacity: hovered ? 0 : 0.35,
-            transition: 'opacity 0.5s ease',
-          }}
-        />
+          {/* ── FRONT FACE ── */}
+          <div style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', position: 'relative' }}>
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              animate={{
+                boxShadow: glow
+                  ? '0 0 28px 6px rgba(152,110,223,0.4), 0 0 60px 12px rgba(152,110,223,0.15)'
+                  : '0 0 0px 0px rgba(152,110,223,0)',
+              }}
+              transition={{ duration: 0.3 }}
+            />
+            <img src={src} alt={alt} className="block w-full h-auto" draggable={false} />
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: '#986edf', mixBlendMode: 'multiply', opacity: 0.35 }}
+            />
+            {!isTouch && (
+              <img
+                src={src} alt="" aria-hidden="true"
+                className="block w-full h-auto absolute inset-0"
+                style={{ mixBlendMode: 'screen', filter: `url(#${filterId})`, opacity: 0.6 }}
+                draggable={false}
+              />
+            )}
+          </div>
 
-        {/* Edge-only image — desktop only */}
-        {!isTouch && (
-          <motion.img
-            src={src}
-            alt={alt}
-            aria-hidden="true"
-            className="block w-full h-auto"
+          {/* ── BACK FACE ── */}
+          <div
             style={{
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
               position: 'absolute',
-              inset: 0,
-              mixBlendMode: 'screen',
-              filter: `url(#${filterId})`,
-            }}
-            animate={{ opacity: hovered ? 0.9 : 0 }}
-            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-          />
-        )}
-
-        {/* Reveal text */}
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center pointer-events-none p-6"
-          animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 8 }}
-          transition={{ duration: 0.3, ease: 'easeOut', delay: hovered ? 0.15 : 0 }}
-        >
-          <span
-            style={{
-              fontFamily: '"ObviouslyWide", system-ui, sans-serif',
-              fontSize: 'clamp(8px, 1vw, 14px)',
-              fontWeight: 700,
-              letterSpacing: '0.08em',
-              lineHeight: 1.2,
-              color: '#1a1a1a',
-              textAlign: 'center',
-              whiteSpace: 'pre-line',
+              top: 0,
+              left: 0,
+              width: '100%',
             }}
           >
-            {text}
-          </span>
-        </motion.div>
-      </motion.div>
+            {/* Fades in only as card approaches 180° — no black visible mid-flip */}
+            <div ref={backContentRef} style={{ position: 'relative', opacity: 0 }}>
+              <img
+                src={src} alt="" aria-hidden="true"
+                className="block w-full h-auto"
+                style={{ transform: 'scaleX(-1)', filter: 'brightness(0)' }}
+                draggable={false}
+              />
+              {!isTouch && (
+                <img
+                  src={src} alt="" aria-hidden="true"
+                  className="block w-full h-auto absolute inset-0"
+                  style={{ mixBlendMode: 'screen', filter: `url(#${filterId})`, opacity: 0.8, transform: 'scaleX(-1)' }}
+                  draggable={false}
+                />
+              )}
+              <div className="absolute inset-0 flex items-center justify-center p-6">
+                <span
+                  style={{
+                    fontFamily: '"ObviouslyWide", system-ui, sans-serif',
+                    fontSize: 'clamp(9px, 1.1vw, 15px)',
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    lineHeight: 1.4,
+                    color: '#e8e4de',
+                    textAlign: 'center',
+                    whiteSpace: 'pre-line',
+                  }}
+                >
+                  {text}
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }
@@ -163,10 +236,8 @@ export default function CreativeSins() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const touch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    const mobile = window.innerWidth < 768;
-    setIsTouch(touch);
-    setIsMobile(mobile);
+    setIsTouch(!window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+    setIsMobile(window.innerWidth < 768);
   }, []);
 
   return (
