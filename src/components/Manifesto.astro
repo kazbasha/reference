@@ -588,7 +588,7 @@ const ads = [
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100svh;
     pointer-events: none;
     z-index: 0;
   }
@@ -1404,7 +1404,7 @@ const ads = [
     const wwTop    = biggerWordWrap.getBoundingClientRect().top;
     const availH   = vh - wwTop - 40;
     const syCap    = Math.max(1, (availH - topH0 - botH0) / midH0);
-    const sy       = Math.min(1 + stretchLocal * 14, syCap);
+    const sy       = 1 + stretchLocal * (syCap - 1);
 
     // Top line starts centered, floats up to top as BIGGER grows
     if (biggerInner) {
@@ -1573,7 +1573,7 @@ const ads = [
     if (!thirdSection || !thirdGridSvg || !thirdGridGroup) return;
     const rect = thirdSection.getBoundingClientRect();
     const vh   = window.innerHeight;
-    if (!isTouch) thirdGridSvg.style.transform = `translateY(${-rect.top}px)`;
+    thirdGridSvg.style.transform = `translateY(${-rect.top}px)`;
     const progress = Math.max(0, Math.min(1, (vh - rect.top) / vh));
     const r = Math.round(0x98 + (0x1a - 0x98) * progress);
     const g = Math.round(0x6e + (0x1a - 0x6e) * progress);
