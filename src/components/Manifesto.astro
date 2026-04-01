@@ -140,7 +140,7 @@ const ads = [
                   </div>
                 );
               })}
-              <p class="manifesto-hscroll-text">{line1}{"   "}{line2}</p>
+              <p class="manifesto-hscroll-text" set:html={`${line1}   ${line2}`.replace(/\./g, '<span style="color:#986edf">.</span>')} />
             </div>
           : i === 2
           ? <div class="lost-diagram" data-reveal>
@@ -958,7 +958,9 @@ const ads = [
 
   /* ── Target cursor — active during BIGGER interactive phase ── */
   :global(body.bigger-aim-mode),
-  :global(body.bigger-aim-mode) * {
+  :global(body.bigger-aim-mode) *,
+  :global(body.bigger-shoot-mode),
+  :global(body.bigger-shoot-mode) * {
     cursor: none !important;
   }
 
@@ -970,6 +972,21 @@ const ads = [
     height: 64px;
     transform: translate(-50%, -50%);
     display: none;
+  }
+
+  /* ── SHOOT prompt cursor — flashes before aim mode starts ── */
+  :global(#bigger-shoot-cursor) {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10001;
+    transform: translate(-50%, calc(-100% - 10px));
+    display: none;
+    white-space: nowrap;
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: clamp(20px, 2.4vw, 36px);
+    color: #f87878;
+    letter-spacing: 0.1em;
+    text-shadow: none;
   }
 
   /* ── Letter chips — JS-created fragments that fly off on impact ── */
@@ -1328,6 +1345,20 @@ const ads = [
     });
   }
 
+  // Split "It needs better." into word spans for staggered reveal
+  if (biggerReplace) {
+    const words = (biggerReplace.textContent ?? '').trim().split(' ');
+    biggerReplace.textContent = '';
+    biggerReplace.style.opacity = '1'; // container always visible; spans control reveal
+    words.forEach((word, wi) => {
+      if (wi > 0) biggerReplace.appendChild(document.createTextNode('\u00a0'));
+      const ws = document.createElement('span');
+      ws.textContent = word;
+      ws.style.cssText = 'display:inline-block;opacity:0;transform:translateX(-14px);';
+      biggerReplace.appendChild(ws);
+    });
+  }
+
   // ── Calibrate BIGGER font-size to match top line width ──
   function calibrateBIGGERFontSize() {
     if (!biggerTop || !biggerWordWrap) return;
@@ -1442,8 +1473,14 @@ const ads = [
 
 
     if (biggerReplace) {
-      const replaceP = Math.max(0, Math.min(1, (progress - 0.78) / 0.08));
-      biggerReplace.style.opacity = String(replaceP);
+      const replaceWords = Array.from(biggerReplace.children) as HTMLElement[];
+      // Stagger: first word starts at 0.78, last word starts at 0.90, each takes 0.06 to fully reveal
+      replaceWords.forEach((word, i) => {
+        const start = 0.78 + (i / Math.max(replaceWords.length - 1, 1)) * 0.12;
+        const p     = Math.max(0, Math.min(1, (progress - start) / 0.06));
+        word.style.opacity   = String(p);
+        word.style.transform = `translateX(${(1 - p) * -14}px)`;
+      });
     }
 
     const wraps = Array.from(biggerWordWrap.querySelectorAll<HTMLElement>('.bigger-letter-wrap'));
@@ -1509,8 +1546,13 @@ const ads = [
     const rect     = biggerSection.getBoundingClientRect();
     const sh       = biggerSection.offsetHeight;
     const progress = Math.max(0, Math.min(1, -rect.top / (sh - window.innerHeight)));
-    // Cursor on once BIGGER is fully stretched, off before "It needs better" fades in (~0.78)
-    const aimOn = progress >= 0.66 && progress < 0.74 && biggerOverlay.classList.contains('is-active');
+    // Trigger SHOOT flash just before aim mode — fires once when progress crosses 0.62
+    if (progress >= 0.62 && biggerOverlay.classList.contains('is-active')) startShootFlash();
+
+    // Aim mode: flash must be done, progress must not have reached the outro yet
+    const aimOn = shootFlashState === 'done'
+               && progress < 0.74
+               && biggerOverlay.classList.contains('is-active');
     document.body.classList.toggle('bigger-aim-mode', aimOn);
     if (aimCursorEl) aimCursorEl.style.display = aimOn ? 'block' : 'none';
   }
@@ -1549,7 +1591,15 @@ const ads = [
     setTimeout(() => img.remove(), 2200);
   }
 
-  // JS-driven cursor element — bypasses all browser cursor reset behaviour
+  // Load game font for SHOOT cursor
+  (() => {
+    const lnk = document.createElement('link');
+    lnk.rel  = 'stylesheet';
+    lnk.href = 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap';
+    document.head.appendChild(lnk);
+  })();
+
+  // JS-driven cursor elements — bypass all browser cursor reset behaviour
   const aimCursorEl = document.createElement('div');
   aimCursorEl.id = 'bigger-aim-cursor';
   const aimCursorImg = document.createElement('img');
@@ -1558,10 +1608,52 @@ const ads = [
   aimCursorEl.appendChild(aimCursorImg);
   document.body.appendChild(aimCursorEl);
 
+  const shootCursorEl = document.createElement('div');
+  shootCursorEl.id = 'bigger-shoot-cursor';
+  shootCursorEl.textContent = 'SHOOT';
+  document.body.appendChild(shootCursorEl);
+
   window.addEventListener('mousemove', (e) => {
-    aimCursorEl.style.left = `${e.clientX}px`;
-    aimCursorEl.style.top  = `${e.clientY}px`;
+    aimCursorEl.style.left   = `${e.clientX}px`;
+    aimCursorEl.style.top    = `${e.clientY}px`;
+    shootCursorEl.style.left = `${e.clientX}px`;
+    shootCursorEl.style.top  = `${e.clientY}px`;
   }, { passive: true });
+
+  // ── SHOOT flash sequence ──────────────────────────────────────────────────
+  let shootFlashState: 'idle' | 'flashing' | 'done' = 'idle';
+
+  function startShootFlash() {
+    if (shootFlashState !== 'idle') return;
+    shootFlashState = 'flashing';
+    document.body.classList.add('bigger-shoot-mode');
+    shootCursorEl.style.display = 'block';
+
+    let count = 0;
+    const flashes = 7;
+    const onMs   = 300;
+    const offMs  = 160;
+
+    function step() {
+      if (count >= flashes) {
+        // All flashes done — activate aim cursor immediately without waiting for scroll
+        shootCursorEl.style.display = 'none';
+        document.body.classList.remove('bigger-shoot-mode');
+        shootFlashState = 'done';
+        document.body.classList.add('bigger-aim-mode');
+        if (aimCursorEl) aimCursorEl.style.display = 'block';
+        return;
+      }
+      shootCursorEl.style.opacity = '1';
+      setTimeout(() => {
+        shootCursorEl.style.opacity = '0';
+        count++;
+        setTimeout(step, offMs);
+      }, onMs);
+    }
+
+    step();
+  }
 
   // Irregular shard shapes — look like broken solid material
   const chipShapes = [
