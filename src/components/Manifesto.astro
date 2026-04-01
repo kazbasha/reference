@@ -972,6 +972,16 @@ const ads = [
     display: none;
   }
 
+  /* ── Letter chips — JS-created fragments that fly off on impact ── */
+  :global(.bigger-chip) {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    background: #e8e4de;
+  }
+
+  /* Damage is applied via SVG mask — no additional CSS rule needed */
+
   /* ── Splatters + shake — :global because elements are JS-created ── */
   :global(.bigger-splat) {
     position: fixed;
@@ -1304,10 +1314,17 @@ const ads = [
   }
 
   if (biggerTop) {
-    biggerTopText.split('').forEach((char) => {
-      const span = document.createElement('span');
-      span.textContent = char === ' ' ? '\u00a0' : char;
-      biggerTop.appendChild(span);
+    // Word-level spans so each word is an individual hit target
+    biggerTopText.split(' ').forEach((word, wi) => {
+      if (wi > 0) {
+        const sp = document.createElement('span');
+        sp.textContent = '\u00a0';
+        biggerTop.appendChild(sp);
+      }
+      const ws = document.createElement('span');
+      ws.className = 'bigger-top-word';
+      ws.textContent = word;
+      biggerTop.appendChild(ws);
     });
   }
 
@@ -1380,11 +1397,14 @@ const ads = [
     const scrollRange = sh - vh;
     const progress    = Math.max(0, Math.min(1, -rect.top / scrollRange));
 
+    // Top line fades out before "It needs better" appears at 0.78
+    const topFadeOut = Math.max(0, Math.min(1, (progress - 0.74) / 0.04));
     const topLetters = Array.from(biggerTop.children) as HTMLElement[];
     topLetters.forEach((el, i) => {
+      if (el.classList.contains('is-ejected')) return; // word already shot off
       const threshold = 0.03 + (i / Math.max(topLetters.length - 1, 1)) * 0.06;
       const visible   = progress >= threshold;
-      el.style.opacity   = visible ? '1' : '0';
+      el.style.opacity   = visible ? String(1 - topFadeOut) : '0';
       el.style.transform = visible ? 'translateX(0)' : 'translateX(-14px)';
     });
 
@@ -1489,8 +1509,8 @@ const ads = [
     const rect     = biggerSection.getBoundingClientRect();
     const sh       = biggerSection.offsetHeight;
     const progress = Math.max(0, Math.min(1, -rect.top / (sh - window.innerHeight)));
-    // Cursor on once BIGGER has finished stretching to fill the screen (~0.68)
-    const aimOn = progress >= 0.66 && biggerOverlay.classList.contains('is-active');
+    // Cursor on once BIGGER is fully stretched, off before "It needs better" fades in (~0.78)
+    const aimOn = progress >= 0.66 && progress < 0.74 && biggerOverlay.classList.contains('is-active');
     document.body.classList.toggle('bigger-aim-mode', aimOn);
     if (aimCursorEl) aimCursorEl.style.display = aimOn ? 'block' : 'none';
   }
@@ -1543,9 +1563,221 @@ const ads = [
     aimCursorEl.style.top  = `${e.clientY}px`;
   }, { passive: true });
 
+  // Irregular shard shapes — look like broken solid material
+  const chipShapes = [
+    'polygon(0% 0%, 100% 8%, 92% 100%, 6% 94%)',
+    'polygon(8% 0%, 100% 0%, 94% 100%, 0% 86%)',
+    'polygon(0% 6%, 94% 0%, 100% 94%, 4% 100%)',
+    'polygon(10% 0%, 100% 4%, 90% 96%, 0% 100%)',
+    'polygon(0% 0%, 96% 10%, 88% 100%, 8% 90%)',
+    'polygon(4% 0%, 100% 0%, 100% 88%, 0% 100%)',
+  ];
+
+  function spawnChips(cx: number, cy: number) {
+    // Find which letter zone was hit so chips spawn from the right place
+    const wraps = Array.from(document.querySelectorAll<HTMLElement>('.bigger-letter-wrap'));
+    let hitEl: HTMLElement | null = null;
+    for (const wrap of wraps) {
+      const r = wrap.getBoundingClientRect();
+      if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) {
+        // Find the specific child zone (top / mid / bot)
+        for (let zi = 0; zi < wrap.children.length; zi++) {
+          const zr = (wrap.children[zi] as HTMLElement).getBoundingClientRect();
+          if (cy >= zr.top && cy <= zr.bottom) { hitEl = wrap.children[zi] as HTMLElement; break; }
+        }
+        if (!hitEl) hitEl = wrap;
+        break;
+      }
+    }
+
+    const count = 4 + Math.floor(Math.random() * 3); // 4–6 chips
+    for (let i = 0; i < count; i++) {
+      const chip = document.createElement('div');
+      chip.className = 'bigger-chip';
+
+      const w = 10 + Math.random() * 22;
+      const h =  7 + Math.random() * 16;
+      const initAngle = Math.random() * 360;
+      const shape = chipShapes[Math.floor(Math.random() * chipShapes.length)];
+
+      // Burst outward from click point with slight upward bias
+      const flyAngle = Math.random() * Math.PI * 2;
+      const speed    = 130 + Math.random() * 230;
+      const vx = Math.cos(flyAngle) * speed;
+      const vy = Math.sin(flyAngle) * speed - 80;
+      const spin     = (Math.random() - 0.5) * 900;
+      const duration = 480 + Math.random() * 320;
+
+      // Spawn at the exact impact point, optionally offset slightly into the hit zone
+      const ox = hitEl ? (Math.random() - 0.5) * 20 : 0;
+      const oy = hitEl ? (Math.random() - 0.5) * 20 : 0;
+
+      chip.style.cssText =
+        `left:${cx + ox}px;top:${cy + oy}px;` +
+        `width:${w}px;height:${h}px;` +
+        `clip-path:${shape};` +
+        `transform:translate(-50%,-50%) rotate(${initAngle}deg);`;
+
+      document.body.appendChild(chip);
+
+      chip.animate(
+        [
+          { transform: `translate(-50%,-50%) rotate(${initAngle}deg)`,                                              opacity: 1 },
+          { transform: `translate(calc(-50% + ${vx}px), calc(-50% + ${vy}px)) rotate(${initAngle + spin}deg)`, opacity: 0 },
+        ],
+        { duration, easing: 'cubic-bezier(0.2, 0.6, 0.4, 1)', fill: 'forwards' }
+      ).onfinish = () => chip.remove();
+    }
+  }
+
+  // ── Per-letter SVG mask destruction (organic blobs) ─────────────────────
+  // Uses SVG <mask>: white = visible, black = transparent.
+  // Black blobs accumulate without evenodd re-revealing — no grid, no right angles.
+
+  const dmgSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  dmgSvg.setAttribute('width', '0');
+  dmgSvg.setAttribute('height', '0');
+  dmgSvg.style.cssText = 'position:absolute;overflow:visible;pointer-events:none;';
+  const dmgDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  dmgSvg.appendChild(dmgDefs);
+  document.body.appendChild(dmgSvg);
+
+  interface LetterMask { maskEl: SVGMaskElement; blasted: number; letterArea: number; }
+  const letterMaskMap = new Map<HTMLElement, LetterMask>();
+
+  function getOrCreateLetterMask(wrap: HTMLElement, idx: number): LetterMask {
+    if (letterMaskMap.has(wrap)) return letterMaskMap.get(wrap)!;
+    const r = wrap.getBoundingClientRect();
+
+    const maskEl = document.createElementNS('http://www.w3.org/2000/svg', 'mask');
+    maskEl.id = `bigger-letter-mask-${idx}`;
+    maskEl.setAttribute('maskContentUnits', 'userSpaceOnUse');
+
+    // White base — letter fully visible
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('x', '-9999'); bg.setAttribute('y', '-9999');
+    bg.setAttribute('width', '19999'); bg.setAttribute('height', '19999');
+    bg.setAttribute('fill', 'white');
+    maskEl.appendChild(bg);
+    dmgDefs.appendChild(maskEl);
+
+    wrap.style.mask       = `url(#bigger-letter-mask-${idx})`;
+    wrap.style.webkitMask = `url(#bigger-letter-mask-${idx})`;
+
+    const entry: LetterMask = { maskEl, blasted: 0, letterArea: r.width * r.height };
+    letterMaskMap.set(wrap, entry);
+    return entry;
+  }
+
+  // Build a spiked, irregular polygon resembling a small explosion.
+  function blastPoints(lx: number, ly: number, radius: number): string {
+    const n = 13 + Math.floor(Math.random() * 4); // 13–16 spikes
+    const pts: string[] = [];
+    for (let i = 0; i < n; i++) {
+      // Uneven angular spacing — spikes aren't perfectly evenly distributed
+      const angle = (i / n) * Math.PI * 2 + (Math.random() - 0.5) * (Math.PI / n) * 1.4;
+      // Each spike radius varies wildly between 40% and 135% of base radius
+      const r = radius * (0.40 + Math.random() * 0.95);
+      pts.push(`${(lx + Math.cos(angle) * r).toFixed(1)},${(ly + Math.sin(angle) * r).toFixed(1)}`);
+    }
+    return pts.join(' ');
+  }
+
+  function spawnDamageHole(cx: number, cy: number) {
+    if (!biggerWordWrap) return;
+    const wraps = Array.from(biggerWordWrap.querySelectorAll<HTMLElement>('.bigger-letter-wrap'));
+
+    let hitWrap: HTMLElement | null = null;
+    let hitIdx = 0;
+    for (let i = 0; i < wraps.length; i++) {
+      const r = wraps[i].getBoundingClientRect();
+      if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) {
+        hitWrap = wraps[i]; hitIdx = i; break;
+      }
+    }
+    if (!hitWrap) {
+      let best = Infinity;
+      wraps.forEach((w, i) => {
+        const r = w.getBoundingClientRect();
+        const d = Math.hypot(cx - (r.left + r.width / 2), cy - (r.top + r.height / 2));
+        if (d < best) { best = d; hitWrap = w; hitIdx = i; }
+      });
+    }
+    if (!hitWrap) return;
+
+    const entry  = getOrCreateLetterMask(hitWrap, hitIdx);
+    const r      = hitWrap.getBoundingClientRect();
+    const lx     = cx - r.left;
+    const ly     = cy - r.top;
+    const radius = r.width * 0.38; // ~38% of letter width per blast
+
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', blastPoints(lx, ly, radius));
+    poly.setAttribute('fill', 'black');
+    entry.maskEl.appendChild(poly);
+
+    // Approximate area of an irregular blast (~55% of bounding circle)
+    entry.blasted += Math.PI * radius * radius * 0.55;
+
+    // Once ~80% of the letter area has been blasted, fade it out entirely
+    if (entry.blasted >= entry.letterArea * 0.8) {
+      (hitWrap as HTMLElement).style.transition = 'opacity 0.25s ease';
+      (hitWrap as HTMLElement).style.opacity    = '0';
+    }
+  }
+
+  // ── Top-line word ejection ────────────────────────────────────────────────
+  function ejectWord(span: HTMLElement) {
+    span.classList.add('is-ejected');
+    span.style.position = 'relative';
+    span.style.zIndex   = '20';
+    span.style.display  = 'inline-block'; // ensure transform works inline
+
+    // Initial blast velocity (px per frame at ~60 fps)
+    // Horizontal: random left/right lean
+    // Vertical: slight upward kick — gravity then pulls it down
+    let vx  = (Math.random() - 0.5) * 10;          // ±5 px/frame horizontal
+    let vy  = -(2 + Math.random() * 3);             // 2–5 px/frame upward
+    let vr  = (Math.random() < 0.5 ? 1 : -1)
+            * (1.8 + Math.random() * 2.8);          // ±1.8–4.6 deg/frame
+    const gravity = 0.48;                           // px/frame² — weighty but not floaty
+
+    let x = 0, y = 0, rot = 0;
+    const startTop = span.getBoundingClientRect().top;
+
+    function tick() {
+      vy  += gravity;
+      x   += vx;
+      y   += vy;
+      rot += vr;
+      span.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg)`;
+      // Keep animating until the word has fully cleared the bottom of the viewport
+      if (startTop + y < window.innerHeight + 120) requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  function tryShootTopLine(cx: number, cy: number): boolean {
+    if (!biggerTop) return false;
+    const words = Array.from(biggerTop.querySelectorAll<HTMLElement>('.bigger-top-word'));
+    for (const span of words) {
+      if (span.classList.contains('is-ejected')) continue;
+      const r = span.getBoundingClientRect();
+      if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) {
+        ejectWord(span);
+        return true;
+      }
+    }
+    return false;
+  }
+
   window.addEventListener('click', (e) => {
     if (!document.body.classList.contains('bigger-aim-mode')) return;
+    const hitTop = tryShootTopLine(e.clientX, e.clientY);
     spawnSplat(e.clientX, e.clientY);
+    spawnChips(e.clientX, e.clientY);
+    if (!hitTop) spawnDamageHole(e.clientX, e.clientY);
     triggerShake();
   });
 
