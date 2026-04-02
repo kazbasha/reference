@@ -288,6 +288,7 @@ const {
 
         window.addEventListener("wheel", (e) => {
           e.preventDefault();
+          if ((window as any).__scrollLocked) { velocity = 0; return; }
           currentY = window.scrollY; // re-sync in case position changed externally
           let delta = e.deltaY;
           if (e.deltaMode === 1) delta *= 28;
@@ -296,13 +297,18 @@ const {
         }, { passive: false });
 
         (function tick() {
-          velocity *= 0.80;                           // decay — eases out quickly
-          if (Math.abs(velocity) > 0.1) {
-            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            currentY = Math.max(0, Math.min(currentY + velocity, maxScroll));
-            window.scrollTo(0, currentY);
+          if ((window as any).__scrollLocked) {
+            velocity = 0;                             // drain any queued velocity
+            currentY = window.scrollY;                // stay in sync
           } else {
-            velocity = 0;
+            velocity *= 0.80;                         // decay — eases out quickly
+            if (Math.abs(velocity) > 0.1) {
+              const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+              currentY = Math.max(0, Math.min(currentY + velocity, maxScroll));
+              window.scrollTo(0, currentY);
+            } else {
+              velocity = 0;
+            }
           }
           requestAnimationFrame(tick);
         })();

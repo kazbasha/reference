@@ -319,6 +319,11 @@ const ads = [
   </section>
 </div>
 
+<!-- Space gun — Three.js renders GLB into this canvas -->
+<div id="bigger-gun">
+  <canvas id="gun-canvas" style="width:100%;height:100%;display:block;"></canvas>
+</div>
+
 <style>
   .manifesto-block {
     position: relative;
@@ -974,6 +979,20 @@ const ads = [
     display: none;
   }
 
+  /* ── Space gun — fixed first-person at center bottom ── */
+  :global(#bigger-gun) {
+    position: fixed;
+    bottom: -10%;
+    left: calc(50% - 22vw);
+    width: 44vw;
+    height: 58vh;
+    pointer-events: none;
+    z-index: 9990;
+    transform-origin: center bottom;
+    --progress-bar-height: 0px;
+    background: transparent;
+  }
+
   /* ── SHOOT prompt cursor — flashes before aim mode starts ── */
   :global(#bigger-shoot-cursor) {
     position: fixed;
@@ -984,7 +1003,7 @@ const ads = [
     white-space: nowrap;
     font-family: 'Press Start 2P', 'Courier New', monospace;
     font-size: clamp(20px, 2.4vw, 36px);
-    color: #f87878;
+    color: #4ade80;
     letter-spacing: 0.1em;
     text-shadow: none;
   }
@@ -1156,6 +1175,11 @@ const ads = [
 </style>
 
 <script>
+  import * as THREE from 'three';
+  import { GLTFLoader }     from 'three/examples/jsm/loaders/GLTFLoader.js';
+  import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+
+
   // ── Reveal on scroll ──
   const observer = new IntersectionObserver(
     (entries) => {
@@ -1555,6 +1579,10 @@ const ads = [
                && biggerOverlay.classList.contains('is-active');
     document.body.classList.toggle('bigger-aim-mode', aimOn);
     if (aimCursorEl) aimCursorEl.style.display = aimOn ? 'block' : 'none';
+    // Hide gun when section leaves or outro begins; shown by startShootFlash
+    if (!biggerOverlay.classList.contains('is-active') || progress >= 0.74) {
+      gunHide();
+    }
   }
 
   // ── Splatter shooting interaction ──
@@ -1604,7 +1632,7 @@ const ads = [
   aimCursorEl.id = 'bigger-aim-cursor';
   const aimCursorImg = document.createElement('img');
   aimCursorImg.src = '/cursors/target-icon-64.png';
-  aimCursorImg.style.cssText = 'width:100%;height:100%;display:block';
+  aimCursorImg.style.cssText = 'width:100%;height:100%;display:block;filter:hue-rotate(120deg) saturate(1.4)';
   aimCursorEl.appendChild(aimCursorImg);
   document.body.appendChild(aimCursorEl);
 
@@ -1613,21 +1641,161 @@ const ads = [
   shootCursorEl.textContent = 'SHOOT';
   document.body.appendChild(shootCursorEl);
 
+  // ── Space gun (3D model, first-person) ───────────────────────────────────
+  const gunWrapper = document.getElementById('bigger-gun') as HTMLElement | null;
+  const gunCanvas  = document.getElementById('gun-canvas')  as HTMLCanvasElement | null;
+
+  // ── Three.js gun setup ─────────────────────────────────────────────────────
+  let gunModel: THREE.Group | null = null;
+  let gunTargetRotY = 0, gunTargetRotX = 0;
+  let gunRotY = 0, gunRotX = 0;
+  // GUN_BASE_Y: 0 = model default orientation; adjust once visible
+  const GUN_BASE_Y = 0;
+
+  if (gunCanvas) {
+    const renderer = new THREE.WebGLRenderer({ canvas: gunCanvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping         = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 2.5;
+    renderer.setClearColor(0x000000, 0);
+
+    const scene  = new THREE.Scene();
+    const aspect = gunCanvas.clientWidth / gunCanvas.clientHeight;
+    const camera = new THREE.PerspectiveCamera(50, aspect, 0.001, 1000);
+    camera.position.set(0, 0.3, 1.8);
+    camera.lookAt(0, 0, 0);
+
+    // RoomEnvironment provides IBL so PBR metallic materials are actually visible
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    pmrem.dispose();
+
+    scene.add(new THREE.AmbientLight(0xffffff, 2));
+    const key  = new THREE.DirectionalLight(0xffffff, 3);
+    key.position.set(2, 3, 4);
+    scene.add(key);
+
+    const loader = new GLTFLoader();
+    loader.load('/3d/atom_blaster_2_free.glb', (gltf) => {
+      gunModel = gltf.scene;
+      // Force double-sided rendering so no faces are culled
+      gunModel.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          mats.forEach((m: THREE.Material) => { m.side = THREE.DoubleSide; });
+        }
+      });
+      const box    = new THREE.Box3().setFromObject(gunModel);
+      const centre = box.getCenter(new THREE.Vector3());
+      const size   = box.getSize(new THREE.Vector3()).length();
+      const scl    = 1.8 / (size || 1);
+      gunModel.scale.setScalar(scl);
+      // Position must offset by scale * centre, not bare centre.
+      // (world_centre = scale * local_centre + position → position = -scale * local_centre)
+      gunModel.position.set(-centre.x * scl, -centre.y * scl, -centre.z * scl);
+      gunModel.rotation.y = GUN_BASE_Y;
+      scene.add(gunModel);
+    }, undefined, (err) => console.error('[gun] load error:', err));
+
+    // Resize renderer when canvas changes size
+    const cv = gunCanvas;
+    function resizeRenderer() {
+      const w = cv.clientWidth;
+      const h = cv.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resizeRenderer).observe(cv);
+    resizeRenderer();
+
+    let gunTargetY = window.innerHeight * 1.5; // starts off-screen below
+    let gunY       = window.innerHeight * 1.5;
+
+    // Barrel tip in gunModel local space (from bbox analysis of the exported model)
+    const BARREL_TIP = new THREE.Vector3(0, 0.2, -20.2);
+
+    function renderGun() {
+      // Lerp rotation toward cursor target
+      gunRotY += (gunTargetRotY - gunRotY) * 0.10;
+      gunRotX += (gunTargetRotX - gunRotX) * 0.10;
+      if (gunModel) {
+        gunModel.rotation.y = GUN_BASE_Y + gunRotY;
+        gunModel.rotation.x = gunRotX;
+        // Project barrel tip to screen coords for muzzle flash placement
+        const tip = BARREL_TIP.clone();
+        gunModel.localToWorld(tip);
+        tip.project(camera);
+        const cr = cv.getBoundingClientRect();
+        (window as any).__gunMuzzleX = cr.left + (tip.x *  0.5 + 0.5) * cr.width;
+        (window as any).__gunMuzzleY = cr.top  + (1 - (tip.y * 0.5 + 0.5)) * cr.height;
+      }
+      // Slide wrapper on/off screen
+      gunY += (gunTargetY - gunY) * 0.07;
+      if (gunWrapper) gunWrapper.style.transform = `translateY(${gunY}px)`;
+      renderer.render(scene, camera);
+      requestAnimationFrame(renderGun);
+    }
+    renderGun();
+
+    // Expose show/hide/recoil for external callers
+    (window as any).__gunShow   = () => { gunTargetY = 0; };
+    (window as any).__gunHide   = () => { gunTargetY = window.innerHeight * 1.5; };
+    (window as any).__gunRecoil = () => {
+      // Kick up ~25px then spring back via lerp
+      gunTargetY -= 25;
+      setTimeout(() => { gunTargetY += 25; }, 75);
+    };
+
+    // Cursor tracking: compute real aim angle from gun base to cursor
+    window.addEventListener('mousemove', (e) => {
+      const nx = (e.clientX / window.innerWidth  - 0.5);
+      const ny = (e.clientY / window.innerHeight - 0.5);
+      gunTargetRotY = -nx * Math.PI * 0.35; // negated: positive cursor-right → barrel swings right
+      gunTargetRotX = -ny * Math.PI * 0.20; // ±18° pitch
+    }, { passive: true });
+  }
+
+  // Helper used by flash / scroll handler below
+  function gunShow() { (window as any).__gunShow?.(); }
+  function gunHide() { (window as any).__gunHide?.(); }
+
   window.addEventListener('mousemove', (e) => {
     aimCursorEl.style.left   = `${e.clientX}px`;
     aimCursorEl.style.top    = `${e.clientY}px`;
     shootCursorEl.style.left = `${e.clientX}px`;
     shootCursorEl.style.top  = `${e.clientY}px`;
+    // Gun cursor tracking handled inside the Three.js block
   }, { passive: true });
 
   // ── SHOOT flash sequence ──────────────────────────────────────────────────
   let shootFlashState: 'idle' | 'flashing' | 'done' = 'idle';
+
+  function lockScrollFor(ms: number) {
+    (window as any).__scrollLocked = true;
+    const lockedY = window.scrollY;
+    const block   = (e: Event) => e.preventDefault();
+    const restore = () => window.scrollTo(0, lockedY); // catches Safari momentum
+    window.addEventListener('wheel',     block,   { passive: false });
+    window.addEventListener('touchmove', block,   { passive: false });
+    window.addEventListener('scroll',    restore, { passive: true });
+    setTimeout(() => {
+      (window as any).__scrollLocked = false;
+      window.removeEventListener('wheel',     block);
+      window.removeEventListener('touchmove', block);
+      window.removeEventListener('scroll',    restore);
+    }, ms);
+  }
 
   function startShootFlash() {
     if (shootFlashState !== 'idle') return;
     shootFlashState = 'flashing';
     document.body.classList.add('bigger-shoot-mode');
     shootCursorEl.style.display = 'block';
+    gunShow(); // gun and SHOOT appear together
+    lockScrollFor(3500); // hold scroll for ~flash duration so fast scrollers don't skip it
 
     let count = 0;
     const flashes = 7;
@@ -1642,6 +1810,7 @@ const ads = [
         shootFlashState = 'done';
         document.body.classList.add('bigger-aim-mode');
         if (aimCursorEl) aimCursorEl.style.display = 'block';
+        gunShow(); // already on-screen from flash start
         return;
       }
       shootCursorEl.style.opacity = '1';
@@ -1722,57 +1891,40 @@ const ads = [
     }
   }
 
-  // ── Per-letter SVG mask destruction (organic blobs) ─────────────────────
-  // Uses SVG <mask>: white = visible, black = transparent.
-  // Black blobs accumulate without evenodd re-revealing — no grid, no right angles.
+  // ── Per-letter canvas destruction (organic blobs) ────────────────────────
+  // Canvas starts fully opaque (white). Blasts punch transparent holes with
+  // canvas 2D destination-out GCO. The canvas is then exported as a data-URL
+  // and applied as -webkit-mask-image / mask-image, giving real cutouts that
+  // work on both Chrome and Safari without any blend-mode CSS tricks.
 
-  const dmgSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  dmgSvg.setAttribute('width', '0');
-  dmgSvg.setAttribute('height', '0');
-  dmgSvg.style.cssText = 'position:absolute;overflow:visible;pointer-events:none;';
-  const dmgDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-  dmgSvg.appendChild(dmgDefs);
-  document.body.appendChild(dmgSvg);
-
-  interface LetterMask { maskEl: SVGMaskElement; blasted: number; letterArea: number; }
+  interface LetterMask { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D; blasted: number; letterArea: number; }
   const letterMaskMap = new Map<HTMLElement, LetterMask>();
 
-  function getOrCreateLetterMask(wrap: HTMLElement, idx: number): LetterMask {
+  function getOrCreateLetterMask(wrap: HTMLElement): LetterMask {
     if (letterMaskMap.has(wrap)) return letterMaskMap.get(wrap)!;
     const r = wrap.getBoundingClientRect();
 
-    const maskEl = document.createElementNS('http://www.w3.org/2000/svg', 'mask');
-    maskEl.id = `bigger-letter-mask-${idx}`;
-    maskEl.setAttribute('maskContentUnits', 'userSpaceOnUse');
+    const canvas = document.createElement('canvas');
+    canvas.width  = Math.ceil(r.width);
+    canvas.height = Math.ceil(r.height);
+    const ctx = canvas.getContext('2d')!;
+    // Fill white = fully visible; holes punched by destination-out → transparent → masked out
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // White base — letter fully visible
-    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    bg.setAttribute('x', '-9999'); bg.setAttribute('y', '-9999');
-    bg.setAttribute('width', '19999'); bg.setAttribute('height', '19999');
-    bg.setAttribute('fill', 'white');
-    maskEl.appendChild(bg);
-    dmgDefs.appendChild(maskEl);
+    // Apply initial mask (fully visible)
+    wrap.style['webkitMaskSize'] = '100% 100%';
+    wrap.style.maskSize          = '100% 100%';
 
-    wrap.style.mask       = `url(#bigger-letter-mask-${idx})`;
-    wrap.style.webkitMask = `url(#bigger-letter-mask-${idx})`;
-
-    const entry: LetterMask = { maskEl, blasted: 0, letterArea: r.width * r.height };
+    const entry: LetterMask = { canvas, ctx, blasted: 0, letterArea: r.width * r.height };
     letterMaskMap.set(wrap, entry);
     return entry;
   }
 
-  // Build a spiked, irregular polygon resembling a small explosion.
-  function blastPoints(lx: number, ly: number, radius: number): string {
-    const n = 13 + Math.floor(Math.random() * 4); // 13–16 spikes
-    const pts: string[] = [];
-    for (let i = 0; i < n; i++) {
-      // Uneven angular spacing — spikes aren't perfectly evenly distributed
-      const angle = (i / n) * Math.PI * 2 + (Math.random() - 0.5) * (Math.PI / n) * 1.4;
-      // Each spike radius varies wildly between 40% and 135% of base radius
-      const r = radius * (0.40 + Math.random() * 0.95);
-      pts.push(`${(lx + Math.cos(angle) * r).toFixed(1)},${(ly + Math.sin(angle) * r).toFixed(1)}`);
-    }
-    return pts.join(' ');
+  function applyCanvasMask(wrap: HTMLElement, canvas: HTMLCanvasElement) {
+    const url = canvas.toDataURL();
+    wrap.style['webkitMaskImage'] = `url('${url}')`;
+    wrap.style.maskImage          = `url('${url}')`;
   }
 
   function spawnDamageHole(cx: number, cy: number) {
@@ -1780,33 +1932,46 @@ const ads = [
     const wraps = Array.from(biggerWordWrap.querySelectorAll<HTMLElement>('.bigger-letter-wrap'));
 
     let hitWrap: HTMLElement | null = null;
-    let hitIdx = 0;
     for (let i = 0; i < wraps.length; i++) {
       const r = wraps[i].getBoundingClientRect();
       if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) {
-        hitWrap = wraps[i]; hitIdx = i; break;
+        hitWrap = wraps[i]; break;
       }
     }
     if (!hitWrap) {
       let best = Infinity;
-      wraps.forEach((w, i) => {
+      wraps.forEach((w) => {
         const r = w.getBoundingClientRect();
         const d = Math.hypot(cx - (r.left + r.width / 2), cy - (r.top + r.height / 2));
-        if (d < best) { best = d; hitWrap = w; hitIdx = i; }
+        if (d < best) { best = d; hitWrap = w; }
       });
     }
     if (!hitWrap) return;
 
-    const entry  = getOrCreateLetterMask(hitWrap, hitIdx);
+    const entry  = getOrCreateLetterMask(hitWrap);
     const r      = hitWrap.getBoundingClientRect();
     const lx     = cx - r.left;
     const ly     = cy - r.top;
-    const radius = r.width * 0.38; // ~38% of letter width per blast
+    const radius = r.width * 0.38;
 
-    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    poly.setAttribute('points', blastPoints(lx, ly, radius));
-    poly.setAttribute('fill', 'black');
-    entry.maskEl.appendChild(poly);
+    // Punch a transparent hole into the mask canvas using canvas destination-out
+    const { ctx, canvas } = entry;
+    ctx.globalCompositeOperation = 'destination-out';
+    const n = 13 + Math.floor(Math.random() * 4);
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const angle = (i / n) * Math.PI * 2 + (Math.random() - 0.5) * (Math.PI / n) * 1.4;
+      const rad   = radius * (0.40 + Math.random() * 0.95);
+      const x = lx + Math.cos(angle) * rad;
+      const y = ly + Math.sin(angle) * rad;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Export canvas as mask-image — transparent holes = element pixels hidden
+    applyCanvasMask(hitWrap, canvas);
 
     // Approximate area of an irregular blast (~55% of bounding circle)
     entry.blasted += Math.PI * radius * radius * 0.55;
@@ -1864,6 +2029,23 @@ const ads = [
     return false;
   }
 
+  function spawnMuzzleFlash() {
+    const cx = (window as any).__gunMuzzleX;
+    const cy = (window as any).__gunMuzzleY;
+    if (!cx || !cy) return;
+    const el = document.createElement('div');
+    el.style.cssText = [
+      'position:fixed', 'pointer-events:none', 'z-index:9991',
+      `left:${cx - 40}px`, `top:${cy - 40}px`,
+      'width:80px', 'height:80px', 'border-radius:50%',
+      'background:radial-gradient(circle,rgba(255,255,180,0.85) 0%,rgba(255,210,80,0.45) 45%,transparent 72%)',
+      'opacity:1', 'transition:opacity 0.14s ease-out',
+    ].join(';');
+    document.body.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => { el.style.opacity = '0'; }));
+    setTimeout(() => el.remove(), 220);
+  }
+
   window.addEventListener('click', (e) => {
     if (!document.body.classList.contains('bigger-aim-mode')) return;
     const hitTop = tryShootTopLine(e.clientX, e.clientY);
@@ -1871,6 +2053,8 @@ const ads = [
     spawnChips(e.clientX, e.clientY);
     if (!hitTop) spawnDamageHole(e.clientX, e.clientY);
     triggerShake();
+    spawnMuzzleFlash();
+    (window as any).__gunRecoil?.();
   });
 
   // ── Third section headline: scroll-driven word reveal ──
