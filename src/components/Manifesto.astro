@@ -466,7 +466,7 @@ const ads = [
   /* "Say hello to [logo]" headline */
   .intro-headline {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: clamp(12px, 2vw, 28px);
     padding: 0 clamp(24px, 7vw, 100px) clamp(32px, 4vw, 60px);
     flex-wrap: wrap;
@@ -477,11 +477,13 @@ const ads = [
     font-weight: 400;
     color: #e8e4de;
     white-space: nowrap;
-    line-height: 1;
+    line-height: 0.9;
   }
 
   .intro-say--brand {
-    color: #986edf;
+    font-size: clamp(52px, 9vw, 110px);
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
   }
 
   /* Slider */
@@ -526,6 +528,50 @@ const ads = [
     margin: 0;
     padding-top: 0;
     max-width: 520px;
+  }
+
+  /* ── Mobile overrides (must come AFTER desktop rules above to win the cascade) ── */
+  @media (max-width: 768px) {
+    /* "Reference." — bold on mobile */
+    .intro-say--brand { font-weight: 700; font-size: clamp(40px, 11vw, 70px); max-width: 70vw; }
+
+    /* Headline — smaller left pad matches slide left so "Say" aligns with title column */
+    .intro-headline {
+      padding: 0 clamp(14px, 4vw, 28px) 10px;
+    }
+
+    /* Slide — explicit column = 2 × font-size avoids orthogonal-item "auto" trap.           */
+    /* Column width must stay in sync with title font-size below.                            */
+    .intro-slide {
+      min-width: 100%;
+      max-width: 100vw;
+      min-height: 50svh;
+      display: grid;
+      grid-template-columns: clamp(80px, 22vw, 130px) 1fr;
+      gap: 20px;
+      padding: clamp(16px, 4vw, 26px) 12px clamp(16px, 4vw, 26px) clamp(14px, 4vw, 28px);
+    }
+
+    /* Title — stretch fills row height for consistent layout-bottom → visual-top mapping.  */
+    /* Column = 2 × font-size × line-height = 2 × clamp(42px,11vw,65px) × 0.82 ≈ above.   */
+    .intro-slide-title {
+      writing-mode: vertical-rl;
+      text-orientation: sideways;
+      transform: rotate(180deg);
+      width: auto;
+      font-size: clamp(42px, 11vw, 65px);
+      line-height: 0.82;
+      text-align: end;
+    }
+
+    /* Body — top-aligned within its cell so copy always starts from the same position.     */
+    /* min-width:0 prevents min-content from overflowing the 1fr cell.                      */
+    .intro-slide-body {
+      align-self: start;
+      min-width: 0;
+      max-width: none;
+      font-size: clamp(13px, 3.8vw, 16px);
+    }
   }
 
   /* Nav row */
@@ -596,6 +642,9 @@ const ads = [
     height: 100svh;
     pointer-events: none;
     z-index: 0;
+  }
+  @media (max-width: 768px) {
+    .third-grid { display: none; }
   }
 
   .manifesto-block--third .manifesto-inner {
@@ -1234,8 +1283,11 @@ const ads = [
 
     function goTo(idx: number) {
       current = Math.max(0, Math.min(total - 1, idx));
-      const slideW = (track?.parentElement as HTMLElement)?.offsetWidth ?? 0;
-      if (track) track.style.transform = `translateX(-${current * slideW * 0.85}px)`;
+      // Measure the first slide's actual rendered width so the offset is correct
+      // regardless of whether slides are 85% (desktop) or 100% (mobile) wide.
+      const firstSlide = track?.children[0] as HTMLElement | undefined;
+      const slideW = firstSlide?.offsetWidth ?? (track?.parentElement as HTMLElement)?.offsetWidth ?? 0;
+      if (track) track.style.transform = `translateX(-${current * slideW}px)`;
       if (counter) counter.textContent = `${String(current + 1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`;
       if (prevBtn) prevBtn.disabled = current === 0;
       if (nextBtn) nextBtn.disabled = current === total - 1;
