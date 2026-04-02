@@ -989,8 +989,15 @@ const ads = [
     pointer-events: none;
     z-index: 9990;
     transform-origin: center bottom;
-    --progress-bar-height: 0px;
     background: transparent;
+  }
+  @media (max-width: 768px) {
+    :global(#bigger-gun) {
+      width: 90vw;
+      left: 5vw;
+      height: 44vh;
+      bottom: -5%;
+    }
   }
 
   /* ── SHOOT prompt cursor — flashes before aim mode starts ── */
@@ -1677,7 +1684,7 @@ const ads = [
     scene.add(key);
 
     const loader = new GLTFLoader();
-    loader.load('/3d/atom_blaster_2_free.glb', (gltf) => {
+    loader.load('/3d/atom_blaster.glb', (gltf) => {
       gunModel = gltf.scene;
       // Force double-sided rendering so no faces are culled
       gunModel.traverse((child) => {
@@ -1733,7 +1740,7 @@ const ads = [
         (window as any).__gunMuzzleY = cr.top  + (1 - (tip.y * 0.5 + 0.5)) * cr.height;
       }
       // Slide wrapper on/off screen
-      gunY += (gunTargetY - gunY) * 0.07;
+      gunY += (gunTargetY - gunY) * 0.03;
       if (gunWrapper) gunWrapper.style.transform = `translateY(${gunY}px)`;
       renderer.render(scene, camera);
       requestAnimationFrame(renderGun);
