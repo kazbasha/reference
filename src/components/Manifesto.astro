@@ -145,15 +145,30 @@ const ads = [
           : i === 2
           ? <div class="lost-diagram" data-reveal>
               <p class="lost-diagram__headline" aria-label={line1}>
-                {line1.split(' ').map((word, wi) => (
-                  <span class="lost-word" data-wi={wi}>{word}&nbsp;</span>
-                ))}
+                {(() => {
+                  const words = line1.split(' ');
+                  const split = words.length - 3; // keep "we lost it." on one line
+                  return <>
+                    {words.slice(0, split).map((word, wi) => (
+                      <span class="lost-word" data-wi={wi}>{word}&nbsp;</span>
+                    ))}
+                    <span style="white-space: nowrap">
+                      {words.slice(split).map((word, wi) => (
+                        <span class="lost-word" data-wi={wi + split}>{word}&nbsp;</span>
+                      ))}
+                    </span>
+                  </>;
+                })()}
               </p>
               <CreativeSins client:visible />
             </div>
           : i === 3
           ? <div class="word-scroll-overlay">
               <span class="word-scroll-word" aria-hidden="true"></span>
+              <div class="word-scroll-lines" aria-hidden="true">
+                <p class="wsl-line wsl-line--1">Budgets shrank.</p>
+                <p class="wsl-line wsl-line--2">Big names faded.</p>
+              </div>
               <span class="word-scroll-sr">{line1} {line2}</span>
             </div>
           : i === 4
@@ -900,6 +915,38 @@ const ads = [
     white-space: nowrap;
   }
 
+  /* ── Two-line ending for word-scroll ── */
+  /* Hidden by default; JS sets display:flex when in lines phase */
+  .word-scroll-lines {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.18em;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .wsl-line {
+    margin: 0;
+    font-size: clamp(26px, 5.5vw, 72px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: #e8e4de;
+    white-space: nowrap;
+  }
+
+  /* Words start hidden; JS transitions opacity + transform inline */
+  .wsl-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .wsl-letter {
+    display: inline-block;
+  }
+
   /* ── Bigger section (i===4) ── */
   .manifesto-block--bigger {
     /* min-height set by JS */
@@ -1342,15 +1389,93 @@ const ads = [
   }
 
   // ── Word scroll (i===3) ──
-  const wordSection = document.querySelector<HTMLElement>('.manifesto-block--words');
-  const wordOverlay = wordSection?.querySelector<HTMLElement>('.word-scroll-overlay');
-  const wordEl      = wordOverlay?.querySelector<HTMLElement>('.word-scroll-word');
-  const scrollWords   = ['That', 'made', 'the', 'work', 'slow,', 'expensive', 'and', 'shite.', 'Budgets', 'shrank.', 'Big', 'names', 'faded.'];
-  const purpleWords   = new Set(['slow,', 'expensive', 'shite.', 'shrank.', 'faded.']);
-  let wordIdx = -1;
+  const wordSection  = document.querySelector<HTMLElement>('.manifesto-block--words');
+  const wordOverlay  = wordSection?.querySelector<HTMLElement>('.word-scroll-overlay');
+  const wordEl       = wordOverlay?.querySelector<HTMLElement>('.word-scroll-word');
+  const wslContainer = wordOverlay?.querySelector<HTMLElement>('.word-scroll-lines');
+  const wslLine1     = wslContainer?.querySelector<HTMLElement>('.wsl-line--1');
+  const wslLine2     = wslContainer?.querySelector<HTMLElement>('.wsl-line--2');
+  const scrollWords  = ['That', 'made', 'the', 'work', 'slow,', 'expensive', 'and', 'shite.'];
+  const purpleWords  = new Set(['slow,', 'expensive', 'shite.']);
+  let wordIdx  = -1;
+  let inLines  = false;
+  let inFading = false;
+  const WORD_END = 0.5;
+
+  // Build word/letter spans; periods are purple
+  function buildWslLine(el: HTMLElement, text: string) {
+    el.innerHTML = '';
+    text.split(' ').forEach((word, wi, arr) => {
+      const wordSpan = document.createElement('span');
+      wordSpan.className = 'wsl-word';
+      word.split('').forEach((char) => {
+        const ls = document.createElement('span');
+        ls.className = 'wsl-letter';
+        ls.textContent = char;
+        if (char === '.') ls.style.color = '#986edf';
+        wordSpan.appendChild(ls);
+      });
+      if (wi < arr.length - 1) wordSpan.appendChild(document.createTextNode('\u00a0'));
+      el.appendChild(wordSpan);
+    });
+  }
+
+  if (wslLine1) buildWslLine(wslLine1, 'Budgets shrank.');
+  if (wslLine2) buildWslLine(wslLine2, 'Big names faded.');
+
+  // All word spans across both lines
+  const wslWords = [
+    ...(wslLine1 ? Array.from(wslLine1.querySelectorAll<HTMLElement>('.wsl-word')) : []),
+    ...(wslLine2 ? Array.from(wslLine2.querySelectorAll<HTMLElement>('.wsl-word')) : []),
+  ];
+  // Time-based stagger (ms): Budgets, shrank., [gap], Big, names, faded.
+  const wslDelays = [0, 320, 900, 1200, 1500];
+  let wslTimers: ReturnType<typeof setTimeout>[] = [];
 
   if (wordSection) {
-    wordSection.style.minHeight = `${window.innerHeight * 3.2}px`;
+    wordSection.style.minHeight = `${window.innerHeight * 5.5}px`;
+  }
+
+  function startWslSequence() {
+    // Pin every word to its hidden state with no transition
+    wslWords.forEach((w) => {
+      w.style.transition = 'none';
+      w.style.opacity    = '0';
+      w.style.transform  = 'translateY(10px)';
+    });
+    // Double-RAF: let the browser paint the hidden state before any transition starts
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      wslWords.forEach((w, i) => {
+        const t = setTimeout(() => {
+          w.style.transition = 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)';
+          w.style.opacity    = '1';
+          w.style.transform  = 'translateY(0)';
+        }, wslDelays[i]);
+        wslTimers.push(t);
+      });
+    }));
+  }
+
+  function triggerLetterDissolve() {
+    if (!wslContainer) return;
+    const letters = Array.from(wslContainer.querySelectorAll<HTMLElement>('.wsl-letter'));
+    const delays  = letters.map(() => Math.random());
+    const max     = Math.max(...delays);
+    letters.forEach((l, i) => {
+      const t = (delays[i] / max * 0.9).toFixed(2);
+      l.style.animation = `letter-dissolve 0.25s ease-in ${t}s forwards`;
+    });
+  }
+
+  function resetWslWords() {
+    wslTimers.forEach(clearTimeout);
+    wslTimers = [];
+    wslWords.forEach((w) => {
+      w.style.transition = 'none';
+      w.style.opacity    = '0';
+      w.style.transform  = 'translateY(10px)';
+    });
+    wslContainer?.querySelectorAll<HTMLElement>('.wsl-letter').forEach((l) => { l.style.animation = ''; });
   }
 
   function applyWordScroll() {
@@ -1360,42 +1485,77 @@ const ads = [
     const sh     = wordSection.offsetHeight;
     const active = rect.top < vh && rect.bottom > 0;
     wordOverlay.classList.toggle('is-active', active);
-    if (!active) { wordIdx = -1; return; }
+    if (!active) {
+      wordIdx = -1; inLines = false; inFading = false;
+      wordEl.style.display = '';
+      if (wslContainer) wslContainer.style.display = 'none';
+      return;
+    }
     const scrollRange = sh - vh;
     const progress    = Math.max(0, Math.min(1, -rect.top / scrollRange));
-    const raw         = Math.floor(progress * scrollWords.length);
-    const idx         = Math.min(raw, scrollWords.length - 1);
-    if (idx !== wordIdx) {
-      wordIdx = idx;
-      const isLast = idx === scrollWords.length - 1;
-      wordEl.classList.remove('is-in');
-      void wordEl.offsetWidth;
-      const isPurple = purpleWords.has(scrollWords[idx]);
-      wordEl.style.color = '';
-      const letterColor = (char: string) =>
-        isPurple && /[a-zA-Z]/.test(char) ? '#986edf' : '#e8e4de';
-      if (isLast) {
+
+    if (progress >= WORD_END) {
+      // ── Two-line ending phase ──
+      if (!inLines) {
+        inLines = true;
+        wordIdx = -1;
         wordEl.innerHTML = '';
-        scrollWords[idx].split('').forEach((char) => {
-          const span = document.createElement('span');
-          span.textContent = char;
-          span.style.display = 'inline-block';
-          span.style.color = letterColor(char);
-          const dissolveDelay = (0.4 + Math.random() * 1.4).toFixed(2);
-          const dissolveDur   = (0.2 + Math.random() * 0.4).toFixed(2);
-          span.style.animation = `letter-appear 0.25s cubic-bezier(0.16,1,0.3,1) forwards, letter-dissolve ${dissolveDur}s ease-in ${dissolveDelay}s forwards`;
-          wordEl.appendChild(span);
-        });
-      } else if (isPurple) {
-        const m = scrollWords[idx].match(/^([a-zA-Z]+)([^a-zA-Z]*)$/);
-        wordEl.innerHTML = m && m[2]
-          ? `<span style="color:#986edf">${m[1]}</span><span style="color:#e8e4de">${m[2]}</span>`
-          : `<span style="color:#986edf">${scrollWords[idx]}</span>`;
-        wordEl.classList.add('is-in');
-      } else {
-        wordEl.style.color = '#e8e4de';
-        wordEl.textContent = scrollWords[idx];
-        wordEl.classList.add('is-in');
+        wordEl.classList.remove('is-in');
+        wordEl.style.display = 'none';
+        if (wslContainer) wslContainer.style.display = 'flex';
+        startWslSequence();
+      }
+      const lP = (progress - WORD_END) / (1 - WORD_END);
+
+      const shouldFade = lP >= 0.84;
+      if (shouldFade && !inFading) {
+        inFading = true;
+        triggerLetterDissolve();
+      } else if (!shouldFade && inFading) {
+        inFading = false;
+        wslContainer?.querySelectorAll<HTMLElement>('.wsl-letter').forEach((l) => { l.style.animation = ''; });
+      }
+    } else {
+      // ── Word phase ──
+      if (inLines) {
+        inLines  = false;
+        inFading = false;
+        wordEl.style.display = '';
+        if (wslContainer) wslContainer.style.display = 'none';
+        resetWslWords();
+      }
+      const wordProgress = progress / WORD_END;
+      const raw = Math.floor(wordProgress * scrollWords.length);
+      const idx = Math.min(raw, scrollWords.length - 1);
+      if (idx !== wordIdx) {
+        wordIdx = idx;
+        const isLast  = idx === scrollWords.length - 1;
+        wordEl.classList.remove('is-in');
+        void wordEl.offsetWidth;
+        const isPurple = purpleWords.has(scrollWords[idx]);
+        if (isLast) {
+          wordEl.innerHTML = '';
+          scrollWords[idx].split('').forEach((char) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.display = 'inline-block';
+            span.style.color = /[a-zA-Z]/.test(char) ? '#986edf' : '#e8e4de';
+            const dDelay = (0.3 + Math.random() * 0.8).toFixed(2);
+            const dDur   = (0.2 + Math.random() * 0.25).toFixed(2);
+            span.style.animation = `letter-appear 0.22s cubic-bezier(0.16,1,0.3,1) forwards, letter-dissolve ${dDur}s ease-in ${dDelay}s forwards`;
+            wordEl.appendChild(span);
+          });
+        } else if (isPurple) {
+          const m = scrollWords[idx].match(/^([a-zA-Z]+)([^a-zA-Z]*)$/);
+          wordEl.innerHTML = m && m[2]
+            ? `<span style="color:#986edf">${m[1]}</span><span style="color:#e8e4de">${m[2]}</span>`
+            : `<span style="color:#986edf">${scrollWords[idx]}</span>`;
+          wordEl.classList.add('is-in');
+        } else {
+          wordEl.style.color = '#e8e4de';
+          wordEl.textContent = scrollWords[idx];
+          wordEl.classList.add('is-in');
+        }
       }
     }
   }
