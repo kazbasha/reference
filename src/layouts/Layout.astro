@@ -490,6 +490,11 @@ const {
             p.style.display = p.dataset.page === target ? '' : 'none';
           });
           window.scrollTo({ top: 0, behavior: 'instant' });
+          // Let layout settle then re-run any size-calibration that needs offsetWidth
+          requestAnimationFrame(() => {
+            window.dispatchEvent(new Event('resize'));
+            setTimeout(() => { (window as any).__calibrateBIGGER?.(); }, 80);
+          });
         });
       });
     </script>

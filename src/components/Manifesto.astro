@@ -291,8 +291,8 @@ const ads = [
     ); })
   }
 
-  <!-- Closing CTA — portal -->
-  <section class="manifesto-block manifesto-block--finale">
+  <!-- Closing CTA — portal (not shown on WHY page) -->
+  {endIndex > 5 && <section class="manifesto-block manifesto-block--finale">
 
     <!-- Flat regular grid — visible outside the portal -->
     <svg
@@ -337,13 +337,15 @@ const ads = [
       <span class="contact-btn-email">hello@reference.studio</span>
     </a>
 
-  </section>
+  </section>}
 </div>
 
-<!-- Space gun — Three.js renders GLB into this canvas -->
-<div id="bigger-gun">
-  <canvas id="gun-canvas" style="width:100%;height:100%;display:block;"></canvas>
-</div>
+<!-- Space gun — only present when the bigger section (i===4) is rendered -->
+{startIndex <= 4 && endIndex > 4 && (
+  <div id="bigger-gun">
+    <canvas id="gun-canvas" style="width:100%;height:100%;display:block;"></canvas>
+  </div>
+)}
 
 <style>
   .manifesto-block {
@@ -468,9 +470,9 @@ const ads = [
     color: #1a1a1a;
   }
 
-  /* ── Intro section (i===5): racing green bg, "Say hello to" + slider ── */
+  /* ── Intro section (i===5): purple bg, "Say hello to" + slider ── */
   .manifesto-block--intro {
-    background: #0a3d1f;
+    background: #986edf;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -545,7 +547,7 @@ const ads = [
   .intro-slide-body {
     font-size: clamp(14px, 1.5vw, 22px);
     line-height: 1.55;
-    color: rgba(232, 228, 222, 0.75);
+    color: #1a1a1a;
     margin: 0;
     padding-top: 0;
     max-width: 520px;
@@ -1202,15 +1204,7 @@ const ads = [
     height: 100%;
     pointer-events: none;
     z-index: 0;
-    transform-origin: center;
-    animation: grid-pulse 4s linear infinite;
-  }
-
-  @keyframes grid-pulse {
-    0%   { transform: scale(1);    opacity: 0.13; }
-    8%   { transform: scale(1.07); opacity: 0.28; }
-    28%  { transform: scale(1);    opacity: 0.13; }
-    100% { transform: scale(1);    opacity: 0.13; }
+    opacity: 0.13;
   }
 
   /* Morphing button — circle → rectangle */
@@ -1229,14 +1223,16 @@ const ads = [
     overflow: hidden;
     transition:
       width 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      height 0.65s cubic-bezier(0.16, 1, 0.3, 1),
       border-radius 0.65s cubic-bezier(0.16, 1, 0.3, 1),
       border-color 0.3s ease,
       background 0.65s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .contact-btn:hover {
-    width: clamp(240px, 22vw, 320px);
-    border-radius: 4px;
+    width: clamp(320px, 30vw, 440px);
+    height: clamp(320px, 30vw, 440px);
+    border-radius: 50%;
     border-color: rgba(152, 110, 223, 0.7);
     background: #0d0318;
   }
@@ -1624,6 +1620,7 @@ const ads = [
   }
   document.fonts.ready.then(calibrateBIGGERFontSize);
   window.addEventListener('resize', calibrateBIGGERFontSize, { passive: true });
+  (window as any).__calibrateBIGGER = calibrateBIGGERFontSize;
 
   const TOP_FRAC = 0.70;
   const BOT_FRAC = 0.19;
