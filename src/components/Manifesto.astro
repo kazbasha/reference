@@ -1,6 +1,12 @@
 ---
 import CreativeSins from './CreativeSins.tsx';
 
+interface Props {
+  startIndex?: number;
+  endIndex?: number;
+}
+const { startIndex = 0, endIndex = 7 } = Astro.props;
+
 const introSlides = [
   {
     title: "Run like\na band",
@@ -120,7 +126,7 @@ const ads = [
 
 <div class="manifesto">
   {
-    blocks.map(([line1, line2], i) => (
+    blocks.slice(startIndex, endIndex).map(([line1, line2], sliceIdx) => { const i = sliceIdx + startIndex; return (
       <Fragment>
       <section class:list={["manifesto-block", { "manifesto-block--alt": i % 2 !== 0, "manifesto-block--first": i === 0, "manifesto-block--green": i === 1, "manifesto-block--third": i === 2, "manifesto-block--words": i === 3, "manifesto-block--bigger": i === 4, "manifesto-block--intro": i === 5, "manifesto-block--closing": i === 6 }]}>
         {i === 1
@@ -282,7 +288,7 @@ const ads = [
         </div>
       )}
       </Fragment>
-    ))
+    ); })
   }
 
   <!-- Closing CTA — portal -->

@@ -2,9 +2,18 @@
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
 import Manifesto from "../components/Manifesto.astro";
+import StudioIntro from "../components/StudioIntro.astro";
 ---
 
 <Layout>
-  <Hero />
-  <Manifesto />
+  <div data-page="who">
+    <Hero />
+    <StudioIntro />
+  </div>
+  <div data-page="what" style="display:none">
+    <Manifesto startIndex={5} />
+  </div>
+  <div data-page="why"  style="display:none">
+    <Manifesto endIndex={5} />
+  </div>
 </Layout>

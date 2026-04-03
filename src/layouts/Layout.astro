@@ -27,6 +27,14 @@ const {
 
     <style>
       @font-face {
+        font-family: "TrashHand";
+        src: url("/fonts/TrashHand.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
         font-family: "ObviouslyWide";
         src: url("/fonts/ObviouslyWide-Regular.woff2") format("woff2");
         font-weight: 400;
@@ -91,19 +99,15 @@ const {
       /* Brand mark */
       .brand-mark {
         position: fixed;
-        top: 24px;
+        bottom: 24px;
         left: 24px;
         z-index: 8000;
         display: block;
         height: 32px;
         width: 32px;
-        opacity: 0;
-        pointer-events: none; /* always none — hover/click handled in JS */
-        transition: opacity 0.4s ease, width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      .brand-mark.is-visible {
         opacity: 1;
+        pointer-events: none; /* always none — hover/click handled in JS */
+        transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .brand-mark__symbol,
@@ -163,6 +167,42 @@ const {
       .brand-mark--on-light .brand-mark__symbol,
       .brand-mark--on-light .brand-mark__logo {
         filter: brightness(0);
+      }
+
+      /* ── Top nav tabs ── */
+      .nav-tab {
+        position: fixed;
+        z-index: 8000;
+        font-family: "TrashHand", cursive;
+        font-size: 17px;
+        font-weight: 400;
+        letter-spacing: 0.04em;
+        color: rgba(232, 228, 222, 0.55);
+        background: none;
+        border: none;
+        padding: 6px 0 4px;
+        cursor: none;
+        transition: color 0.2s ease;
+        text-transform: uppercase;
+        line-height: 1;
+      }
+
+      .nav-tab[data-tab="who"]  { top: 18px; left: 24px; }
+      .nav-tab[data-tab="what"] { top: 40px; left: 24px; }
+      .nav-tab[data-tab="why"]  { top: 62px; left: 24px; }
+
+      .nav-tab:hover,
+      .nav-tab.is-active {
+        color: rgba(232, 228, 222, 0.9);
+      }
+
+      .nav-tab--on-light {
+        color: rgba(26, 26, 26, 0.5);
+      }
+
+      .nav-tab--on-light:hover,
+      .nav-tab--on-light.is-active {
+        color: rgba(26, 26, 26, 0.9);
       }
 
       /* Custom cursor dot */
@@ -250,6 +290,11 @@ const {
       <div class="brand-mark__symbol"></div>
       <div class="brand-mark__logo"></div>
     </div>
+
+    <!-- Top nav tabs -->
+    <button class="nav-tab is-active" data-tab="who">WHO</button>
+    <button class="nav-tab" data-tab="what">WHAT</button>
+    <button class="nav-tab" data-tab="why">WHY</button>
 
     <!-- Grain texture — feTurbulence fractalNoise -->
     <svg class="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -341,21 +386,19 @@ const {
       // ── Brand mark: hover + click via coordinate tracking (pointer-events stays none) ──
       const brandMark     = document.getElementById("brand-mark") as HTMLElement;
       if (brandMark) {
-        const hero          = document.querySelector<HTMLElement>(".hero");
         const lightSections = Array.from(document.querySelectorAll<HTMLElement>(
-          ".manifesto-block--first, .manifesto-block--third"
+          ".manifesto-block--first, .manifesto-block--third, .studio-intro"
         ));
 
+        const navTabEls = Array.from(document.querySelectorAll<HTMLElement>(".nav-tab"));
+
         function updateBrandMark() {
-          const pastHero = hero
-            ? hero.getBoundingClientRect().bottom <= 0
-            : window.scrollY > window.innerHeight * 0.8;
-          brandMark.classList.toggle("is-visible", pastHero);
           const onLight = lightSections.some((s) => {
             const r = s.getBoundingClientRect();
             return r.top < window.innerHeight && r.bottom > 0;
           });
           brandMark.classList.toggle("brand-mark--on-light", onLight);
+          navTabEls.forEach((t) => t.classList.toggle("nav-tab--on-light", onLight));
         }
         window.addEventListener("scroll", updateBrandMark, { passive: true });
         updateBrandMark();
@@ -433,6 +476,22 @@ const {
           }
         });
       }
+
+      // ── Nav tabs ──
+      const navTabs  = Array.from(document.querySelectorAll<HTMLElement>('.nav-tab'));
+      const pages    = Array.from(document.querySelectorAll<HTMLElement>('[data-page]'));
+
+      navTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          navTabs.forEach((t) => t.classList.remove('is-active'));
+          tab.classList.add('is-active');
+          const target = tab.dataset.tab;
+          pages.forEach((p) => {
+            p.style.display = p.dataset.page === target ? '' : 'none';
+          });
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        });
+      });
     </script>
   </body>
 </html>
