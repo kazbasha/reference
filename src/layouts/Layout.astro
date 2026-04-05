@@ -187,9 +187,11 @@ const {
         line-height: 1;
       }
 
-      .nav-tab[data-tab="who"]  { top: 18px; left: 24px; }
-      .nav-tab[data-tab="what"] { top: 40px; left: 24px; }
-      .nav-tab[data-tab="why"]  { top: 62px; left: 24px; }
+      .nav-tab[data-tab="home"]     { top: 18px; left: 24px; }
+      .nav-tab[data-tab="industry"] { top: 40px; left: 24px; }
+      .nav-tab[data-tab="about"]    { top: 62px; left: 24px; }
+      .nav-tab[data-tab="work"]     { top: 84px; left: 24px; }
+      .nav-tab[data-tab="contact"]  { top: 106px; left: 24px; }
 
       .nav-tab:hover,
       .nav-tab.is-active {
@@ -292,9 +294,11 @@ const {
     </div>
 
     <!-- Top nav tabs -->
-    <button class="nav-tab is-active" data-tab="who">WHO</button>
-    <button class="nav-tab" data-tab="what">WHAT</button>
-    <button class="nav-tab" data-tab="why">WHY</button>
+    <button class="nav-tab is-active" data-tab="home">HOME</button>
+    <button class="nav-tab" data-tab="industry">INDUSTRY</button>
+    <button class="nav-tab" data-tab="about">ABOUT</button>
+    <button class="nav-tab" data-tab="work">WORK</button>
+    <button class="nav-tab" data-tab="contact">CONTACT</button>
 
     <!-- Grain texture — feTurbulence fractalNoise -->
     <svg class="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -385,21 +389,47 @@ const {
 
       // ── Brand mark: hover + click via coordinate tracking (pointer-events stays none) ──
       const brandMark     = document.getElementById("brand-mark") as HTMLElement;
+      const navTabEls     = Array.from(document.querySelectorAll<HTMLElement>(".nav-tab"));
+      let updateBrandMark     = () => {};
+      let updateMusicToggleColor = () => {};
+
       if (brandMark) {
-        const lightSections = Array.from(document.querySelectorAll<HTMLElement>(
-          ".manifesto-block--first, .manifesto-block--third, .studio-intro"
-        ));
 
-        const navTabEls = Array.from(document.querySelectorAll<HTMLElement>(".nav-tab"));
+        function getBgLuminanceAt(x: number, y: number): number {
+          // Temporarily hide fixed overlays so elementFromPoint hits the page bg
+          const overlays = [brandMark, document.getElementById("cursor-dot"), document.getElementById("music-toggle")];
+          overlays.forEach(el => el && (el.style.visibility = "hidden"));
+          const navEls = document.querySelectorAll<HTMLElement>(".nav-tab");
+          navEls.forEach(el => el.style.visibility = "hidden");
 
-        function updateBrandMark() {
-          const onLight = lightSections.some((s) => {
-            const r = s.getBoundingClientRect();
-            return r.top < window.innerHeight && r.bottom > 0;
-          });
-          brandMark.classList.toggle("brand-mark--on-light", onLight);
-          navTabEls.forEach((t) => t.classList.toggle("nav-tab--on-light", onLight));
+          let el = document.elementFromPoint(x, y) as HTMLElement | null;
+
+          overlays.forEach(el => el && (el.style.visibility = ""));
+          navEls.forEach(el => el.style.visibility = "");
+
+          while (el && el !== document.body) {
+            const bg = getComputedStyle(el).backgroundColor;
+            const m  = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (m) {
+              const [r, g, b] = [+m[1], +m[2], +m[3]];
+              if (r + g + b > 0) {
+                // Perceived luminance
+                return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+              }
+            }
+            el = el.parentElement;
+          }
+          return 0; // default dark
         }
+
+        updateBrandMark = function() {
+          const bmR    = brandMark.getBoundingClientRect();
+          const navR   = navTabEls[0]?.getBoundingClientRect();
+          const onLightBm  = getBgLuminanceAt(bmR.left + 16,  bmR.top + 16)  > 0.5;
+          const onLightNav = navR ? getBgLuminanceAt(navR.left + 16, navR.top + 10) > 0.5 : onLightBm;
+          brandMark.classList.toggle("brand-mark--on-light", onLightBm);
+          navTabEls.forEach((t) => t.classList.toggle("nav-tab--on-light", onLightNav));
+        };
         window.addEventListener("scroll", updateBrandMark, { passive: true });
         updateBrandMark();
 
@@ -428,18 +458,25 @@ const {
       if (music && musicToggle) {
         const musicToggleText = musicToggle.querySelector(".music-toggle__text") as HTMLElement;
 
-        // Light/dark background detection
-        const lightSectionsForToggle = Array.from(document.querySelectorAll<HTMLElement>(
-          ".manifesto-block--first, .manifesto-block--third, .manifesto-block--closing"
-        ));
-        function updateMusicToggleColor() {
+        updateMusicToggleColor = function() {
           const tr = musicToggle.getBoundingClientRect();
-          const onLight = lightSectionsForToggle.some((s) => {
-            const r = s.getBoundingClientRect();
-            return r.top < tr.bottom && r.bottom > tr.top;
-          });
-          musicToggle.classList.toggle("music-toggle--on-light", onLight);
-        }
+          const cx = tr.left + tr.width / 2;
+          const cy = tr.top  + tr.height / 2;
+          musicToggle.style.visibility = "hidden";
+          let el = document.elementFromPoint(cx, cy) as HTMLElement | null;
+          musicToggle.style.visibility = "";
+          let lum = 0;
+          while (el && el !== document.body) {
+            const bg = getComputedStyle(el).backgroundColor;
+            const m  = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (m) {
+              const [r, g, b] = [+m[1], +m[2], +m[3]];
+              if (r + g + b > 0) { lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255; break; }
+            }
+            el = el.parentElement;
+          }
+          musicToggle.classList.toggle("music-toggle--on-light", lum > 0.5);
+        };
         window.addEventListener("scroll", updateMusicToggleColor, { passive: true });
         updateMusicToggleColor();
 
@@ -490,9 +527,11 @@ const {
             p.style.display = p.dataset.page === target ? '' : 'none';
           });
           window.scrollTo({ top: 0, behavior: 'instant' });
-          // Let layout settle then re-run any size-calibration that needs offsetWidth
+          // Let layout settle then re-run size-calibration and colour detection
           requestAnimationFrame(() => {
             window.dispatchEvent(new Event('resize'));
+            updateBrandMark();
+            updateMusicToggleColor();
             setTimeout(() => { (window as any).__calibrateBIGGER?.(); }, 80);
           });
         });

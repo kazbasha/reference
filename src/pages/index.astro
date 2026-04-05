@@ -6,14 +6,89 @@ import StudioIntro from "../components/StudioIntro.astro";
 ---
 
 <Layout>
-  <div data-page="who">
+  <div data-page="home">
     <Hero />
     <StudioIntro />
+    <Manifesto startIndex={5} endIndex={6} />
   </div>
-  <div data-page="what" style="display:none">
-    <Manifesto startIndex={5} />
-  </div>
-  <div data-page="why"  style="display:none">
+  <div data-page="industry" style="display:none">
     <Manifesto endIndex={5} />
   </div>
+  <div data-page="about" style="display:none">
+    <section class="about-page">
+      <div class="about-image-wrap">
+        <img src="/images/about-started.webp" alt="" class="about-img" />
+      </div>
+      <div class="about-content">
+        <h2 class="about-headline">WHERE IT STARTED</h2>
+        <div class="about-body">
+          <p>Wembley Stadium. August 2nd, 2025.<br />Oasis back on stage.<br />Two brothers. Loud. Raw. No compromise.<br />It reminded us how great work actually happens. When the people making it stay close. Hands-on. Backing their instincts. No committee in the room killing it.</p>
+          <p>So we started Reference. Together.</p>
+          <p>To take back control.</p>
+          <p>Like a band.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div data-page="work" style="display:none">
+  </div>
+  <div data-page="contact" style="display:none">
+    <Manifesto startIndex={6} />
+  </div>
 </Layout>
+
+<style>
+  .about-page {
+    min-height: 100svh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    background: #0a0a0a;
+  }
+
+  .about-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(80px, 10vw, 140px) clamp(24px, 7vw, 100px);
+  }
+
+  .about-image-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .about-headline {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(11px, 1vw, 14px);
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(232, 228, 222, 0.5);
+    margin: 0 0 1.5em;
+  }
+
+  .about-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2em;
+  }
+
+  .about-body p {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(13px, 1.1vw, 17px);
+    font-weight: 400;
+    line-height: 1.45;
+    color: #e8e4de;
+    margin: 0;
+  }
+</style>

@@ -25,10 +25,6 @@ const introSlides = [
     body: "We bring in the right people when required. People we trust, we've worked with. Not whoever's free on Tuesday.",
   },
   {
-    title: "We really\ncare",
-    body: "Taste. Detail. Standards. We sweat the bits others rush past. Because we're sick of all the slop.",
-  },
-  {
     title: "Our\npartners",
     body: "Brands, agencies, production houses, directors. The ones who give a shit about the work. They come back for a reason.",
   },
@@ -222,7 +218,7 @@ const ads = [
                   ))}
                 </div>
                 <div class="intro-slider-nav">
-                  <span class="intro-slider-counter">01 / 06</span>
+                  <span class="intro-slider-counter">01 / 05</span>
                   <div class="intro-slider-arrows">
                     <button class="intro-slider-btn intro-slider-prev" aria-label="Previous">←</button>
                     <button class="intro-slider-btn intro-slider-next" aria-label="Next">→</button>
@@ -292,7 +288,7 @@ const ads = [
   }
 
   <!-- Closing CTA — portal (not shown on WHY page) -->
-  {endIndex > 5 && <section class="manifesto-block manifesto-block--finale">
+  {startIndex >= 6 && <section class="manifesto-block manifesto-block--finale">
 
     <!-- Flat regular grid — visible outside the portal -->
     <svg
@@ -1327,7 +1323,7 @@ const ads = [
     const prevBtn = document.querySelector<HTMLButtonElement>('.intro-slider-prev');
     const nextBtn = document.querySelector<HTMLButtonElement>('.intro-slider-next');
     const counter = document.querySelector<HTMLElement>('.intro-slider-counter');
-    const total   = 6;
+    const total   = 5;
     let   current = 0;
 
     function goTo(idx: number) {
