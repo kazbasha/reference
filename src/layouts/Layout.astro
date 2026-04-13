@@ -139,25 +139,6 @@ const {
         transition: opacity 0s, filter 0.3s ease;
       }
 
-      /* JS adds .is-hovered instead of :hover */
-      .brand-mark.is-hovered .brand-mark__symbol {
-        opacity: 0;
-      }
-
-      .brand-mark.is-hovered .brand-mark__logo {
-        opacity: 1;
-        animation: logo-wipe 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-
-      @keyframes logo-wipe {
-        from { clip-path: inset(0 100% 8% 0); }
-        to   { clip-path: inset(0 0%   8% 0); }
-      }
-
-      .brand-mark.is-hovered {
-        width: 160px;
-        height: 36px;
-      }
 
       /* Inherit currentColor per section */
       .brand-mark { color: #e8e4de; }
@@ -169,14 +150,23 @@ const {
         filter: brightness(0);
       }
 
-      /* ── Top nav tabs ── */
-      .nav-tab {
+      /* ── Top nav bar ── */
+      .nav-bar {
         position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
         z-index: 8000;
-        font-family: "TrashHand", cursive;
-        font-size: 17px;
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 24px;
+      }
+
+      .nav-tab {
+        font-family: "ObviouslyWide", system-ui, sans-serif;
+        font-size: 9px;
         font-weight: 400;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.22em;
         color: rgba(232, 228, 222, 0.55);
         background: none;
         border: none;
@@ -186,12 +176,6 @@ const {
         text-transform: uppercase;
         line-height: 1;
       }
-
-      .nav-tab[data-tab="home"]     { top: 18px; left: 24px; }
-      .nav-tab[data-tab="industry"] { top: 40px; left: 24px; }
-      .nav-tab[data-tab="about"]    { top: 62px; left: 24px; }
-      .nav-tab[data-tab="work"]     { top: 84px; left: 24px; }
-      .nav-tab[data-tab="contact"]  { top: 106px; left: 24px; }
 
       .nav-tab:hover,
       .nav-tab.is-active {
@@ -294,11 +278,13 @@ const {
     </div>
 
     <!-- Top nav tabs -->
-    <button class="nav-tab is-active" data-tab="home">HOME</button>
-    <button class="nav-tab" data-tab="industry">INDUSTRY</button>
-    <button class="nav-tab" data-tab="about">ABOUT</button>
-    <button class="nav-tab" data-tab="work">WORK</button>
-    <button class="nav-tab" data-tab="contact">CONTACT</button>
+    <nav class="nav-bar">
+      <button class="nav-tab is-active" data-tab="home">HOME</button>
+      <button class="nav-tab" data-tab="industry">INDUSTRY</button>
+      <button class="nav-tab" data-tab="about">ABOUT</button>
+      <button class="nav-tab" data-tab="work">WORK</button>
+      <button class="nav-tab" data-tab="contact">CONTACT</button>
+    </nav>
 
     <!-- Grain texture — feTurbulence fractalNoise -->
     <svg class="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -397,15 +383,13 @@ const {
 
         function getBgLuminanceAt(x: number, y: number): number {
           // Temporarily hide fixed overlays so elementFromPoint hits the page bg
-          const overlays = [brandMark, document.getElementById("cursor-dot"), document.getElementById("music-toggle")];
+          const navBar = document.querySelector<HTMLElement>(".nav-bar");
+          const overlays = [brandMark, document.getElementById("cursor-dot"), document.getElementById("music-toggle"), navBar];
           overlays.forEach(el => el && (el.style.visibility = "hidden"));
-          const navEls = document.querySelectorAll<HTMLElement>(".nav-tab");
-          navEls.forEach(el => el.style.visibility = "hidden");
 
           let el = document.elementFromPoint(x, y) as HTMLElement | null;
 
           overlays.forEach(el => el && (el.style.visibility = ""));
-          navEls.forEach(el => el.style.visibility = "");
 
           while (el && el !== document.body) {
             const bg = getComputedStyle(el).backgroundColor;
@@ -423,23 +407,17 @@ const {
         }
 
         updateBrandMark = function() {
-          const bmR    = brandMark.getBoundingClientRect();
-          const navR   = navTabEls[0]?.getBoundingClientRect();
-          const onLightBm  = getBgLuminanceAt(bmR.left + 16,  bmR.top + 16)  > 0.5;
-          const onLightNav = navR ? getBgLuminanceAt(navR.left + 16, navR.top + 10) > 0.5 : onLightBm;
+          const bmR = brandMark.getBoundingClientRect();
+          const onLightBm = getBgLuminanceAt(bmR.left + 16, bmR.top + 16) > 0.5;
           brandMark.classList.toggle("brand-mark--on-light", onLightBm);
-          navTabEls.forEach((t) => t.classList.toggle("nav-tab--on-light", onLightNav));
+          navTabEls.forEach((t) => {
+            const r = t.getBoundingClientRect();
+            const onLight = getBgLuminanceAt(r.left + r.width / 2, r.top + r.height / 2) > 0.5;
+            t.classList.toggle("nav-tab--on-light", onLight);
+          });
         };
         window.addEventListener("scroll", updateBrandMark, { passive: true });
         updateBrandMark();
-
-        // Hover: check if mouse is over the brand mark area on every mousemove
-        document.addEventListener("mousemove", (e) => {
-          const r = brandMark.getBoundingClientRect();
-          const over = e.clientX >= r.left && e.clientX <= r.right &&
-                       e.clientY >= r.top  && e.clientY <= r.bottom;
-          brandMark.classList.toggle("is-hovered", over);
-        });
 
         // Click: scroll to top if click lands within brand mark bounds
         document.addEventListener("click", (e) => {
@@ -487,20 +465,6 @@ const {
           }).catch(() => {});
         }
 
-        // Attempt autoplay immediately
-        startMusic();
-
-        // If blocked, play on first user interaction
-        function onFirstInteraction() {
-          if (music.paused) startMusic();
-          document.removeEventListener("click", onFirstInteraction);
-          document.removeEventListener("keydown", onFirstInteraction);
-          document.removeEventListener("touchstart", onFirstInteraction);
-        }
-        document.addEventListener("click", onFirstInteraction);
-        document.addEventListener("keydown", onFirstInteraction);
-        document.addEventListener("touchstart", onFirstInteraction);
-
         musicToggle.addEventListener("click", (e) => {
           e.stopPropagation();
           if (music.paused) {
@@ -532,7 +496,10 @@ const {
             window.dispatchEvent(new Event('resize'));
             updateBrandMark();
             updateMusicToggleColor();
-            setTimeout(() => { (window as any).__calibrateBIGGER?.(); }, 80);
+            setTimeout(() => {
+              (window as any).__calibrateBIGGER?.();
+              (window as any).__initAboutParallax?.();
+            }, 80);
           });
         });
       });
