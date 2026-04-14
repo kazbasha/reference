@@ -32,13 +32,43 @@ import StudioIntro from "../components/StudioIntro.astro";
     <section class="about-parallax-full"></section>
     <section class="about-been-around">
       <h2 class="about-been-around__headline">WE'VE BEEN AROUND</h2>
+      <h3 class="about-been-around__pull">From indies to multinationals to <span style="white-space:nowrap">client-side.</span> We've played every stage.</h3>
       <div class="about-been-around__body">
-        <p>We started in branding, learning from some of the best. Then helped pioneer social and digital across the region, before moving into agencies like Leo Burnett, BBDO, AKQA and M&C Saatchi, and spending time at Hill + Knowlton.</p>
-        <p>Then we went client-side. Built teams, ran studios, and saw what actually matters.</p>
-        <p>We've worked across everything. Big brands, small ones, and the ones still figuring it out.</p>
-        <p>We made the work, won the awards from Lynx to Effies to Cannes, and yes, cut a very convincing case study film. We know how to make it look good. That's the easy part.</p>
-        <p>What matters is whether it actually moves something.</p>
-        <p>So we know the difference between what looks good… and what works.</p>
+        <div class="about-pillar">
+          <h4 class="about-pillar__title">BRANDING TASTE</h4>
+          <p>Started in branding, shaping high-end automotive and real estate work. Taste built early, learnt from people who now run some of the best agencies in the region.</p>
+        </div>
+        <div class="about-pillar">
+          <h4 class="about-pillar__title">SOCIAL PIONEERS</h4>
+          <p>Got in early when social and digital were still the wild west. Launched the first sites, accounts and games for the biggest brands. Helped build Digital Republic. Dentsu came knocking.</p>
+        </div>
+        <div class="about-pillar">
+          <h4 class="about-pillar__title">CREATIVE GIANTS</h4>
+          <p>Spent most of our careers at Leo Burnett, BBDO, Publicis and AKQA. Worked on the biggest brands under serious pressure. Mad. Intense. Great fun.</p>
+        </div>
+        <div class="about-pillar">
+          <h4 class="about-pillar__title">CLIENT-SIDE IMPACT</h4>
+          <p>Crossed over. Built in-house creative teams. Got closer to the business than most creatives ever will. That's where it clicked. Pretty is easy. Moving the needle isn't.</p>
+        </div>
+      </div>
+    </section>
+    <section class="about-parallax-full"></section>
+    <section class="about-done-it-all">
+      <h2 class="about-done-it-all__label">WE'VE DONE IT ALL</h2>
+      <h3 class="about-done-it-all__headline">We've learned the hard way. So you don't have to.</h3>
+      <div class="about-done-it-all__body">
+        <p>We've worked with the biggest brands, the smallest ones, and launched plenty from scratch. Along the way, we've made great work and some that taught us the hard way.</p>
+        <p>We've crafted treatments for some of the biggest directors in the region and picked up awards from Lynx to Effies to Cannes. But what we love most is using creativity and entertainment to help brands win and grow. That's what we've been doing for a long time.</p>
+      </div>
+    </section>
+    <section class="about-parallax-full"></section>
+    <section class="about-our-way">
+      <h2 class="about-our-way__label">SO WE DO IT OUR WAY</h2>
+      <h3 class="about-our-way__headline">Small team. Senior people. Hands-on from start to finish.</h3>
+      <div class="about-our-way__body">
+        <p>No layers. No dilution. No endless rounds of "feedback". We stay close to the work. We make the calls. We keep it creative and actually entertaining. That's the bar. We bring in the right people when needed, people we trust. That's how the work stays good.</p>
+        <p>From strategy to concept to execution, production and delivery. We take it all the way. From first thought to final frame. No drop in standards. No shortcuts.</p>
+        <p>That's when it becomes the benchmark.</p>
       </div>
     </section>
   </div>
@@ -55,6 +85,38 @@ import StudioIntro from "../components/StudioIntro.astro";
     padding: clamp(80px, 12vw, 160px) clamp(24px, 7vw, 120px);
   }
 
+  @keyframes ba-slide-down {
+    from { opacity: 0; transform: translateY(-24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes ba-slide-right {
+    from { opacity: 0; transform: translateX(-32px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .about-been-around__headline,
+  .about-been-around__pull {
+    opacity: 0;
+  }
+
+  .about-been-around__body .about-pillar {
+    opacity: 0;
+  }
+
+  .about-been-around.is-visible .about-been-around__headline {
+    animation: ba-slide-down 2s cubic-bezier(0.16, 1, 0.3, 1) 0s forwards;
+  }
+
+  .about-been-around.is-visible .about-been-around__pull {
+    animation: ba-slide-down 2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+  }
+
+  .about-been-around.is-visible .about-pillar:nth-child(1) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s  forwards; }
+  .about-been-around.is-visible .about-pillar:nth-child(2) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s  forwards; }
+  .about-been-around.is-visible .about-pillar:nth-child(3) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 1.6s  forwards; }
+  .about-been-around.is-visible .about-pillar:nth-child(4) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 2.0s  forwards; }
+
   .about-been-around__headline {
     font-family: "ObviouslyWide", system-ui, sans-serif;
     font-size: clamp(11px, 1vw, 14px);
@@ -66,15 +128,123 @@ import StudioIntro from "../components/StudioIntro.astro";
   }
 
   .about-been-around__body {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3vw;
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+
+  .about-pillar {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .about-pillar__title {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(9px, 0.7vw, 11px);
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(232, 228, 222, 0.45);
+    margin: 0;
+  }
+
+  .about-been-around__pull {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(22px, 3vw, 48px);
+    font-weight: 500;
+    line-height: 1.15;
+    color: #7040c0;
+    margin: 0 0 0.6em;
+    max-width: 70vw;
+  }
+
+  .about-been-around__body p {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(11px, 0.85vw, 14px);
+    font-weight: 400;
+    line-height: 1.55;
+    color: #e8e4de;
+    margin: 0;
+  }
+
+  .about-done-it-all {
+    background: #0a0a0a;
+    padding: clamp(80px, 12vw, 160px) clamp(24px, 7vw, 120px);
+  }
+
+  .about-done-it-all__label {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(11px, 1vw, 14px);
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(232, 228, 222, 0.5);
+    margin: 0 0 2em;
+  }
+
+  .about-done-it-all__headline {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(22px, 3vw, 48px);
+    font-weight: 500;
+    line-height: 1.15;
+    color: #7040c0;
+    margin: 0 0 0.6em;
+    max-width: 70vw;
+  }
+
+  .about-done-it-all__body {
     display: flex;
     flex-direction: column;
     gap: 1.4em;
     max-width: 600px;
   }
 
-  .about-been-around__body p {
+  .about-done-it-all__body p {
     font-family: "ObviouslyWide", system-ui, sans-serif;
-    font-size: clamp(13px, 1.1vw, 17px);
+    font-size: clamp(11px, 0.85vw, 14px);
+    font-weight: 400;
+    line-height: 1.55;
+    color: #e8e4de;
+    margin: 0;
+  }
+
+  .about-our-way {
+    background: #0a0a0a;
+    padding: clamp(80px, 12vw, 160px) clamp(24px, 7vw, 120px);
+  }
+
+  .about-our-way__label {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(11px, 1vw, 14px);
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(232, 228, 222, 0.5);
+    margin: 0 0 2em;
+  }
+
+  .about-our-way__headline {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(22px, 3vw, 48px);
+    font-weight: 500;
+    line-height: 1.15;
+    color: #7040c0;
+    margin: 0 0 0.6em;
+    max-width: 70vw;
+  }
+
+  .about-our-way__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4em;
+    max-width: 600px;
+  }
+
+  .about-our-way__body p {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(11px, 0.85vw, 14px);
     font-weight: 400;
     line-height: 1.55;
     color: #e8e4de;
@@ -182,41 +352,57 @@ import StudioIntro from "../components/StudioIntro.astro";
 
 <script>
   const parallaxImg = document.getElementById('about-parallax-img') as HTMLElement | null;
+  const aboutContent = document.querySelector<HTMLElement>('.about-content');
+  const beenAround   = document.querySelector<HTMLElement>('.about-been-around');
 
-  function updateParallax() {
-    if (!parallaxImg) return;
-    const wrap = parallaxImg.parentElement!;
-    const rect = wrap.getBoundingClientRect();
-    const vh   = window.innerHeight;
-    // progress: 0 when wrap bottom enters viewport, 1 when wrap top exits
-    const progress = 1 - (rect.bottom / (vh + rect.height));
-    const offset   = progress * vh * 0.12;
-    parallaxImg.style.transform = `translateY(${-offset.toFixed(2)}px)`;
+  let beenAroundTriggered = false;
+  let rafPending = false;
+
+  function checkBeenAround() {
+    if (!beenAround || beenAroundTriggered) return;
+    const page = beenAround.closest<HTMLElement>('[data-page]');
+    if (page && page.style.display === 'none') return;
+    const top = beenAround.getBoundingClientRect().top;
+    if (top > 0 && top < window.innerHeight * 0.85) {
+      beenAroundTriggered = true;
+      beenAround.classList.add('is-visible');
+    }
   }
 
-  let rafPending = false;
-  function scheduleParallax() {
+  function updateParallax() {
+    if (parallaxImg) {
+      const wrap = parallaxImg.parentElement!;
+      const rect = wrap.getBoundingClientRect();
+      const vh   = window.innerHeight;
+      const progress = 1 - (rect.bottom / (vh + rect.height));
+      parallaxImg.style.transform = `translateY(${(-progress * vh * 0.12).toFixed(2)}px)`;
+    }
+    checkBeenAround();
+  }
+
+  function scheduleUpdate() {
     if (!rafPending) {
       rafPending = true;
       requestAnimationFrame(() => { rafPending = false; updateParallax(); });
     }
   }
 
-  const aboutContent = document.querySelector<HTMLElement>('.about-content');
-
-  function triggerAboutAnimation() {
-    if (!aboutContent) return;
-    aboutContent.classList.remove('is-visible');
-    // Force reflow so removing the class resets the animation
-    void aboutContent.offsetWidth;
-    aboutContent.classList.add('is-visible');
-  }
-
   (window as any).__initAboutParallax = () => {
     updateParallax();
-    triggerAboutAnimation();
+    if (aboutContent) {
+      aboutContent.classList.remove('is-visible');
+      void aboutContent.offsetWidth;
+      aboutContent.classList.add('is-visible');
+    }
   };
 
-  window.addEventListener('scroll', scheduleParallax, { passive: true });
+  (window as any).__initBeenAround = () => {
+    if (!beenAround) return;
+    beenAroundTriggered = false;
+    beenAround.classList.remove('is-visible');
+    checkBeenAround();
+  };
+
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
   updateParallax();
 </script>
