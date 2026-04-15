@@ -29,7 +29,7 @@ import StudioIntro from "../components/StudioIntro.astro";
         </div>
       </div>
     </section>
-    <section class="about-parallax-full"></section>
+    <section class="about-parallax-full"><div class="about-parallax-full__img"></div></section>
     <section class="about-been-around">
       <h2 class="about-been-around__headline">WE'VE BEEN AROUND</h2>
       <h3 class="about-been-around__pull">From indies to multinationals to <span style="white-space:nowrap">client-side.</span> We've played every stage.</h3>
@@ -52,16 +52,20 @@ import StudioIntro from "../components/StudioIntro.astro";
         </div>
       </div>
     </section>
-    <section class="about-parallax-full"></section>
+    <section class="about-video-full">
+      <video class="about-video-full__video" src="/video/love-it.mp4" autoplay muted loop playsinline></video>
+    </section>
     <section class="about-done-it-all">
       <h2 class="about-done-it-all__label">WE'VE DONE IT ALL</h2>
-      <h3 class="about-done-it-all__headline">We've learned the hard way. So you don't have to.</h3>
+      <h3 class="about-done-it-all__headline">Every industry. Every channel. Entertainment at the core.</h3>
       <div class="about-done-it-all__body">
         <p>We've worked with the biggest brands, the smallest ones, and launched plenty from scratch. Along the way, we've made great work and some that taught us the hard way.</p>
         <p>We've crafted treatments for some of the biggest directors in the region and picked up awards from Lynx to Effies to Cannes. But what we love most is using creativity and entertainment to help brands win and grow. That's what we've been doing for a long time.</p>
       </div>
     </section>
-    <section class="about-parallax-full"></section>
+    <section class="about-video-full">
+      <video class="about-video-full__video" src="/video/kfc2.mp4" autoplay muted loop playsinline></video>
+    </section>
     <section class="about-our-way">
       <h2 class="about-our-way__label">SO WE DO IT OUR WAY</h2>
       <h3 class="about-our-way__headline">Small team. Senior people. Hands-on from start to finish.</h3>
@@ -96,11 +100,17 @@ import StudioIntro from "../components/StudioIntro.astro";
   }
 
   .about-been-around__headline,
-  .about-been-around__pull {
+  .about-been-around__pull,
+  .about-done-it-all__label,
+  .about-done-it-all__headline,
+  .about-our-way__label,
+  .about-our-way__headline {
     opacity: 0;
   }
 
-  .about-been-around__body .about-pillar {
+  .about-been-around__body .about-pillar,
+  .about-done-it-all__body p,
+  .about-our-way__body p {
     opacity: 0;
   }
 
@@ -117,8 +127,19 @@ import StudioIntro from "../components/StudioIntro.astro";
   .about-been-around.is-visible .about-pillar:nth-child(3) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 1.6s  forwards; }
   .about-been-around.is-visible .about-pillar:nth-child(4) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 2.0s  forwards; }
 
+  .about-done-it-all.is-visible .about-done-it-all__label    { animation: ba-slide-down  2s   cubic-bezier(0.16, 1, 0.3, 1) 0s   forwards; }
+  .about-done-it-all.is-visible .about-done-it-all__headline { animation: ba-slide-down  2s   cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards; }
+  .about-done-it-all.is-visible .about-done-it-all__body p:nth-child(1) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s  forwards; }
+  .about-done-it-all.is-visible .about-done-it-all__body p:nth-child(2) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s  forwards; }
+
+  .about-our-way.is-visible .about-our-way__label    { animation: ba-slide-down  2s   cubic-bezier(0.16, 1, 0.3, 1) 0s   forwards; }
+  .about-our-way.is-visible .about-our-way__headline { animation: ba-slide-down  2s   cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards; }
+  .about-our-way.is-visible .about-our-way__body p:nth-child(1) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s  forwards; }
+  .about-our-way.is-visible .about-our-way__body p:nth-child(2) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s  forwards; }
+  .about-our-way.is-visible .about-our-way__body p:nth-child(3) { animation: ba-slide-right 1.8s cubic-bezier(0.16, 1, 0.3, 1) 1.6s  forwards; }
+
   .about-been-around__headline {
-    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-family: "TrashHand", cursive;
     font-size: clamp(11px, 1vw, 14px);
     font-weight: 500;
     letter-spacing: 0.2em;
@@ -169,18 +190,32 @@ import StudioIntro from "../components/StudioIntro.astro";
     margin: 0;
   }
 
+  .about-video-full {
+    height: 100svh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .about-video-full__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   .about-done-it-all {
-    background: #0a0a0a;
+    background: #e8e4de;
     padding: clamp(80px, 12vw, 160px) clamp(24px, 7vw, 120px);
   }
 
   .about-done-it-all__label {
-    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-family: "TrashHand", cursive;
     font-size: clamp(11px, 1vw, 14px);
     font-weight: 500;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(232, 228, 222, 0.5);
+    color: rgba(26, 26, 26, 0.5);
     margin: 0 0 2em;
   }
 
@@ -206,22 +241,22 @@ import StudioIntro from "../components/StudioIntro.astro";
     font-size: clamp(11px, 0.85vw, 14px);
     font-weight: 400;
     line-height: 1.55;
-    color: #e8e4de;
+    color: #1a1a1a;
     margin: 0;
   }
 
   .about-our-way {
-    background: #0a0a0a;
+    background: #f2c4ce;
     padding: clamp(80px, 12vw, 160px) clamp(24px, 7vw, 120px);
   }
 
   .about-our-way__label {
-    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-family: "TrashHand", cursive;
     font-size: clamp(11px, 1vw, 14px);
     font-weight: 500;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(232, 228, 222, 0.5);
+    color: rgba(26, 26, 26, 0.5);
     margin: 0 0 2em;
   }
 
@@ -247,16 +282,23 @@ import StudioIntro from "../components/StudioIntro.astro";
     font-size: clamp(11px, 0.85vw, 14px);
     font-weight: 400;
     line-height: 1.55;
-    color: #e8e4de;
+    color: #1a1a1a;
     margin: 0;
   }
 
   .about-parallax-full {
     height: 100svh;
-    background-image: url('/images/about-started.webp');
+    overflow: hidden;
+    position: relative;
+  }
+
+  .about-parallax-full__img {
+    position: absolute;
+    inset: -25% 0;
+    background-image: url('/images/about-started2.webp');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
+    will-change: transform;
   }
 
   .about-page {
@@ -325,7 +367,7 @@ import StudioIntro from "../components/StudioIntro.astro";
   .about-content.is-visible .about-body p:nth-child(4) { animation-delay: 0.58s; }
 
   .about-headline {
-    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-family: "TrashHand", cursive;
     font-size: clamp(11px, 1vw, 14px);
     font-weight: 500;
     letter-spacing: 0.2em;
@@ -353,20 +395,31 @@ import StudioIntro from "../components/StudioIntro.astro";
 <script>
   const parallaxImg = document.getElementById('about-parallax-img') as HTMLElement | null;
   const aboutContent = document.querySelector<HTMLElement>('.about-content');
-  const beenAround   = document.querySelector<HTMLElement>('.about-been-around');
+  const parallaxFullImgs = Array.from(document.querySelectorAll<HTMLElement>('.about-parallax-full__img'));
+  const beenAround = document.querySelector<HTMLElement>('.about-been-around');
+  const doneItAll  = document.querySelector<HTMLElement>('.about-done-it-all');
+  const ourWay     = document.querySelector<HTMLElement>('.about-our-way');
 
   let beenAroundTriggered = false;
+  let doneItAllTriggered  = false;
+  let ourWayTriggered     = false;
   let rafPending = false;
 
-  function checkBeenAround() {
-    if (!beenAround || beenAroundTriggered) return;
-    const page = beenAround.closest<HTMLElement>('[data-page]');
+  function checkSection(el: HTMLElement | null, triggered: boolean, onTrigger: () => void) {
+    if (!el || triggered) return;
+    const page = el.closest<HTMLElement>('[data-page]');
     if (page && page.style.display === 'none') return;
-    const top = beenAround.getBoundingClientRect().top;
+    const top = el.getBoundingClientRect().top;
     if (top > 0 && top < window.innerHeight * 0.85) {
-      beenAroundTriggered = true;
-      beenAround.classList.add('is-visible');
+      el.classList.add('is-visible');
+      onTrigger();
     }
+  }
+
+  function checkBeenAround() {
+    checkSection(beenAround, beenAroundTriggered, () => { beenAroundTriggered = true; });
+    checkSection(doneItAll,  doneItAllTriggered,  () => { doneItAllTriggered  = true; });
+    checkSection(ourWay,     ourWayTriggered,     () => { ourWayTriggered     = true; });
   }
 
   function updateParallax() {
@@ -377,6 +430,14 @@ import StudioIntro from "../components/StudioIntro.astro";
       const progress = 1 - (rect.bottom / (vh + rect.height));
       parallaxImg.style.transform = `translateY(${(-progress * vh * 0.12).toFixed(2)}px)`;
     }
+    parallaxFullImgs.forEach((img) => {
+      const section = img.parentElement!;
+      const rect    = section.getBoundingClientRect();
+      const vh      = window.innerHeight;
+      const progress = (vh - rect.top) / (vh + rect.height);
+      const offset   = (progress - 0.5) * vh * 0.4;
+      img.style.transform = `translateY(${offset.toFixed(2)}px)`;
+    });
     checkBeenAround();
   }
 
@@ -397,9 +458,12 @@ import StudioIntro from "../components/StudioIntro.astro";
   };
 
   (window as any).__initBeenAround = () => {
-    if (!beenAround) return;
     beenAroundTriggered = false;
-    beenAround.classList.remove('is-visible');
+    doneItAllTriggered  = false;
+    ourWayTriggered     = false;
+    beenAround?.classList.remove('is-visible');
+    doneItAll?.classList.remove('is-visible');
+    ourWay?.classList.remove('is-visible');
     checkBeenAround();
   };
 
