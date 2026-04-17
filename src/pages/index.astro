@@ -544,7 +544,7 @@ import StudioIntro from "../components/StudioIntro.astro";
   let beenAroundTriggered = false;
   let doneItAllTriggered  = false;
   let ourWayTriggered     = false;
-  let rafPending = false;
+
 
   function checkSection(el: HTMLElement | null, triggered: boolean, onTrigger: () => void) {
     if (!el || triggered) return;
@@ -569,7 +569,7 @@ import StudioIntro from "../components/StudioIntro.astro";
       const rect = wrap.getBoundingClientRect();
       const vh   = window.innerHeight;
       const progress = 1 - (rect.bottom / (vh + rect.height));
-      parallaxImg.style.transform = `translateY(${(-progress * vh * 0.12).toFixed(2)}px)`;
+      parallaxImg.style.transform = `translate3d(0, ${(-progress * vh * 0.12).toFixed(2)}px, 0)`;
     } else if (parallaxImg && window.innerWidth <= 640) {
       parallaxImg.style.transform = '';
     }
@@ -579,17 +579,17 @@ import StudioIntro from "../components/StudioIntro.astro";
       const vh      = window.innerHeight;
       const progress = (vh - rect.top) / (vh + rect.height);
       const offset   = (progress - 0.5) * vh * 0.4;
-      img.style.transform = `translateY(${offset.toFixed(2)}px)`;
+      img.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
     });
     checkBeenAround();
   }
 
-  function scheduleUpdate() {
-    if (!rafPending) {
-      rafPending = true;
-      requestAnimationFrame(() => { rafPending = false; updateParallax(); });
-    }
+  // Continuous rAF loop — keeps parallax smooth on mobile during momentum scrolling
+  function loop() {
+    updateParallax();
+    requestAnimationFrame(loop);
   }
+  requestAnimationFrame(loop);
 
   (window as any).__initAboutParallax = () => {
     updateParallax();
@@ -611,9 +611,6 @@ import StudioIntro from "../components/StudioIntro.astro";
     ourWay?.classList.remove('is-visible');
     checkBeenAround();
   };
-
-  window.addEventListener('scroll', scheduleUpdate, { passive: true });
-  updateParallax();
 
   // Mobile pillar slider
   const pillarsTrack   = document.querySelector<HTMLElement>('.about-pillars-track');
