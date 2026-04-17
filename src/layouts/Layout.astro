@@ -191,6 +191,13 @@ const {
         color: rgba(26, 26, 26, 0.9);
       }
 
+      @media (max-width: 640px) {
+        .nav-tab {
+          font-size: 7px;
+          letter-spacing: 0.15em;
+        }
+      }
+
       /* Custom cursor dot */
       .cursor-dot {
         position: fixed;
@@ -310,8 +317,7 @@ const {
     </audio>
 
     <button class="music-toggle" id="music-toggle" aria-label="Toggle music">
-      <span class="music-toggle__dot"></span>
-      <span class="music-toggle__text">Music On</span>
+      <span class="music-toggle__text">Turn Music On</span>
     </button>
 
     <script>
@@ -461,7 +467,7 @@ const {
         function startMusic() {
           music.play().then(() => {
             musicToggle.classList.add("is-playing");
-            if (musicToggleText) musicToggleText.textContent = "Music On";
+            if (musicToggleText) musicToggleText.textContent = "Turn Music Off";
           }).catch(() => {});
         }
 
@@ -469,11 +475,10 @@ const {
           e.stopPropagation();
           if (music.paused) {
             startMusic();
-            if (musicToggleText) musicToggleText.textContent = "Music On";
           } else {
             music.pause();
             musicToggle.classList.remove("is-playing");
-            if (musicToggleText) musicToggleText.textContent = "Off";
+            if (musicToggleText) musicToggleText.textContent = "Turn Music On";
           }
         });
       }

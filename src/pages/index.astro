@@ -9,6 +9,9 @@ import StudioIntro from "../components/StudioIntro.astro";
   <div data-page="home">
     <Hero />
     <StudioIntro />
+    <div class="home-video-full">
+      <video class="home-video-full__video" src="/video/hand.mp4" autoplay muted loop playsinline></video>
+    </div>
     <Manifesto startIndex={5} endIndex={6} />
   </div>
   <div data-page="industry" style="display:none">
@@ -16,13 +19,17 @@ import StudioIntro from "../components/StudioIntro.astro";
   </div>
   <div data-page="about" style="display:none">
     <section class="about-page">
+      <div class="about-content-top">
+        <h2 class="about-headline">WHERE IT STARTED</h2>
+        <div class="about-body">
+          <p>Wembley Stadium.<br />August 2nd, 2025.<br />Oasis back on stage.<br />Two brothers. Loud. Raw.</p>
+        </div>
+      </div>
       <div class="about-image-wrap">
         <img src="/images/about-us.webp" alt="" class="about-img" id="about-parallax-img" />
       </div>
       <div class="about-content">
-        <h2 class="about-headline">WHERE IT STARTED</h2>
         <div class="about-body">
-          <p>Wembley Stadium.<br />August 2nd, 2025.<br />Oasis back on stage.<br />Two brothers. Loud. Raw.</p>
           <p>That's how great work happens.<br />Close to the people making it.<br />Hands-on. Backing instinct.<br />No committee killing it.</p>
           <p>So we started Reference. Together.<br />To take back control.</p>
           <p>Like a band.</p>
@@ -34,21 +41,30 @@ import StudioIntro from "../components/StudioIntro.astro";
       <h2 class="about-been-around__headline">WE'VE BEEN AROUND</h2>
       <h3 class="about-been-around__pull">From indies to multinationals to <span style="white-space:nowrap">client-side.</span> We've played every stage.</h3>
       <div class="about-been-around__body">
-        <div class="about-pillar">
-          <h4 class="about-pillar__title">BRANDING TASTE</h4>
-          <p>Started in branding, shaping high-end automotive and real estate work. Taste built early, learnt from people who now run some of the best agencies in the region.</p>
+        <div class="about-pillars-track">
+          <div class="about-pillar">
+            <h4 class="about-pillar__title">BRANDING TASTE</h4>
+            <p>Started in branding, shaping high-end automotive and real estate work. Taste built early, learnt from people who now run some of the best agencies in the region.</p>
+          </div>
+          <div class="about-pillar">
+            <h4 class="about-pillar__title">SOCIAL PIONEERS</h4>
+            <p>Got in early when social and digital were still the wild west. Launched the first sites, accounts and games for the biggest brands. Helped build Digital Republic. Dentsu came knocking.</p>
+          </div>
+          <div class="about-pillar">
+            <h4 class="about-pillar__title">CREATIVE GIANTS</h4>
+            <p>Spent most of our careers at Leo Burnett, BBDO, Publicis and AKQA. Worked on the biggest brands under serious pressure. Mad. Intense. Great fun.</p>
+          </div>
+          <div class="about-pillar">
+            <h4 class="about-pillar__title">CLIENT-SIDE IMPACT</h4>
+            <p>Crossed over. Built in-house creative teams. Got closer to the business than most creatives ever will. That's where it clicked. Pretty is easy. Moving the needle isn't.</p>
+          </div>
         </div>
-        <div class="about-pillar">
-          <h4 class="about-pillar__title">SOCIAL PIONEERS</h4>
-          <p>Got in early when social and digital were still the wild west. Launched the first sites, accounts and games for the biggest brands. Helped build Digital Republic. Dentsu came knocking.</p>
-        </div>
-        <div class="about-pillar">
-          <h4 class="about-pillar__title">CREATIVE GIANTS</h4>
-          <p>Spent most of our careers at Leo Burnett, BBDO, Publicis and AKQA. Worked on the biggest brands under serious pressure. Mad. Intense. Great fun.</p>
-        </div>
-        <div class="about-pillar">
-          <h4 class="about-pillar__title">CLIENT-SIDE IMPACT</h4>
-          <p>Crossed over. Built in-house creative teams. Got closer to the business than most creatives ever will. That's where it clicked. Pretty is easy. Moving the needle isn't.</p>
+        <div class="about-pillars-nav">
+          <span class="about-pillars-counter">01 / 04</span>
+          <div class="about-pillars-arrows">
+            <button class="about-pillars-btn about-pillars-prev" aria-label="Previous">←</button>
+            <button class="about-pillars-btn about-pillars-next" aria-label="Next">→</button>
+          </div>
         </div>
       </div>
     </section>
@@ -84,6 +100,20 @@ import StudioIntro from "../components/StudioIntro.astro";
 </Layout>
 
 <style>
+  .home-video-full {
+    height: 100svh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .home-video-full__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   .about-been-around {
     background: #0a0a0a;
     padding: clamp(80px, 12vw, 160px) clamp(24px, 7vw, 120px);
@@ -149,10 +179,13 @@ import StudioIntro from "../components/StudioIntro.astro";
   }
 
   .about-been-around__body {
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+
+  .about-pillars-track {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 3vw;
-    margin-top: clamp(40px, 5vw, 72px);
   }
 
   .about-pillar {
@@ -286,6 +319,72 @@ import StudioIntro from "../components/StudioIntro.astro";
     margin: 0;
   }
 
+  /* Desktop: hide pillar nav */
+  .about-pillars-nav {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .about-been-around__body {
+      display: block;
+      overflow: hidden;
+      margin-top: clamp(32px, 5vw, 72px);
+    }
+
+    .about-pillars-track {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      gap: 0;
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .about-pillar {
+      width: 100%;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .about-pillars-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 28px;
+    }
+
+    .about-pillars-counter {
+      font-family: "ObviouslyWide", system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      color: rgba(232, 228, 222, 0.45);
+    }
+
+    .about-pillars-arrows {
+      display: flex;
+      gap: 12px;
+    }
+
+    .about-pillars-btn {
+      background: none;
+      border: 1px solid rgba(232, 228, 222, 0.3);
+      color: #e8e4de;
+      font-size: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .about-pillars-btn:active {
+      opacity: 0.6;
+    }
+  }
+
   .about-parallax-full {
     height: 100svh;
     overflow: hidden;
@@ -305,28 +404,66 @@ import StudioIntro from "../components/StudioIntro.astro";
     min-height: 100svh;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
     overflow: hidden;
     background: #0a0a0a;
+  }
+
+  .about-content-top {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: clamp(80px, 10vw, 140px) clamp(16px, 4vw, 60px) clamp(20px, 2vw, 28px);
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .about-image-wrap {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /* Equal top/bottom margins so image center = grid midpoint (50svh) */
+    margin: clamp(40px, 6vw, 80px);
+    margin-right: clamp(16px, 3vw, 40px);
+    border-radius: 4px;
+    overflow: hidden;
   }
 
   .about-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: clamp(80px, 10vw, 140px) clamp(24px, 7vw, 100px);
-    padding-left: clamp(16px, 4vw, 60px);
-    padding-bottom: clamp(120px, 18vw, 200px);
+    justify-content: flex-start;
+    padding: clamp(20px, 2vw, 28px) clamp(16px, 4vw, 60px) clamp(80px, 10vw, 140px);
+    grid-column: 2;
+    grid-row: 2;
   }
 
-  .about-image-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin: clamp(32px, 5vw, 72px);
-    margin-top: clamp(48px, 7vw, 96px);
-    margin-right: clamp(16px, 3vw, 40px);
-    border-radius: 4px;
-    overflow: hidden;
+  @media (max-width: 640px) {
+    .about-page {
+      display: flex;
+      flex-direction: column;
+      overflow: visible;
+    }
+
+    .about-content-top {
+      padding: 80px 24px 24px;
+    }
+
+    .about-content {
+      padding: 24px 24px 60px;
+    }
+
+    .about-image-wrap {
+      margin: 0 24px;
+      overflow: visible;
+      justify-content: flex-end;
+    }
+
+    .about-img {
+      width: 70%;
+    }
   }
 
   .about-img {
@@ -356,15 +493,18 @@ import StudioIntro from "../components/StudioIntro.astro";
   }
 
   .about-content.is-visible .about-headline,
-  .about-content.is-visible .about-body p {
+  .about-content-top.is-visible .about-headline,
+  .about-content.is-visible .about-body p,
+  .about-content-top.is-visible .about-body p {
     animation: about-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  .about-content.is-visible .about-headline        { animation-delay: 0.05s; }
+  .about-content.is-visible .about-headline,
+  .about-content-top.is-visible .about-headline     { animation-delay: 0.05s; }
+  .about-content-top.is-visible .about-body p:nth-child(1) { animation-delay: 0.18s; }
   .about-content.is-visible .about-body p:nth-child(1) { animation-delay: 0.18s; }
   .about-content.is-visible .about-body p:nth-child(2) { animation-delay: 0.32s; }
   .about-content.is-visible .about-body p:nth-child(3) { animation-delay: 0.46s; }
-  .about-content.is-visible .about-body p:nth-child(4) { animation-delay: 0.58s; }
 
   .about-headline {
     font-family: "TrashHand", cursive;
@@ -394,7 +534,8 @@ import StudioIntro from "../components/StudioIntro.astro";
 
 <script>
   const parallaxImg = document.getElementById('about-parallax-img') as HTMLElement | null;
-  const aboutContent = document.querySelector<HTMLElement>('.about-content');
+  const aboutContent    = document.querySelector<HTMLElement>('.about-content');
+  const aboutContentTop = document.querySelector<HTMLElement>('.about-content-top');
   const parallaxFullImgs = Array.from(document.querySelectorAll<HTMLElement>('.about-parallax-full__img'));
   const beenAround = document.querySelector<HTMLElement>('.about-been-around');
   const doneItAll  = document.querySelector<HTMLElement>('.about-done-it-all');
@@ -423,12 +564,14 @@ import StudioIntro from "../components/StudioIntro.astro";
   }
 
   function updateParallax() {
-    if (parallaxImg) {
+    if (parallaxImg && window.innerWidth > 640) {
       const wrap = parallaxImg.parentElement!;
       const rect = wrap.getBoundingClientRect();
       const vh   = window.innerHeight;
       const progress = 1 - (rect.bottom / (vh + rect.height));
       parallaxImg.style.transform = `translateY(${(-progress * vh * 0.12).toFixed(2)}px)`;
+    } else if (parallaxImg && window.innerWidth <= 640) {
+      parallaxImg.style.transform = '';
     }
     parallaxFullImgs.forEach((img) => {
       const section = img.parentElement!;
@@ -452,8 +595,10 @@ import StudioIntro from "../components/StudioIntro.astro";
     updateParallax();
     if (aboutContent) {
       aboutContent.classList.remove('is-visible');
+      aboutContentTop?.classList.remove('is-visible');
       void aboutContent.offsetWidth;
       aboutContent.classList.add('is-visible');
+      aboutContentTop?.classList.add('is-visible');
     }
   };
 
@@ -469,4 +614,37 @@ import StudioIntro from "../components/StudioIntro.astro";
 
   window.addEventListener('scroll', scheduleUpdate, { passive: true });
   updateParallax();
+
+  // Mobile pillar slider
+  const pillarsTrack   = document.querySelector<HTMLElement>('.about-pillars-track');
+  const pillarsCounter = document.querySelector<HTMLElement>('.about-pillars-counter');
+  const pillarsPrev    = document.querySelector<HTMLElement>('.about-pillars-prev');
+  const pillarsNext    = document.querySelector<HTMLElement>('.about-pillars-next');
+  const pillarsTotal   = document.querySelectorAll('.about-pillar').length;
+  let pillarCurrent    = 0;
+
+  function goToPillar(index: number) {
+    pillarCurrent = Math.max(0, Math.min(pillarsTotal - 1, index));
+    if (pillarsTrack) {
+      pillarsTrack.style.transform = `translateX(-${pillarCurrent * 100}%)`;
+    }
+    if (pillarsCounter) {
+      const n = String(pillarCurrent + 1).padStart(2, '0');
+      const t = String(pillarsTotal).padStart(2, '0');
+      pillarsCounter.textContent = `${n} / ${t}`;
+    }
+  }
+
+  pillarsPrev?.addEventListener('click', () => goToPillar(pillarCurrent - 1));
+  pillarsNext?.addEventListener('click', () => goToPillar(pillarCurrent + 1));
+
+  // Touch swipe for pillars
+  let pillarTouchStartX = 0;
+  pillarsTrack?.addEventListener('touchstart', (e) => {
+    pillarTouchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  pillarsTrack?.addEventListener('touchend', (e) => {
+    const diff = pillarTouchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) goToPillar(diff > 0 ? pillarCurrent + 1 : pillarCurrent - 1);
+  }, { passive: true });
 </script>
