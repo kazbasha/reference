@@ -2,6 +2,12 @@
 ---
 
 <section class="hero">
+  <!-- Animated gradient blobs -->
+  <div class="hero-blob hero-blob--1" aria-hidden="true"></div>
+  <div class="hero-blob hero-blob--2" aria-hidden="true"></div>
+  <div class="hero-blob hero-blob--3" aria-hidden="true"></div>
+  <div class="hero-blob hero-blob--4" aria-hidden="true"></div>
+
   <!-- Background video — drop /public/video/hero.mp4 to activate -->
   <div class="hero-bg" aria-hidden="true">
     <video
@@ -45,6 +51,58 @@
     align-items: center;
     justify-content: center;
     background: #0a0a0a;
+  }
+
+  /* ── Gradient blobs ── */
+  .hero-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+  }
+  .hero-blob--1 {
+    width: 70%; height: 70%;
+    background: radial-gradient(circle, #12101e 0%, transparent 70%);
+    top: -15%; left: 10%;
+    animation: wb1 22s ease-in-out infinite;
+  }
+  .hero-blob--2 {
+    width: 60%; height: 60%;
+    background: radial-gradient(circle, #0a0812 0%, transparent 70%);
+    bottom: -10%; right: -5%;
+    animation: wb2 28s ease-in-out infinite;
+  }
+  .hero-blob--3 {
+    width: 50%; height: 50%;
+    background: radial-gradient(circle, #141420 0%, transparent 70%);
+    top: 30%; right: 5%;
+    animation: wb3 18s ease-in-out infinite;
+  }
+  .hero-blob--4 {
+    width: 45%; height: 45%;
+    background: radial-gradient(circle, #0e0c18 0%, transparent 70%);
+    bottom: 10%; left: 5%;
+    animation: wb4 24s ease-in-out infinite;
+  }
+  @keyframes wb1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    30%       { transform: translate(4%, 6%) scale(1.06); }
+    65%       { transform: translate(-3%, 3%) scale(0.95); }
+  }
+  @keyframes wb2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    35%       { transform: translate(7%, -7%) scale(1.08); }
+    70%       { transform: translate(-4%, 4%) scale(0.94); }
+  }
+  @keyframes wb3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40%       { transform: translate(-6%, 5%) scale(1.05); }
+    75%       { transform: translate(3%, -4%) scale(0.97); }
+  }
+  @keyframes wb4 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25%       { transform: translate(-5%, -6%) scale(1.07); }
+    60%       { transform: translate(5%, 4%) scale(0.96); }
   }
 
   /* ── Background video ── */

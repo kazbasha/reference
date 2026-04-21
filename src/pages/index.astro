@@ -19,6 +19,10 @@ import StudioIntro from "../components/StudioIntro.astro";
   </div>
   <div data-page="about" style="display:none">
     <section class="about-page">
+      <div class="ab-blob ab-blob--1" aria-hidden="true"></div>
+      <div class="ab-blob ab-blob--2" aria-hidden="true"></div>
+      <div class="ab-blob ab-blob--3" aria-hidden="true"></div>
+      <div class="ab-blob ab-blob--4" aria-hidden="true"></div>
       <div class="about-content-top">
         <h2 class="about-headline">WHERE IT STARTED</h2>
         <div class="about-body">
@@ -38,6 +42,10 @@ import StudioIntro from "../components/StudioIntro.astro";
     </section>
     <section class="about-parallax-full"><div class="about-parallax-full__img"></div></section>
     <section class="about-been-around">
+      <div class="ba-blob ba-blob--1" aria-hidden="true"></div>
+      <div class="ba-blob ba-blob--2" aria-hidden="true"></div>
+      <div class="ba-blob ba-blob--3" aria-hidden="true"></div>
+      <div class="ba-blob ba-blob--4" aria-hidden="true"></div>
       <h2 class="about-been-around__headline">WE'VE BEEN AROUND</h2>
       <h3 class="about-been-around__pull">From indies to multinationals to <span style="white-space:nowrap">client-side.</span> We've played every stage.</h3>
       <div class="about-been-around__body">
@@ -83,6 +91,10 @@ import StudioIntro from "../components/StudioIntro.astro";
       <video class="about-video-full__video" src="/video/kfc2.mp4" autoplay muted loop playsinline></video>
     </section>
     <section class="about-our-way">
+      <div class="ow-blob ow-blob--1" aria-hidden="true"></div>
+      <div class="ow-blob ow-blob--2" aria-hidden="true"></div>
+      <div class="ow-blob ow-blob--3" aria-hidden="true"></div>
+      <div class="ow-blob ow-blob--4" aria-hidden="true"></div>
       <h2 class="about-our-way__label">SO WE DO IT OUR WAY</h2>
       <h3 class="about-our-way__headline">Small team. Senior people. Hands-on from start to finish.</h3>
       <div class="about-our-way__body">
@@ -93,6 +105,93 @@ import StudioIntro from "../components/StudioIntro.astro";
     </section>
   </div>
   <div data-page="work" style="display:none">
+    <div class="work-scene">
+      <!-- Sticky background — stays in viewport while cards scroll -->
+      <div class="work-bg">
+        <div class="work-blob work-blob--1"></div>
+        <div class="work-blob work-blob--2"></div>
+        <div class="work-blob work-blob--3"></div>
+        <div class="work-blob work-blob--4"></div>
+        <svg class="work-grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <filter id="wg">
+            <feTurbulence id="wg-turb" type="turbulence" baseFrequency="0.70" numOctaves="1" seed="0" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#wg)"/>
+        </svg>
+      </div>
+
+      <!-- Cards scroll over the sticky bg -->
+      <div class="work-cards">
+        <div class="work-card-wrap">
+          <div class="work-card work-card--1" data-label="AXE — EVOLUTION OF HOOKING UP">
+            <video class="work-card__video" src="/video/work/axe - evolution.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">AXE — EVOLUTION OF HOOKING UP</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--2" data-label="AL DIRIYAH FC — UNDERDOGS">
+            <video class="work-card__video" src="/video/work/al dirriyah fc - underdogs.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">AL DIRIYAH FC — UNDERDOGS</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--3" data-label="AXE — WINGMAN">
+            <video class="work-card__video" src="/video/work/axe - wingman.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">AXE — WINGMAN</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--4" data-label="DU — LOVE IT">
+            <video class="work-card__video" src="/video/work/du - love it.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">DU — LOVE IT</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--5" data-label="KFC — WINNER WINNER CHICKEN DINNER">
+            <video class="work-card__video" src="/video/work/kfc - winner winner chicken dinner.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">KFC — WINNER WINNER CHICKEN DINNER</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--6" data-label="SHAHID — EPIC ORIGINALS">
+            <video class="work-card__video" src="/video/work/shahid - epic originals.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">SHAHID — EPIC ORIGINALS</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--7" data-label="ABTAL X LA LIGA — MADE FOR CHAMPIONS">
+            <video class="work-card__video" src="/video/work/abtal x la liga - made for champions.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">ABTAL X LA LIGA — MADE FOR CHAMPIONS</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--8" data-label="CST — THE HAND">
+            <video class="work-card__video" src="/video/work/cst - the hand.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">CST — THE HAND</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--9" data-label="REXONA — ALPHABET OF CHEERING">
+            <video class="work-card__video" src="/video/work/rexona - alphabet of cheering.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">REXONA — ALPHABET OF CHEERING</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--10" data-label="SHAHID — WATCH ALONE">
+            <video class="work-card__video" src="/video/work/shahid - watch alone.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">SHAHID — WATCH ALONE</span>
+        </div>
+        <div class="work-card-wrap">
+          <div class="work-card work-card--11" data-label="SHAHID X MASTERCARD — GONE">
+            <video class="work-card__video" src="/video/work/shahid x mastercard - gone.mov" muted playsinline preload="auto" loop></video>
+          </div>
+          <span class="work-card__mobile-label">SHAHID X MASTERCARD — GONE</span>
+        </div>
+      </div>
+      <div class="work-cursor-label" aria-hidden="true"></div>
+    </div>
   </div>
   <div data-page="contact" style="display:none">
     <Manifesto startIndex={6} />
@@ -100,6 +199,252 @@ import StudioIntro from "../components/StudioIntro.astro";
 </Layout>
 
 <style>
+  /* ── Work section gradient ── */
+  .work-scene {
+    position: relative;
+    width: 100%;
+    height: 600svh;
+  }
+
+  .work-bg {
+    position: fixed;
+    inset: 0;
+    background: #1a4a6e;
+    overflow: hidden;
+    transition: background-color 0.8s ease;
+    z-index: 0;
+  }
+
+  .work-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+  }
+
+  /* Brilliant ice-white glow — upper right */
+  .work-blob--1 {
+    width: 90%;
+    height: 90%;
+    background: radial-gradient(circle at center, #e0f4ff 0%, #7cc8f0 40%, transparent 65%);
+    top: -30%;
+    right: -20%;
+    animation: wblob1 12s ease-in-out infinite;
+  }
+
+  /* Pure black abyss — lower left */
+  .work-blob--2 {
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle at center, #020810 0%, #061428 50%, transparent 65%);
+    bottom: -25%;
+    left: -25%;
+    animation: wblob2 16s ease-in-out infinite;
+  }
+
+  /* Electric cobalt — centre left */
+  .work-blob--3 {
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle at center, #1060c0 0%, #0840a0 50%, transparent 65%);
+    top: 15%;
+    left: 5%;
+    animation: wblob3 14s ease-in-out infinite;
+  }
+
+  /* Vivid sky — lower right */
+  .work-blob--4 {
+    width: 65%;
+    height: 65%;
+    background: radial-gradient(circle at center, #60c8f8 0%, #30a8e0 50%, transparent 65%);
+    bottom: 0%;
+    right: -10%;
+    animation: wblob4 18s ease-in-out infinite;
+  }
+
+  @keyframes wblob1 {
+    0%   { transform: translate(0,     0    ) scale(1);    }
+    20%  { transform: translate(20%,   15%  ) scale(1.26); }
+    50%  { transform: translate(-14%,  10%  ) scale(0.82); }
+    75%  { transform: translate(10%,  -18%  ) scale(1.22); }
+    100% { transform: translate(0,     0    ) scale(1);    }
+  }
+  @keyframes wblob2 {
+    0%   { transform: translate(0,     0    ) scale(1);    }
+    25%  { transform: translate(18%,  -20%  ) scale(1.28); }
+    55%  { transform: translate(-16%,  14%  ) scale(0.80); }
+    80%  { transform: translate(8%,    16%  ) scale(1.18); }
+    100% { transform: translate(0,     0    ) scale(1);    }
+  }
+  @keyframes wblob3 {
+    0%   { transform: translate(0,     0    ) scale(1);    }
+    30%  { transform: translate(-18%,  16%  ) scale(1.24); }
+    60%  { transform: translate(16%,  -12%  ) scale(0.82); }
+    85%  { transform: translate(-8%,  -16%  ) scale(1.20); }
+    100% { transform: translate(0,     0    ) scale(1);    }
+  }
+  @keyframes wblob4 {
+    0%   { transform: translate(0,     0    ) scale(1);    }
+    25%  { transform: translate(-20%,  -18% ) scale(1.26); }
+    55%  { transform: translate(18%,   14%  ) scale(0.80); }
+    80%  { transform: translate(-10%,  18%  ) scale(1.22); }
+    100% { transform: translate(0,     0    ) scale(1);    }
+  }
+
+  .work-grain {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.38;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── Work video cards ── */
+  .work-cards {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 600svh;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .work-card {
+    position: absolute;
+    overflow: hidden;
+    border-radius: 6px;
+    cursor: pointer;
+    pointer-events: all;
+    box-shadow: 0 12px 50px rgba(0, 0, 0, 0.55);
+    transition:
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.55s ease,
+      filter 0.55s ease,
+      opacity 0.55s ease,
+      z-index 0s;
+  }
+
+  /* All cards — same size */
+  .work-card {
+    width: 38vw;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* Odd cards — left, upper in their viewport */
+  .work-card--1 { left: 6%; top: 14svh; }
+  .work-card--3 { left: 6%; top: 114svh; }
+  .work-card--5 { left: 6%; top: 214svh; }
+  .work-card--7  { left: 6%;  top: 314svh; }
+  .work-card--9  { left: 6%;  top: 414svh; }
+  .work-card--11 { left: 6%;  top: 514svh; }
+
+  /* Even cards — right, lower in their viewport */
+  .work-card--2  { right: 6%; top: 52svh; }
+  .work-card--4  { right: 6%; top: 152svh; }
+  .work-card--6  { right: 6%; top: 252svh; }
+  .work-card--8  { right: 6%; top: 352svh; }
+  .work-card--10 { right: 6%; top: 452svh; }
+
+  .work-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0 24px 90px rgba(0, 0, 0, 0.70);
+    z-index: 10;
+  }
+
+  .work-cards:has(.work-card:hover) .work-card:not(:hover) {
+    filter: blur(4px);
+    opacity: 0.6;
+    transition:
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.55s ease,
+      filter 0.55s ease,
+      opacity 0.55s ease;
+  }
+
+  .work-card__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .work-card__mobile-label {
+    display: none;
+  }
+
+  .work-cursor-label {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 100;
+    padding: 6px 10px;
+    background: #fff;
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: 7px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    color: #111;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(12px, 0);
+    transition: opacity 0.2s ease;
+  }
+
+  .work-cursor-label.is-visible {
+    opacity: 1;
+  }
+
+  /* Mobile: stack vertically */
+  @media (max-width: 640px) {
+    .work-cards {
+      position: relative;
+      inset: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      padding: 40px 20px;
+      pointer-events: all;
+    }
+    .work-card-wrap {
+      width: 100%;
+    }
+    .work-card {
+      position: relative;
+      width: 100%;
+      left: auto; right: auto; top: auto; bottom: auto;
+      transform: none;
+    }
+    .work-card-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+    .work-card:hover {
+      transform: scale(1.02);
+    }
+    .work-card__mobile-label {
+      display: block;
+      margin-top: 10px;
+      font-family: "ObviouslyWide", system-ui, sans-serif;
+      font-size: 7px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    .work-scene {
+      height: auto;
+      background: #1a4a6e;
+    }
+    .work-bg {
+      display: none;
+    }
+  }
+
   .home-video-full {
     height: 100svh;
     overflow: hidden;
@@ -114,9 +459,64 @@ import StudioIntro from "../components/StudioIntro.astro";
     object-fit: cover;
   }
 
+  /* ── About page gradient blobs ── */
+
+  /* about-page (dark blue #06101e) */
+  .about-page { position: relative; }
+  .ab-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .about-content-top, .about-image-wrap, .about-content { position: relative; z-index: 1; }
+  .ab-blob--1 { width: 70%; height: 70%; background: radial-gradient(circle, #1a3060 0%, transparent 70%); top: -20%; left: 10%; animation: wb1 22s ease-in-out infinite; }
+  .ab-blob--2 { width: 60%; height: 60%; background: radial-gradient(circle, #04080f 0%, transparent 70%); bottom: -10%; right: -5%; animation: wb2 28s ease-in-out infinite; }
+  .ab-blob--3 { width: 50%; height: 50%; background: radial-gradient(circle, #102848 0%, transparent 70%); top: 30%; right: 5%;  animation: wb3 18s ease-in-out infinite; }
+  .ab-blob--4 { width: 45%; height: 45%; background: radial-gradient(circle, #1c3858 0%, transparent 70%); bottom: 10%; left: 5%; animation: wb4 24s ease-in-out infinite; }
+
+  /* about-been-around (steel blue #1e3d54) */
   .about-been-around {
-    background: #0a0a0a;
+    position: relative;
+    overflow: hidden;
+    background: #1e3d54;
     padding: clamp(80px, 12vw, 160px) clamp(24px, 7vw, 120px);
+  }
+  .about-been-around__headline,
+  .about-been-around__pull,
+  .about-been-around__body { position: relative; z-index: 1; }
+  .ba-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ba-blob--1 { width: 75%; height: 75%; background: radial-gradient(circle, #6aa0c0 0%, transparent 70%); top: -25%; right: -5%; animation: ba1 20s ease-in-out infinite; }
+  .ba-blob--2 { width: 65%; height: 65%; background: radial-gradient(circle, #0e1e2c 0%, transparent 70%); bottom: -15%; left: -5%; animation: ba2 26s ease-in-out infinite; }
+  .ba-blob--3 { width: 60%; height: 60%; background: radial-gradient(circle, #2e5878 0%, transparent 70%); top: 20%; left: 10%;  animation: ba3 18s ease-in-out infinite; }
+  .ba-blob--4 { width: 50%; height: 50%; background: radial-gradient(circle, #3a6888 0%, transparent 70%); bottom: 10%; right: 8%; animation: ba4 22s ease-in-out infinite; }
+
+  @keyframes ba1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    30%       { transform: translate(8%, 10%) scale(1.12); }
+    65%       { transform: translate(-6%, 5%) scale(0.92); }
+  }
+  @keyframes ba2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    35%       { transform: translate(10%, -10%) scale(1.14); }
+    70%       { transform: translate(-7%, 7%) scale(0.90); }
+  }
+  @keyframes ba3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40%       { transform: translate(-9%, 8%) scale(1.10); }
+    75%       { transform: translate(6%, -6%) scale(0.93); }
+  }
+  @keyframes ba4 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25%       { transform: translate(-8%, -9%) scale(1.13); }
+    60%       { transform: translate(8%, 6%) scale(0.91); }
   }
 
   @keyframes ba-slide-down {
@@ -209,7 +609,7 @@ import StudioIntro from "../components/StudioIntro.astro";
     font-size: clamp(22px, 3vw, 48px);
     font-weight: 500;
     line-height: 1.15;
-    color: #7040c0;
+    color: #f2c4ce;
     margin: 0 0 0.6em;
     max-width: 70vw;
   }
@@ -278,7 +678,25 @@ import StudioIntro from "../components/StudioIntro.astro";
     margin: 0;
   }
 
+  /* our-way (pink #f2c4ce) */
+  .ow-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .about-our-way__label,
+  .about-our-way__headline,
+  .about-our-way__body { position: relative; z-index: 1; }
+  .ow-blob--1 { width: 70%; height: 70%; background: radial-gradient(circle, #f8d8e0 0%, transparent 70%); top: -20%; left: 10%;  animation: wb1 22s ease-in-out infinite; }
+  .ow-blob--2 { width: 60%; height: 60%; background: radial-gradient(circle, #e0a8b4 0%, transparent 70%); bottom: -10%; left: -10%; animation: wb2 28s ease-in-out infinite; }
+  .ow-blob--3 { width: 55%; height: 55%; background: radial-gradient(circle, #f5ccda 0%, transparent 70%); top: 20%; right: -5%; animation: wb3 18s ease-in-out infinite; }
+  .ow-blob--4 { width: 45%; height: 45%; background: radial-gradient(circle, #d898a8 0%, transparent 70%); bottom: 5%; right: 10%; animation: wb4 22s ease-in-out infinite; }
+
   .about-our-way {
+    position: relative;
+    overflow: hidden;
     background: #f2c4ce;
     padding: clamp(80px, 12vw, 160px) clamp(24px, 7vw, 120px);
   }
@@ -406,7 +824,7 @@ import StudioIntro from "../components/StudioIntro.astro";
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     overflow: hidden;
-    background: #0a0a0a;
+    background: #06101e;
   }
 
   .about-content-top {
@@ -585,8 +1003,16 @@ import StudioIntro from "../components/StudioIntro.astro";
   }
 
   // Continuous rAF loop — keeps parallax smooth on mobile during momentum scrolling
+  // Animate grain seed every frame for moving film-grain effect
+  const grainTurb = document.getElementById('wg-turb') as SVGFETurbulenceElement | null;
+  let grainSeed = 0;
+
   function loop() {
     updateParallax();
+    if (grainTurb) {
+      grainSeed = (grainSeed + 1) % 9999;
+      grainTurb.setAttribute('seed', String(grainSeed));
+    }
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
@@ -644,4 +1070,64 @@ import StudioIntro from "../components/StudioIntro.astro";
     const diff = pillarTouchStartX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 40) goToPillar(diff > 0 ? pillarCurrent + 1 : pillarCurrent - 1);
   }, { passive: true });
+
+  // ── Work video cards ──
+  const workBg = document.querySelector<HTMLElement>('.work-bg');
+  const workCardEls = document.querySelectorAll<HTMLElement>('.work-card');
+  const workDefaultBg = '#1a4a6e';
+  const cursorLabel = document.querySelector<HTMLElement>('.work-cursor-label');
+
+  // Off-screen canvas for color sampling
+  const colorProbe = document.createElement('canvas');
+  colorProbe.width = 16;
+  colorProbe.height = 16;
+  const colorCtx = colorProbe.getContext('2d', { willReadFrequently: true });
+
+  function sampleColor(video: HTMLVideoElement): string {
+    if (!colorCtx) return workDefaultBg;
+    try {
+      colorCtx.drawImage(video, 0, 0, 16, 16);
+      const d = colorCtx.getImageData(0, 0, 16, 16).data;
+      let r = 0, g = 0, b = 0;
+      const n = d.length / 4;
+      for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
+      return `rgb(${Math.round(r/n)},${Math.round(g/n)},${Math.round(b/n)})`;
+    } catch { return workDefaultBg; }
+  }
+
+  workCardEls.forEach((card) => {
+    const video = card.querySelector<HTMLVideoElement>('.work-card__video');
+    if (!video) return;
+
+    // Sample first frame color once data is available
+    video.addEventListener('loadeddata', () => {
+      card.dataset.color = sampleColor(video);
+    }, { once: true });
+
+    card.addEventListener('mouseenter', () => {
+      video.muted = false;
+      video.currentTime = 0;
+      video.play();
+      if (workBg) workBg.style.backgroundColor = card.dataset.color || workDefaultBg;
+      if (cursorLabel) {
+        cursorLabel.textContent = card.dataset.label || '';
+        cursorLabel.classList.add('is-visible');
+      }
+    });
+
+    card.addEventListener('mousemove', (e) => {
+      if (cursorLabel) {
+        cursorLabel.style.left = `${e.clientX}px`;
+        cursorLabel.style.top  = `${e.clientY}px`;
+      }
+    });
+
+    card.addEventListener('mouseleave', () => {
+      video.muted = true;
+      video.pause();
+      video.currentTime = 0;
+      if (workBg) workBg.style.backgroundColor = workDefaultBg;
+      if (cursorLabel) cursorLabel.classList.remove('is-visible');
+    });
+  });
 </script>

@@ -203,7 +203,12 @@ const ads = [
               <span class="word-scroll-sr">{line1} {line2}</span>
             </div>
           : i === 5
-          ? <div class="intro-inner" data-reveal>
+          ? <Fragment>
+              <div class="intro-blob intro-blob--1" aria-hidden="true"></div>
+              <div class="intro-blob intro-blob--2" aria-hidden="true"></div>
+              <div class="intro-blob intro-blob--3" aria-hidden="true"></div>
+              <div class="intro-blob intro-blob--4" aria-hidden="true"></div>
+              <div class="intro-inner" data-reveal>
               <div class="intro-headline">
                 <span class="intro-say">What sets <span class="intro-say--dark">Reference</span> apart.</span>
               </div>
@@ -225,6 +230,7 @@ const ads = [
                 </div>
               </div>
             </div>
+            </Fragment>
           : <div class="manifesto-inner" data-reveal>
               {i === 0
                 ? <p class="manifesto-line" set:html={`${line1} ${line2.replace('Fuck', '<span class="burst-word">Fuck</span>')}`} />
@@ -467,6 +473,7 @@ const ads = [
 
   /* ── Intro section (i===5): purple bg, "Say hello to" + slider ── */
   .manifesto-block--intro {
+    position: relative;
     background: #986edf;
     display: flex;
     flex-direction: column;
@@ -475,7 +482,61 @@ const ads = [
     overflow: hidden;
   }
 
+  .intro-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .intro-blob--1 {
+    width: 70%; height: 70%;
+    background: radial-gradient(circle, #c090f0 0%, transparent 70%);
+    top: -20%; left: 10%;
+    animation: wb1 20s ease-in-out infinite;
+  }
+  .intro-blob--2 {
+    width: 60%; height: 60%;
+    background: radial-gradient(circle, #6838b8 0%, transparent 70%);
+    bottom: -10%; left: -10%;
+    animation: wb2 26s ease-in-out infinite;
+  }
+  .intro-blob--3 {
+    width: 55%; height: 55%;
+    background: radial-gradient(circle, #ba80ee 0%, transparent 70%);
+    top: 20%; right: -5%;
+    animation: wb3 18s ease-in-out infinite;
+  }
+  .intro-blob--4 {
+    width: 45%; height: 45%;
+    background: radial-gradient(circle, #7040c8 0%, transparent 70%);
+    bottom: 5%; right: 10%;
+    animation: wb4 22s ease-in-out infinite;
+  }
+  @keyframes wb1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    30%       { transform: translate(4%, 6%) scale(1.06); }
+    65%       { transform: translate(-3%, 3%) scale(0.95); }
+  }
+  @keyframes wb2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    35%       { transform: translate(7%, -7%) scale(1.08); }
+    70%       { transform: translate(-4%, 4%) scale(0.94); }
+  }
+  @keyframes wb3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40%       { transform: translate(-6%, 5%) scale(1.05); }
+    75%       { transform: translate(3%, -4%) scale(0.97); }
+  }
+  @keyframes wb4 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25%       { transform: translate(-5%, -6%) scale(1.07); }
+    60%       { transform: translate(5%, 4%) scale(0.96); }
+  }
+
   .intro-inner {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     width: 100%;
