@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import '../styles/pages.css';
+import { ClientRouter } from 'astro:transitions';
 interface Props {
   title?: string;
   description?: string;
@@ -8,6 +10,20 @@ const {
   title = "Reference",
   description = "Reference — Supersonic creative.",
 } = Astro.props;
+
+const pathname = Astro.url.pathname;
+// Determine current page slug for body data-page and active nav
+function getPageSlug(path: string): string {
+  if (path === '/' || path === '') return 'home';
+  const slug = path.replace(/^\//, '').replace(/\/$/, '');
+  return slug || 'home';
+}
+const currentPage = getPageSlug(pathname);
+
+function isActive(href: string): boolean {
+  if (href === '/') return pathname === '/';
+  return pathname.startsWith(href);
+}
 ---
 
 <!doctype html>
@@ -15,6 +31,7 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ClientRouter />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,6 +40,13 @@ const {
 
     <style is:global>
       *, *::before, *::after { cursor: none !important; }
+
+      /* Disable Astro's default view-transition crossfade — our overlay handles it */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation: none;
+        mix-blend-mode: normal;
+      }
     </style>
 
     <style>
@@ -175,6 +199,8 @@ const {
         transition: color 0.2s ease;
         text-transform: uppercase;
         line-height: 1;
+        text-decoration: none;
+        display: inline-block;
       }
 
       .nav-tab:hover,
@@ -230,15 +256,22 @@ const {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 7px;
+        gap: 6px;
         font-family: "ObviouslyWide", system-ui, sans-serif;
         font-size: 9px;
         font-weight: 400;
         letter-spacing: 0.22em;
         text-transform: uppercase;
         color: rgba(232, 228, 222, 0.35);
-        writing-mode: vertical-rl;
         transition: color 0.25s ease;
+        cursor: pointer;
+      }
+
+      .music-toggle__icon {
+        width: 16px;
+        height: 16px;
+        color: inherit;
+        flex-shrink: 0;
       }
 
       .music-toggle:hover {
@@ -279,22 +312,55 @@ const {
       .music-toggle--on-light.is-playing {
         color: rgba(26, 26, 26, 0.6);
       }
+
+      /* Hide music toggle on work page */
+      body[data-page="work"] #music-toggle {
+        display: none;
+      }
+
+      /* ── Page transition overlay ── */
+      .pt-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: #986edf;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        will-change: transform;
+        /* hidden off-screen left by default */
+        transform: translateX(-100%);
+      }
+
+      .pt-overlay__icon {
+        width: clamp(28px, 3.5vw, 52px);
+        height: auto;
+        filter: brightness(0) invert(1) brightness(0.92) sepia(0.12);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
     </style>
   </head>
-  <body>
+  <body data-page={currentPage}>
+    <!-- Page transition overlay — persists across navigations so WAAPI state is retained -->
+    <div class="pt-overlay" id="pt-overlay" aria-hidden="true" transition:persist>
+      <img class="pt-overlay__icon" src="/brand/reference-symbol.svg" alt="" />
+    </div>
+
     <!-- Brand mark — top left, hidden until past hero -->
-    <div class="brand-mark" id="brand-mark" role="button" aria-label="Back to top">
+    <div class="brand-mark" id="brand-mark" role="button" aria-label="Back to top" transition:persist>
       <div class="brand-mark__symbol"></div>
       <div class="brand-mark__logo"></div>
     </div>
 
     <!-- Top nav tabs -->
-    <nav class="nav-bar">
-      <button class="nav-tab is-active" data-tab="home">HOME</button>
-      <button class="nav-tab" data-tab="industry">INDUSTRY</button>
-      <button class="nav-tab" data-tab="about">ABOUT</button>
-      <button class="nav-tab" data-tab="work">WORK</button>
-      <button class="nav-tab" data-tab="contact">CONTACT</button>
+    <nav class="nav-bar" id="nav-bar" transition:persist>
+      <a href="/" class={`nav-tab${isActive('/') ? ' is-active' : ''}`}>HOME</a>
+      <a href="/industry" class={`nav-tab${isActive('/industry') ? ' is-active' : ''}`}>INDUSTRY</a>
+      <a href="/about" class={`nav-tab${isActive('/about') ? ' is-active' : ''}`}>ABOUT</a>
+      <a href="/work" class={`nav-tab${isActive('/work') ? ' is-active' : ''}`}>WORK</a>
+      <a href="/contact" class={`nav-tab${isActive('/contact') ? ' is-active' : ''}`}>CONTACT</a>
     </nav>
 
     <!-- Grain texture — feTurbulence fractalNoise -->
@@ -313,15 +379,20 @@ const {
 
     <slot />
 
-    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-dot" id="cursor-dot" transition:persist></div>
 
     <!-- Background music -->
-    <audio id="bg-music" loop preload="none">
+    <audio id="bg-music" loop preload="none" transition:persist>
       <source src="/audio/website-audio.ogg" type="audio/ogg" />
     </audio>
 
-    <button class="music-toggle" id="music-toggle" aria-label="Toggle music">
-      <span class="music-toggle__text">Turn Music On</span>
+    <button class="music-toggle" id="music-toggle" aria-label="Toggle music" transition:persist>
+      <svg class="music-toggle__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M9 18V6l12-2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span class="music-toggle__text">OFF</span>
     </button>
 
     <script>
@@ -357,6 +428,12 @@ const {
           }
           requestAnimationFrame(tick);
         })();
+
+        // Reset scroll state on navigation
+        document.addEventListener('astro:after-swap', () => {
+          currentY = 0;
+          velocity = 0;
+        });
       }
 
       const dot = document.getElementById("cursor-dot") as HTMLElement;
@@ -471,7 +548,7 @@ const {
         function startMusic() {
           music.play().then(() => {
             musicToggle.classList.add("is-playing");
-            if (musicToggleText) musicToggleText.textContent = "Turn Music Off";
+            if (musicToggleText) musicToggleText.textContent = "ON";
           }).catch(() => {});
         }
 
@@ -482,37 +559,74 @@ const {
           } else {
             music.pause();
             musicToggle.classList.remove("is-playing");
-            if (musicToggleText) musicToggleText.textContent = "Turn Music On";
+            if (musicToggleText) musicToggleText.textContent = "OFF";
           }
         });
       }
 
-      // ── Nav tabs ──
-      const navTabs  = Array.from(document.querySelectorAll<HTMLElement>('.nav-tab'));
-      const pages    = Array.from(document.querySelectorAll<HTMLElement>('[data-page]'));
+      // ── Page transitions (Astro ClientRouter — no navigation boundary, no flicker) ──
+      const ptOverlay = document.getElementById('pt-overlay') as HTMLElement;
+      const ptIcon    = ptOverlay?.querySelector<HTMLElement>('.pt-overlay__icon');
+      const SLIDE_DUR = 600;
+      const EASE      = 'cubic-bezier(0.65, 0, 0.35, 1)';
 
-      navTabs.forEach((tab) => {
-        tab.addEventListener('click', () => {
-          navTabs.forEach((t) => t.classList.remove('is-active'));
-          tab.classList.add('is-active');
-          const target = tab.dataset.tab;
-          pages.forEach((p) => {
-            p.style.display = p.dataset.page === target ? '' : 'none';
-          });
-          window.scrollTo({ top: 0, behavior: 'instant' });
-          // Let layout settle then re-run size-calibration and colour detection
-          requestAnimationFrame(() => {
-            window.dispatchEvent(new Event('resize'));
-            updateBrandMark();
-            updateMusicToggleColor();
-            setTimeout(() => {
-              (window as any).__calibrateBIGGER?.();
-              (window as any).__initAboutParallax?.();
-              (window as any).__initBeenAround?.();
-            }, 80);
-          });
+      if (ptOverlay) {
+        // Before page fetch: slide overlay in from left, parallel with the fetch
+        document.addEventListener('astro:before-preparation', (e: any) => {
+          const originalLoader = e.loader;
+          e.loader = async () => {
+            if (ptIcon) ptIcon.style.opacity = '0';
+            ptOverlay.style.transform = '';
+            ptOverlay.getAnimations().forEach(a => a.cancel());
+            ptOverlay.style.transform = 'translateX(-100%)'; // pin start position
+            const anim = ptOverlay.animate(
+              [{ transform: 'translateX(-100%)' }, { transform: 'translateX(0)' }],
+              { duration: SLIDE_DUR, easing: EASE, fill: 'none' }
+            );
+            // Hold position after animation with inline style (no fill needed)
+            anim.onfinish = () => { ptOverlay.style.transform = 'translateX(0)'; };
+            setTimeout(() => { if (ptIcon) ptIcon.style.opacity = '1'; }, Math.round(SLIDE_DUR * 0.45));
+            // Wait for BOTH animation AND fetch before swapping DOM
+            await Promise.all([
+              new Promise<void>(res => { anim.addEventListener('finish', () => res(), { once: true }); }),
+              originalLoader(),
+            ]);
+          };
         });
-      });
+
+        // After DOM swap: slide overlay out to reveal new page
+        document.addEventListener('astro:after-swap', () => {
+          // Update body data-page so CSS selectors (e.g. hide music on work) work
+          const path = window.location.pathname;
+          const slug = path === '/' ? 'home' : (path.replace(/^\//, '').replace(/\/$/, '') || 'home');
+          document.body.setAttribute('data-page', slug);
+
+          // Update nav active state (nav persists via transition:persist)
+          document.querySelectorAll<HTMLAnchorElement>('.nav-tab').forEach(tab => {
+            const href = tab.getAttribute('href') ?? '';
+            const active = href === '/' ? path === '/' : path.startsWith(href);
+            tab.classList.toggle('is-active', active);
+          });
+
+          // Re-check brand mark / nav luminance for new page background
+          updateBrandMark();
+          updateMusicToggleColor();
+
+          // Slide overlay out — cancel any lingering exit-animation fills first
+          if (ptIcon) ptIcon.style.opacity = '0';
+          setTimeout(() => {
+            ptOverlay.getAnimations().forEach(a => a.cancel());
+            ptOverlay.style.transform = 'translateX(0)'; // pin position before animating
+            const anim = ptOverlay.animate(
+              [{ transform: 'translateX(0)' }, { transform: 'translateX(100%)' }],
+              { duration: SLIDE_DUR, easing: EASE, fill: 'none' }
+            );
+            anim.onfinish = () => {
+              ptOverlay.style.transform = 'translateX(-100%)';
+            };
+          }, 300);
+        });
+      }
     </script>
   </body>
 </html>

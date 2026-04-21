@@ -1,0 +1,166 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Work — Reference" description="Reference — Supersonic creative. Our work.">
+  <div class="work-scene">
+    <!-- Sticky background — stays in viewport while cards scroll -->
+    <div class="work-bg">
+      <div class="work-blob work-blob--1"></div>
+      <div class="work-blob work-blob--2"></div>
+      <div class="work-blob work-blob--3"></div>
+      <div class="work-blob work-blob--4"></div>
+      <svg class="work-grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <filter id="wg">
+          <feTurbulence id="wg-turb" type="turbulence" baseFrequency="0.70" numOctaves="1" seed="0" stitchTiles="stitch"/>
+          <feColorMatrix type="saturate" values="0"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#wg)"/>
+      </svg>
+    </div>
+
+    <!-- Cards scroll over the sticky bg -->
+    <div class="work-cards">
+      <div class="work-card-wrap">
+        <div class="work-card work-card--1" data-label="AXE — EVOLUTION OF HOOKING UP">
+          <video class="work-card__video" src="/video/work/axe%20-%20evolution.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">AXE — EVOLUTION OF HOOKING UP</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--2" data-label="AL DIRIYAH FC — UNDERDOGS">
+          <video class="work-card__video" src="/video/work/al%20dirriyah%20fc%20-%20underdogs.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">AL DIRIYAH FC — UNDERDOGS</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--3" data-label="AXE — WINGMAN">
+          <video class="work-card__video" src="/video/work/axe%20-%20wingman.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">AXE — WINGMAN</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--4" data-label="DU — LOVE IT">
+          <video class="work-card__video" src="/video/work/du%20-%20love%20it.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">DU — LOVE IT</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--5" data-label="KFC — WINNER WINNER CHICKEN DINNER">
+          <video class="work-card__video" src="/video/work/kfc%20-%20winner%20winner%20chicken%20dinner.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">KFC — WINNER WINNER CHICKEN DINNER</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--6" data-label="SHAHID — EPIC ORIGINALS">
+          <video class="work-card__video" src="/video/work/shahid%20-%20epic%20originals.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">SHAHID — EPIC ORIGINALS</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--7" data-label="ABTAL X LA LIGA — MADE FOR CHAMPIONS">
+          <video class="work-card__video" src="/video/work/abtal%20x%20la%20liga%20-%20made%20for%20champions.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">ABTAL X LA LIGA — MADE FOR CHAMPIONS</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--8" data-label="CST — THE HAND">
+          <video class="work-card__video" src="/video/work/cst%20-%20the%20hand.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">CST — THE HAND</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--9" data-label="REXONA — ALPHABET OF CHEERING">
+          <video class="work-card__video" src="/video/work/rexona%20-%20alphabet%20of%20cheering.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">REXONA — ALPHABET OF CHEERING</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--10" data-label="SHAHID — WATCH ALONE">
+          <video class="work-card__video" src="/video/work/shahid%20-%20watch%20alone.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">SHAHID — WATCH ALONE</span>
+      </div>
+      <div class="work-card-wrap">
+        <div class="work-card work-card--11" data-label="SHAHID X MASTERCARD — GONE">
+          <video class="work-card__video" src="/video/work/shahid%20x%20mastercard%20-%20gone.mov" autoplay muted playsinline preload="auto" loop></video>
+        </div>
+        <span class="work-card__mobile-label">SHAHID X MASTERCARD — GONE</span>
+      </div>
+    </div>
+    <div class="work-cursor-label" aria-hidden="true"></div>
+  </div>
+</Layout>
+
+<script>
+  let _workAC: AbortController | null = null;
+
+  function initWork() {
+    if (!document.querySelector('.work-card')) return; // not on work page
+    _workAC?.abort();
+    _workAC = new AbortController();
+    const { signal } = _workAC;
+
+    // Grain animation loop — stops on navigation
+    const grainTurb = document.getElementById('wg-turb') as SVGFETurbulenceElement | null;
+    let grainSeed = 0;
+    function loop() {
+      if (signal.aborted) return;
+      if (grainTurb) {
+        grainSeed = (grainSeed + 1) % 9999;
+        grainTurb.setAttribute('seed', String(grainSeed));
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // Work video cards
+    const workBg      = document.querySelector<HTMLElement>('.work-bg');
+    const workCardEls = document.querySelectorAll<HTMLElement>('.work-card');
+    const cursorLabel = document.querySelector<HTMLElement>('.work-cursor-label');
+    const workDefaultBg = '#1a4a6e';
+
+    const colorProbe = document.createElement('canvas');
+    colorProbe.width = 16; colorProbe.height = 16;
+    const colorCtx = colorProbe.getContext('2d', { willReadFrequently: true });
+
+    function sampleColor(video: HTMLVideoElement): string {
+      if (!colorCtx) return workDefaultBg;
+      try {
+        colorCtx.drawImage(video, 0, 0, 16, 16);
+        const d = colorCtx.getImageData(0, 0, 16, 16).data;
+        let r = 0, g = 0, b = 0;
+        const n = d.length / 4;
+        for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
+        return `rgb(${Math.round(r/n)},${Math.round(g/n)},${Math.round(b/n)})`;
+      } catch { return workDefaultBg; }
+    }
+
+    workCardEls.forEach((card) => {
+      const video = card.querySelector<HTMLVideoElement>('.work-card__video');
+      if (!video) return;
+
+      video.addEventListener('loadeddata', () => {
+        card.dataset.color = sampleColor(video);
+      }, { once: true, signal });
+
+      card.addEventListener('mouseenter', () => {
+        video.muted = false; video.currentTime = 0; video.play();
+        if (workBg) workBg.style.backgroundColor = card.dataset.color || workDefaultBg;
+        if (cursorLabel) { cursorLabel.textContent = card.dataset.label || ''; cursorLabel.classList.add('is-visible'); }
+      }, { signal });
+
+      card.addEventListener('mousemove', (e) => {
+        if (cursorLabel) { cursorLabel.style.left = `${e.clientX}px`; cursorLabel.style.top = `${e.clientY}px`; }
+      }, { signal });
+
+      card.addEventListener('mouseleave', () => {
+        video.muted = true; video.pause(); video.currentTime = 0;
+        if (workBg) workBg.style.backgroundColor = workDefaultBg;
+        if (cursorLabel) cursorLabel.classList.remove('is-visible');
+      }, { signal });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initWork);
+</script>

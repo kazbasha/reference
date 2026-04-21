@@ -345,48 +345,56 @@ import Layout from "../layouts/Layout.astro";
 </style>
 
 <script>
-  // ── Reveal on mount ──
-  const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
-  revealEls.forEach((el) => {
-    const delay = el.dataset.revealDelay ?? "0s";
-    el.style.setProperty("--reveal-delay", delay);
-    // Small rAF delay so the transition fires after paint
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => el.classList.add("is-visible"));
-    });
-  });
+  let _contactAC: AbortController | null = null;
 
-  // ── Form submission ──
-  const form    = document.getElementById("contact-form") as HTMLFormElement | null;
-  const success = document.getElementById("contact-success") as HTMLElement | null;
+  function initContact() {
+    if (!document.querySelector('.contact-page')) return;
+    _contactAC?.abort();
+    _contactAC = new AbortController();
+    const { signal } = _contactAC;
 
-  form?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const btn = form.querySelector<HTMLButtonElement>(".submit-btn");
-    if (btn) btn.disabled = true;
-
-    const data = new FormData(form);
-
-    try {
-      // POST to /api/contact — wire up your own endpoint or form service here.
-      // Works out-of-the-box with Netlify Forms (add data-netlify="true" to the form).
-      await fetch("/api/contact", {
-        method: "POST",
-        body: data,
+    // ── Reveal on mount ──
+    const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
+    revealEls.forEach((el) => {
+      const delay = el.dataset.revealDelay ?? "0s";
+      el.style.setProperty("--reveal-delay", delay);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => el.classList.add("is-visible"));
       });
-    } catch {
-      // Silently proceed to success — the endpoint may not exist yet.
-    }
+    });
 
-    // Show success state
-    form.style.transition = "opacity 0.4s ease";
-    form.style.opacity = "0";
-    setTimeout(() => {
-      form.style.display = "none";
-      if (success) {
-        success.classList.add("is-visible");
+    // ── Form submission ──
+    const form    = document.getElementById("contact-form") as HTMLFormElement | null;
+    const success = document.getElementById("contact-success") as HTMLElement | null;
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const btn = form.querySelector<HTMLButtonElement>(".submit-btn");
+      if (btn) btn.disabled = true;
+
+      const data = new FormData(form);
+
+      try {
+        await fetch("/api/contact", {
+          method: "POST",
+          body: data,
+        });
+      } catch {
+        // Silently proceed to success — the endpoint may not exist yet.
       }
-    }, 400);
-  });
+
+      // Show success state
+      form.style.transition = "opacity 0.4s ease";
+      form.style.opacity = "0";
+      setTimeout(() => {
+        form.style.display = "none";
+        if (success) {
+          success.classList.add("is-visible");
+        }
+      }, 400);
+    }, { signal });
+  }
+
+  document.addEventListener('astro:page-load', initContact);
 </script>

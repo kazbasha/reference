@@ -222,11 +222,9 @@ const ads = [
                   ))}
                 </div>
                 <div class="intro-slider-nav">
+                  <button class="intro-slider-btn intro-slider-prev" aria-label="Previous">&#8592;</button>
                   <span class="intro-slider-counter">01 / 05</span>
-                  <div class="intro-slider-arrows">
-                    <button class="intro-slider-btn intro-slider-prev" aria-label="Previous">←</button>
-                    <button class="intro-slider-btn intro-slider-next" aria-label="Next">→</button>
-                  </div>
+                  <button class="intro-slider-btn intro-slider-next" aria-label="Next">&#8594;</button>
                 </div>
               </div>
             </div>
@@ -661,8 +659,7 @@ const ads = [
   .intro-slider-nav {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: clamp(16px, 2vw, 28px);
+    justify-content: space-between;
     padding: clamp(20px, 3vw, 40px) clamp(24px, 7vw, 100px);
     border-top: 1px solid rgba(232, 228, 222, 0.2);
   }
@@ -672,25 +669,27 @@ const ads = [
     color: rgba(232, 228, 222, 0.5);
     letter-spacing: 0.1em;
     font-variant-numeric: tabular-nums;
-  }
-
-  .intro-slider-arrows {
-    display: flex;
-    gap: 8px;
+    text-align: center;
   }
 
   .intro-slider-btn {
+    -webkit-appearance: none;
+    appearance: none;
     background: none;
     border: 1px solid rgba(232, 228, 222, 0.35);
+    border-radius: 50%;
     color: #e8e4de;
+    font-size: clamp(14px, 1.4vw, 20px);
+    line-height: 1;
     width: clamp(36px, 3.5vw, 52px);
     height: clamp(36px, 3.5vw, 52px);
-    border-radius: 50%;
-    font-size: clamp(14px, 1.4vw, 20px);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
     transition: background 0.2s, border-color 0.2s;
   }
 
@@ -1410,12 +1409,17 @@ const ads = [
 
     // Touch swipe
     let touchStartX = 0;
+    let touchStartY = 0;
     track?.addEventListener('touchstart', (e) => {
       touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
     }, { passive: true });
     track?.addEventListener('touchend', (e) => {
-      const diff = touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 40) goTo(diff > 0 ? current + 1 : current - 1);
+      const dx = touchStartX - e.changedTouches[0].clientX;
+      const dy = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+        goTo(dx > 0 ? current + 1 : current - 1);
+      }
     }, { passive: true });
   }
 
@@ -2402,6 +2406,19 @@ const ads = [
 
   runScrollHandlers();
 
+  // ── Re-initialise on each ClientRouter navigation ──
+  // The module is cached after first load, so DOM queries above are stale
+  // after a client-side swap. Re-observe [data-reveal] elements and
+  // recalculate initial scroll state for the new page.
+  document.addEventListener('astro:page-load', () => {
+    // Re-attach the observer to any [data-reveal] elements on the new page
+    document.querySelectorAll('[data-reveal]').forEach(el => {
+      if (!el.classList.contains('is-visible')) observer.observe(el);
+    });
+    // Immediately mark elements that are already in the viewport
+    runScrollHandlers();
+  });
+
 </script>
 
 <style>
@@ -2479,4 +2496,33 @@ const ads = [
 
     word.addEventListener('mouseenter', spawnBurst);
   }
+
+  // Re-attach burst handler on ClientRouter navigation
+  document.addEventListener('astro:page-load', () => {
+    const bw = document.querySelector('.burst-word');
+    const bl = document.querySelector<HTMLElement>('.burst-layer');
+    if (!bw || !bl) return;
+    // Remove old handler (if any) by cloning, then re-attach fresh
+    const fresh = bw.cloneNode(true) as Element;
+    bw.replaceWith(fresh);
+    fresh.addEventListener('mouseenter', () => {
+      const rect = fresh.getBoundingClientRect();
+      for (let i = 0; i < 8; i++) {
+        const size = 48 + Math.random() * 24;
+        const el   = document.createElement('div');
+        const FILL_COLORS = ['#e8e4de', '#986edf', '#1a5c3a'];
+        el.style.cssText = `position:fixed;pointer-events:none;z-index:9998;width:${size}px;height:${size}px;top:0;left:0;border-radius:50%;background:${FILL_COLORS[Math.floor(Math.random()*3)]};`;
+        document.body.appendChild(el);
+        let x = rect.left + Math.random() * rect.width - size / 2;
+        let y = rect.top  + (Math.random() * 12 - 6)   - size / 2;
+        let vx = Math.random() * 4 - 2, vy = -(4 + Math.random() * 3);
+        let rot = Math.random() * 360, vr = Math.random() * 3 - 1.5;
+        (function tick() {
+          vy += 0.1; x += vx; y += vy; rot += vr;
+          el.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg)`;
+          if (y < window.innerHeight + size) requestAnimationFrame(tick); else el.remove();
+        })();
+      }
+    });
+  });
 </script>

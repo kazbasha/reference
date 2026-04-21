@@ -1,0 +1,199 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="About — Reference" description="Reference — Supersonic creative. About us.">
+  <section class="about-page">
+    <div class="ab-blob ab-blob--1" aria-hidden="true"></div>
+    <div class="ab-blob ab-blob--2" aria-hidden="true"></div>
+    <div class="ab-blob ab-blob--3" aria-hidden="true"></div>
+    <div class="ab-blob ab-blob--4" aria-hidden="true"></div>
+    <div class="about-content-top">
+      <h2 class="about-headline">WHERE IT STARTED</h2>
+      <div class="about-body">
+        <p>Wembley Stadium.<br />August 2nd, 2025.<br />Oasis back on stage.<br />Two brothers. Loud. Raw.</p>
+      </div>
+    </div>
+    <div class="about-image-wrap">
+      <img src="/images/about-us.webp" alt="" class="about-img" id="about-parallax-img" />
+    </div>
+    <div class="about-content">
+      <div class="about-body">
+        <p>That's how great work happens.<br />Close to the people making it.<br />Hands-on. Backing instinct.<br />No committee killing it.</p>
+        <p>So we started Reference. Together.<br />To take back control.</p>
+        <p>Like a band.</p>
+      </div>
+    </div>
+  </section>
+  <section class="about-parallax-full"><div class="about-parallax-full__img"></div></section>
+  <section class="about-been-around">
+    <div class="ba-blob ba-blob--1" aria-hidden="true"></div>
+    <div class="ba-blob ba-blob--2" aria-hidden="true"></div>
+    <div class="ba-blob ba-blob--3" aria-hidden="true"></div>
+    <div class="ba-blob ba-blob--4" aria-hidden="true"></div>
+    <h2 class="about-been-around__headline">WE'VE BEEN AROUND</h2>
+    <h3 class="about-been-around__pull">From indies to multinationals to <span style="white-space:nowrap">client-side.</span> We've played every stage.</h3>
+    <div class="about-been-around__body">
+      <div class="about-pillars-track">
+        <div class="about-pillar">
+          <h4 class="about-pillar__title">BRANDING TASTE</h4>
+          <p>Started in branding, shaping high-end automotive and real estate work. Taste built early, learnt from people who now run some of the best agencies in the region.</p>
+        </div>
+        <div class="about-pillar">
+          <h4 class="about-pillar__title">SOCIAL PIONEERS</h4>
+          <p>Got in early when social and digital were still the wild west. Launched the first sites, accounts and games for the biggest brands. Helped build Digital Republic. Dentsu came knocking.</p>
+        </div>
+        <div class="about-pillar">
+          <h4 class="about-pillar__title">CREATIVE GIANTS</h4>
+          <p>Spent most of our careers at Leo Burnett, BBDO, Publicis and AKQA. Worked on the biggest brands under serious pressure. Mad. Intense. Great fun.</p>
+        </div>
+        <div class="about-pillar">
+          <h4 class="about-pillar__title">CLIENT-SIDE IMPACT</h4>
+          <p>Crossed over. Built in-house creative teams. Got closer to the business than most creatives ever will. That's where it clicked. Pretty is easy. Moving the needle isn't.</p>
+        </div>
+      </div>
+      <div class="about-pillars-nav">
+        <button class="about-pillars-btn about-pillars-prev" aria-label="Previous">&#8592;</button>
+        <span class="about-pillars-counter">01 / 04</span>
+        <button class="about-pillars-btn about-pillars-next" aria-label="Next">&#8594;</button>
+      </div>
+    </div>
+  </section>
+  <section class="about-video-full">
+    <video class="about-video-full__video" src="/video/love-it.mp4" autoplay muted loop playsinline></video>
+  </section>
+  <section class="about-done-it-all">
+    <h2 class="about-done-it-all__label">WE'VE DONE IT ALL</h2>
+    <h3 class="about-done-it-all__headline">Every industry. Every channel. Entertainment at the core.</h3>
+    <div class="about-done-it-all__body">
+      <p>We've worked with the biggest brands, the smallest ones, and launched plenty from scratch. Along the way, we've made great work and some that taught us the hard way.</p>
+      <p>We've crafted treatments for some of the biggest directors in the region and picked up awards from Lynx to Effies to Cannes. But what we love most is using creativity and entertainment to help brands win and grow. That's what we've been doing for a long time.</p>
+    </div>
+  </section>
+  <section class="about-video-full">
+    <video class="about-video-full__video" src="/video/kfc2.mp4" autoplay muted loop playsinline></video>
+  </section>
+  <section class="about-our-way">
+    <div class="ow-blob ow-blob--1" aria-hidden="true"></div>
+    <div class="ow-blob ow-blob--2" aria-hidden="true"></div>
+    <div class="ow-blob ow-blob--3" aria-hidden="true"></div>
+    <div class="ow-blob ow-blob--4" aria-hidden="true"></div>
+    <h2 class="about-our-way__label">SO WE DO IT OUR WAY</h2>
+    <h3 class="about-our-way__headline">Small team. Senior people. Hands-on from start to finish.</h3>
+    <div class="about-our-way__body">
+      <p>No layers. No dilution. No endless rounds of "feedback". We stay close to the work. We make the calls. We keep it creative and actually entertaining. That's the bar. We bring in the right people when needed, people we trust. That's how the work stays good.</p>
+      <p>From strategy to concept to execution, production and delivery. We take it all the way. From first thought to final frame. No drop in standards. No shortcuts.</p>
+      <p>That's when it becomes the benchmark.</p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  let _aboutAC: AbortController | null = null;
+
+  function initAbout() {
+    if (!document.querySelector('.about-content')) return; // not on about page
+    _aboutAC?.abort();
+    _aboutAC = new AbortController();
+    const { signal } = _aboutAC;
+
+    const parallaxImg      = document.getElementById('about-parallax-img') as HTMLElement | null;
+    const aboutContent     = document.querySelector<HTMLElement>('.about-content');
+    const aboutContentTop  = document.querySelector<HTMLElement>('.about-content-top');
+    const parallaxFullImgs = Array.from(document.querySelectorAll<HTMLElement>('.about-parallax-full__img'));
+    const beenAround = document.querySelector<HTMLElement>('.about-been-around');
+    const doneItAll  = document.querySelector<HTMLElement>('.about-done-it-all');
+    const ourWay     = document.querySelector<HTMLElement>('.about-our-way');
+
+    let beenAroundTriggered = false;
+    let doneItAllTriggered  = false;
+    let ourWayTriggered     = false;
+
+    function checkSection(el: HTMLElement | null, triggered: boolean, onTrigger: () => void) {
+      if (!el || triggered) return;
+      const top = el.getBoundingClientRect().top;
+      if (top > 0 && top < window.innerHeight * 0.85) {
+        el.classList.add('is-visible');
+        onTrigger();
+      }
+    }
+
+    function checkBeenAround() {
+      checkSection(beenAround, beenAroundTriggered, () => { beenAroundTriggered = true; });
+      checkSection(doneItAll,  doneItAllTriggered,  () => { doneItAllTriggered  = true; });
+      checkSection(ourWay,     ourWayTriggered,     () => { ourWayTriggered     = true; });
+    }
+
+    function updateParallax() {
+      if (parallaxImg && window.innerWidth > 640) {
+        const wrap = parallaxImg.parentElement!;
+        const rect = wrap.getBoundingClientRect();
+        const vh   = window.innerHeight;
+        const progress = 1 - (rect.bottom / (vh + rect.height));
+        parallaxImg.style.transform = `translate3d(0, ${(-progress * vh * 0.12).toFixed(2)}px, 0)`;
+      } else if (parallaxImg && window.innerWidth <= 640) {
+        parallaxImg.style.transform = '';
+      }
+      parallaxFullImgs.forEach((img) => {
+        const section = img.parentElement!;
+        const rect    = section.getBoundingClientRect();
+        const vh      = window.innerHeight;
+        const progress = (vh - rect.top) / (vh + rect.height);
+        const offset   = (progress - 0.5) * vh * 0.4;
+        img.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
+      });
+      checkBeenAround();
+    }
+
+    if (aboutContent) {
+      aboutContent.classList.add('is-visible');
+      aboutContentTop?.classList.add('is-visible');
+    }
+
+    // rAF loop — stops when navigating away (signal aborted)
+    function loop() {
+      if (signal.aborted) return;
+      updateParallax();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // Mobile pillar slider
+    const pillarsTrack   = document.querySelector<HTMLElement>('.about-pillars-track');
+    const pillarsCounter = document.querySelector<HTMLElement>('.about-pillars-counter');
+    const pillarsPrev    = document.querySelector<HTMLElement>('.about-pillars-prev');
+    const pillarsNext    = document.querySelector<HTMLElement>('.about-pillars-next');
+    const pillarsTotal   = document.querySelectorAll('.about-pillar').length;
+    let pillarCurrent    = 0;
+
+    function goToPillar(index: number) {
+      pillarCurrent = Math.max(0, Math.min(pillarsTotal - 1, index));
+      if (pillarsTrack) pillarsTrack.style.transform = `translateX(-${pillarCurrent * 100}%)`;
+      if (pillarsCounter) {
+        pillarsCounter.textContent =
+          `${String(pillarCurrent + 1).padStart(2,'0')} / ${String(pillarsTotal).padStart(2,'0')}`;
+      }
+    }
+
+    pillarsPrev?.addEventListener('click', () => goToPillar(pillarCurrent - 1), { signal });
+    pillarsNext?.addEventListener('click', () => goToPillar(pillarCurrent + 1), { signal });
+
+    const pillarsSwipeTarget = document.querySelector<HTMLElement>('.about-been-around__body');
+    let pillarTouchStartX = 0, pillarTouchStartY = 0;
+
+    pillarsSwipeTarget?.addEventListener('touchstart', (e) => {
+      pillarTouchStartX = e.touches[0].clientX;
+      pillarTouchStartY = e.touches[0].clientY;
+    }, { passive: true, signal });
+
+    pillarsSwipeTarget?.addEventListener('touchend', (e) => {
+      const dx = pillarTouchStartX - e.changedTouches[0].clientX;
+      const dy = pillarTouchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+        goToPillar(dx > 0 ? pillarCurrent + 1 : pillarCurrent - 1);
+      }
+    }, { passive: true, signal });
+  }
+
+  document.addEventListener('astro:page-load', initAbout);
+</script>
