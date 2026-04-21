@@ -68,11 +68,9 @@ import StudioIntro from "../components/StudioIntro.astro";
           </div>
         </div>
         <div class="about-pillars-nav">
+          <button class="about-pillars-btn about-pillars-prev" aria-label="Previous">&#8592;</button>
           <span class="about-pillars-counter">01 / 04</span>
-          <div class="about-pillars-arrows">
-            <button class="about-pillars-btn about-pillars-prev" aria-label="Previous">←</button>
-            <button class="about-pillars-btn about-pillars-next" aria-label="Next">→</button>
-          </div>
+          <button class="about-pillars-btn about-pillars-next" aria-label="Next">&#8594;</button>
         </div>
       </div>
     </section>
@@ -776,30 +774,30 @@ import StudioIntro from "../components/StudioIntro.astro";
       font-weight: 400;
       letter-spacing: 0.15em;
       color: rgba(232, 228, 222, 0.45);
-    }
-
-    .about-pillars-arrows {
-      display: flex;
-      gap: 12px;
+      text-align: center;
     }
 
     .about-pillars-btn {
+      -webkit-appearance: none;
+      appearance: none;
       background: none;
-      border: 1px solid rgba(232, 228, 222, 0.3);
+      border: none;
       color: #e8e4de;
-      font-size: 14px;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
+      font-size: 28px;
+      line-height: 1;
+      width: 48px;
+      height: 48px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .about-pillars-btn:active {
-      opacity: 0.6;
+      opacity: 0.4;
     }
   }
 
@@ -1062,13 +1060,22 @@ import StudioIntro from "../components/StudioIntro.astro";
   pillarsNext?.addEventListener('click', () => goToPillar(pillarCurrent + 1));
 
   // Touch swipe for pillars
+  const pillarsSwipeTarget = document.querySelector<HTMLElement>('.about-been-around__body');
   let pillarTouchStartX = 0;
-  pillarsTrack?.addEventListener('touchstart', (e) => {
+  let pillarTouchStartY = 0;
+
+  pillarsSwipeTarget?.addEventListener('touchstart', (e) => {
     pillarTouchStartX = e.touches[0].clientX;
+    pillarTouchStartY = e.touches[0].clientY;
   }, { passive: true });
-  pillarsTrack?.addEventListener('touchend', (e) => {
-    const diff = pillarTouchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 40) goToPillar(diff > 0 ? pillarCurrent + 1 : pillarCurrent - 1);
+
+  pillarsSwipeTarget?.addEventListener('touchend', (e) => {
+    const dx = pillarTouchStartX - e.changedTouches[0].clientX;
+    const dy = pillarTouchStartY - e.changedTouches[0].clientY;
+    // Only trigger if horizontal swipe is dominant
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      goToPillar(dx > 0 ? pillarCurrent + 1 : pillarCurrent - 1);
+    }
   }, { passive: true });
 
   // ── Work video cards ──
