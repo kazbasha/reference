@@ -632,7 +632,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: clamp(80px, 10vw, 140px) clamp(16px, 4vw, 60px) clamp(20px, 2vw, 28px);
+  padding: clamp(80px, 10vw, 140px) clamp(16px, 4vw, 60px) 0;
   grid-column: 2;
   grid-row: 1;
 }
@@ -654,7 +654,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: clamp(20px, 2vw, 28px) clamp(16px, 4vw, 60px) clamp(80px, 10vw, 140px);
+  padding: 0 clamp(16px, 4vw, 60px) clamp(80px, 10vw, 140px);
   grid-column: 2;
   grid-row: 2;
 }
@@ -667,11 +667,11 @@
   }
 
   .about-content-top {
-    padding: 80px 24px 24px;
+    padding: 80px 24px 0;
   }
 
   .about-content {
-    padding: 24px 24px 60px;
+    padding: 0 24px 60px;
   }
 
   .about-image-wrap {

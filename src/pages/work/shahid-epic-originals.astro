@@ -1,0 +1,366 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const singles = ['cQTs7HcM6bo', 'AMigB6sz2pY', 'FzdlmBsRDfI', 'cVxwRFp__Os'];
+const pairs = [
+  ['33kJ4lPAgOo', 'DoJhRd3aKYI'],
+  ['oMKu53Rp4ZU', '_j1DHhoss18'],
+  ['bfY0UMejJdI', 'obuSi6kKTk0'],
+];
+---
+
+<Layout title="Shahid — Epic Originals — Reference" description="Shahid Epic Originals — Reference creative studio.">
+  <main class="project-page">
+    <div class="project-inner">
+
+      <!-- Back link -->
+      <a class="back-link" href="/work">
+        <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M0.646 5.354a.5.5 0 0 1 0-.708L4.293.999a.5.5 0 1 1 .707.708L1.707 5l3.293 3.293a.5.5 0 0 1-.707.708L.646 5.354zM16 5.5H1v-1h15v1z" fill="currentColor"/>
+        </svg>
+        Work
+      </a>
+
+      <!-- Header -->
+      <div class="project-header">
+        <p class="project-client">SHAHID</p>
+        <h1 class="project-title">Epic Originals</h1>
+      </div>
+
+      <!-- Single videos -->
+      {singles.map((vid) => (
+        <div class="project-video-wrap">
+          <div class="yt-facade" data-vid={vid} role="button" aria-label="Play video" tabindex="0">
+            <img class="yt-facade__thumb" src={`https://img.youtube.com/vi/${vid}/maxresdefault.jpg`} data-fallback={`https://img.youtube.com/vi/${vid}/hqdefault.jpg`} alt="" loading="lazy" />
+            <button class="yt-facade__play" aria-hidden="true" tabindex="-1">
+              <svg viewBox="0 0 68 48" xmlns="http://www.w3.org/2000/svg">
+                <path d="M66.5 7.7a8.5 8.5 0 0 0-6-6C56 0 34 0 34 0S12 0 7.5 1.7a8.5 8.5 0 0 0-6 6C0 12.1 0 24 0 24s0 11.9 1.5 16.3a8.5 8.5 0 0 0 6 6C12 48 34 48 34 48s22 0 26.5-1.7a8.5 8.5 0 0 0 6-6C68 35.9 68 24 68 24s0-11.9-1.5-16.3z" fill="#fff" opacity="0.9"/>
+                <path d="M27 34l18-10-18-10v20z" fill="#000"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      ))}
+
+      <!-- Paired videos -->
+      {pairs.map((pair) => (
+        <div class="project-pair">
+          {pair.map((vid) => (
+            <div class="project-video-wrap">
+              <div class="yt-facade" data-vid={vid} role="button" aria-label="Play video" tabindex="0">
+                <img class="yt-facade__thumb" src={`https://img.youtube.com/vi/${vid}/maxresdefault.jpg`} data-fallback={`https://img.youtube.com/vi/${vid}/hqdefault.jpg`} alt="" loading="lazy" />
+                <button class="yt-facade__play" aria-hidden="true" tabindex="-1">
+                  <svg viewBox="0 0 68 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M66.5 7.7a8.5 8.5 0 0 0-6-6C56 0 34 0 34 0S12 0 7.5 1.7a8.5 8.5 0 0 0-6 6C0 12.1 0 24 0 24s0 11.9 1.5 16.3a8.5 8.5 0 0 0 6 6C12 48 34 48 34 48s22 0 26.5-1.7a8.5 8.5 0 0 0 6-6C68 35.9 68 24 68 24s0-11.9-1.5-16.3z" fill="#fff" opacity="0.9"/>
+                    <path d="M27 34l18-10-18-10v20z" fill="#000"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
+
+      <!-- Body copy -->
+      <div class="project-body">
+        <p>Shahid Originals had already changed the face of Arab drama, but we needed to prove they weren't just seasonal hits. Enter Epic Originals: Seal of Impact — a cultural stamp reserved only for titles that truly transformed the industry.</p>
+        <p>We launched with several playful films that reunited stars from Rashash, Al Naseem School, and Every Week Has a Friday — poking fun at their sudden fame while reminding audiences how these shows redefined the category. The entire campaign focused on the impact these shows had on Arab drama, culture and the stars themselves.</p>
+        <p>The campaign reignited fandom, pulled actors back into the spotlight, and created sustained cultural momentum. Fans revisited classics, first-time viewers joined in, and Originals grew into Shahid's ultimate differentiator.</p>
+        <p>The seal didn't just celebrate the past — it built the future, proving Originals are Shahid's moat and cementing its place as the #1 streaming platform for Arabs.</p>
+      </div>
+
+      <!-- Results -->
+      <div class="project-results">
+        <div class="result-item">
+          <span class="result-number" data-target="122">+0%</span>
+          <span class="result-label">Playtime</span>
+        </div>
+        <div class="result-divider" aria-hidden="true"></div>
+        <div class="result-item">
+          <span class="result-number" data-target="196">+0%</span>
+          <span class="result-label">First-time watchers</span>
+        </div>
+        <div class="result-divider" aria-hidden="true"></div>
+        <div class="result-item">
+          <span class="result-number" data-target="54">+0%</span>
+          <span class="result-label">Multi-title viewing YoY</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .project-page {
+    min-height: 100svh;
+    background: #000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .project-inner {
+    width: 100%;
+    max-width: clamp(320px, 88vw, 960px);
+    padding: clamp(48px, 8vw, 100px) 0 clamp(80px, 10vw, 140px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(24px, 3vw, 40px);
+  }
+
+  /* Back link */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(232, 228, 222, 0.4);
+    text-decoration: none;
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+    align-self: flex-start;
+  }
+  .back-link:hover { color: #986edf; }
+
+  /* Header */
+  .project-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+  }
+
+  .project-client {
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #986edf;
+    margin: 0;
+  }
+
+  .project-title {
+    font-size: clamp(48px, 7vw, 110px);
+    font-weight: 500;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: #e8e4de;
+    margin: 0;
+  }
+
+  /* Video wrap — 16:9 */
+  .project-video-wrap {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #0a0a0a;
+  }
+
+  /* Paired row */
+  .project-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.5vw, 20px);
+  }
+
+  /* Lite embed facade */
+  .yt-facade {
+    position: absolute;
+    inset: 0;
+    cursor: none;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .yt-facade__thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .yt-facade:hover .yt-facade__thumb {
+    transform: scale(1.03);
+  }
+
+  .yt-facade__play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.18);
+    border: none;
+    cursor: none;
+    transition: background 0.25s ease;
+  }
+
+  .yt-facade:hover .yt-facade__play {
+    background: rgba(0, 0, 0, 0.32);
+  }
+
+  .yt-facade__play svg {
+    width: clamp(40px, 5vw, 68px);
+    height: auto;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 2px 12px rgba(0,0,0,0.4));
+  }
+
+  .yt-facade:hover .yt-facade__play svg {
+    transform: scale(1.1);
+  }
+
+  .project-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Results */
+  .project-results {
+    display: flex;
+    align-items: center;
+    gap: clamp(24px, 4vw, 56px);
+    padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 48px);
+    border: 1px solid rgba(152, 110, 223, 0.2);
+    border-radius: 4px;
+    background: rgba(152, 110, 223, 0.04);
+  }
+
+  .result-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+    text-align: center;
+  }
+
+  .result-number {
+    font-size: clamp(28px, 3.8vw, 56px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: #986edf;
+    white-space: nowrap;
+  }
+
+  .result-label {
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(232, 228, 222, 0.45);
+  }
+
+  .result-divider {
+    width: 1px;
+    height: clamp(40px, 5vw, 64px);
+    background: rgba(152, 110, 223, 0.25);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    .project-results {
+      flex-direction: column;
+      gap: clamp(20px, 5vw, 32px);
+    }
+    .result-divider {
+      width: clamp(40px, 20vw, 80px);
+      height: 1px;
+    }
+  }
+
+  /* Body copy */
+  .project-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2em;
+    padding-top: clamp(8px, 1vw, 16px);
+  }
+
+  .project-body p {
+    font-size: clamp(14px, 1.2vw, 18px);
+    font-weight: 400;
+    line-height: 1.65;
+    color: rgba(232, 228, 222, 0.7);
+    max-width: 68ch;
+    margin: 0;
+  }
+</style>
+
+<script>
+  function initProject() {
+    // YouTube returns a 120×90 grey placeholder (200 OK) when maxresdefault doesn't exist.
+    // Detect it by natural size and swap to hqdefault.
+    document.querySelectorAll<HTMLImageElement>('.yt-facade__thumb').forEach((img) => {
+      const check = () => {
+        if (img.naturalWidth <= 120) {
+          const fb = img.dataset.fallback;
+          if (fb) img.src = fb;
+        }
+      };
+      if (img.complete) { check(); } else { img.addEventListener('load', check, { once: true }); }
+    });
+
+    document.querySelectorAll<HTMLElement>('.yt-facade').forEach((facade) => {
+      function activate() {
+        const vid = facade.dataset.vid;
+        const iframe = document.createElement('iframe');
+        iframe.className = 'project-video';
+        iframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1&rel=0`;
+        iframe.title = 'Video';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        facade.replaceWith(iframe);
+      }
+      facade.addEventListener('click', activate, { once: true });
+      facade.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') activate();
+      }, { once: true });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initProject);
+
+  // ── Scroll-triggered counters ──
+  function initCounters() {
+    const results = document.querySelector('.project-results');
+    if (!results) return;
+
+    const items = Array.from(results.querySelectorAll<HTMLElement>('.result-number'));
+    const targets = items.map(el => parseInt(el.dataset.target ?? '0', 10));
+    let ran = false;
+
+    function runCounters() {
+      if (ran) return;
+      ran = true;
+      const duration = 2800;
+      const start = performance.now();
+
+      function tick(now: number) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        items.forEach((el, i) => {
+          el.textContent = `+${Math.round(eased * targets[i])}%`;
+        });
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) { runCounters(); observer.disconnect(); } },
+      { threshold: 0.5 }
+    );
+    observer.observe(results);
+  }
+
+  document.addEventListener('astro:page-load', initCounters);
+</script>

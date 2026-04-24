@@ -21,7 +21,7 @@ import Layout from "../layouts/Layout.astro";
 
     <!-- Cards scroll over the sticky bg -->
     <div class="work-cards">
-      <div class="work-card-wrap">
+      <div class="work-card-wrap" data-href="/work/axe-evolution">
         <div class="work-card work-card--1" data-label="AXE — EVOLUTION OF HOOKING UP">
           <video class="work-card__video" src="/video/work/axe%20-%20evolution.mov" autoplay muted playsinline preload="auto" loop></video>
         </div>
@@ -51,7 +51,7 @@ import Layout from "../layouts/Layout.astro";
         </div>
         <span class="work-card__mobile-label">KFC — WINNER WINNER CHICKEN DINNER</span>
       </div>
-      <div class="work-card-wrap">
+      <div class="work-card-wrap" data-href="/work/shahid-epic-originals">
         <div class="work-card work-card--6" data-label="SHAHID — EPIC ORIGINALS">
           <video class="work-card__video" src="/video/work/shahid%20-%20epic%20originals.mov" autoplay muted playsinline preload="auto" loop></video>
         </div>
@@ -81,7 +81,7 @@ import Layout from "../layouts/Layout.astro";
         </div>
         <span class="work-card__mobile-label">SHAHID — WATCH ALONE</span>
       </div>
-      <div class="work-card-wrap">
+      <div class="work-card-wrap" data-href="/work/shahid-x-mastercard">
         <div class="work-card work-card--11" data-label="SHAHID X MASTERCARD — GONE">
           <video class="work-card__video" src="/video/work/shahid%20x%20mastercard%20-%20gone.mov" autoplay muted playsinline preload="auto" loop></video>
         </div>
@@ -140,6 +140,9 @@ import Layout from "../layouts/Layout.astro";
       const video = card.querySelector<HTMLVideoElement>('.work-card__video');
       if (!video) return;
 
+      const wrap = card.closest<HTMLElement>('.work-card-wrap');
+      const href = wrap?.dataset.href;
+
       video.addEventListener('loadeddata', () => {
         card.dataset.color = sampleColor(video);
       }, { once: true, signal });
@@ -159,6 +162,13 @@ import Layout from "../layouts/Layout.astro";
         if (workBg) workBg.style.backgroundColor = workDefaultBg;
         if (cursorLabel) cursorLabel.classList.remove('is-visible');
       }, { signal });
+
+      if (href) {
+        card.addEventListener('click', () => {
+          import('astro:transitions/client').then(({ navigate }) => navigate(href));
+        }, { signal });
+        if (wrap) wrap.style.cursor = 'none';
+      }
     });
   }
 

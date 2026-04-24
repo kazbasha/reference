@@ -36,7 +36,7 @@ function isActive(href: string): boolean {
     <meta name="description" content={description} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Press+Start+2P&display=swap" rel="stylesheet" />
 
     <style is:global>
       *, *::before, *::after { cursor: none !important; }
@@ -468,27 +468,40 @@ function isActive(href: string): boolean {
 
       if (brandMark) {
 
+        // IDs of fixed UI overlays that should not influence background detection
+        const BG_SKIP_IDS = new Set([
+          'brand-mark', 'cursor-dot', 'music-toggle', 'nav-bar',
+          'pt-overlay', 'bigger-aim-cursor', 'bigger-shoot-cursor', 'bigger-gun',
+        ]);
+
         function getBgLuminanceAt(x: number, y: number): number {
-          // Temporarily hide fixed overlays so elementFromPoint hits the page bg
-          const navBar = document.querySelector<HTMLElement>(".nav-bar");
-          const overlays = [brandMark, document.getElementById("cursor-dot"), document.getElementById("music-toggle"), navBar];
-          overlays.forEach(el => el && (el.style.visibility = "hidden"));
+          // Use elementsFromPoint (all elements top→bottom) so we never miss the
+          // page background even when fixed overlays haven't been hidden yet.
+          const stack = document.elementsFromPoint(x, y) as HTMLElement[];
 
-          let el = document.elementFromPoint(x, y) as HTMLElement | null;
-
-          overlays.forEach(el => el && (el.style.visibility = ""));
-
-          while (el && el !== document.body) {
-            const bg = getComputedStyle(el).backgroundColor;
-            const m  = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-            if (m) {
-              const [r, g, b] = [+m[1], +m[2], +m[3]];
-              if (r + g + b > 0) {
-                // Perceived luminance
-                return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-              }
+          for (const candidate of stack) {
+            // Skip any element that is (or lives inside) a UI overlay
+            let inOverlay = false;
+            let cur: HTMLElement | null = candidate;
+            while (cur && cur !== document.body) {
+              if (cur.id && BG_SKIP_IDS.has(cur.id)) { inOverlay = true; break; }
+              cur = cur.parentElement;
             }
-            el = el.parentElement;
+            if (inOverlay) continue;
+
+            // Walk up this candidate's ancestors looking for a solid background
+            let probe: HTMLElement | null = candidate;
+            while (probe && probe !== document.body) {
+              const bg = getComputedStyle(probe).backgroundColor;
+              const m  = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+              if (m) {
+                const [r, g, b] = [+m[1], +m[2], +m[3]];
+                if (r + g + b > 0) {
+                  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                }
+              }
+              probe = probe.parentElement;
+            }
           }
           return 0; // default dark
         }
@@ -627,6 +640,12 @@ function isActive(href: string): boolean {
           }, 300);
         });
       }
+
+      // Re-check nav colours once per navigation (catches direct-load cases)
+      document.addEventListener('astro:page-load', () => {
+        updateBrandMark();
+        updateMusicToggleColor();
+      });
     </script>
   </body>
 </html>

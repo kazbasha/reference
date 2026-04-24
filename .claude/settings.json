@@ -7,7 +7,8 @@
       "Bash(sips -g pixelWidth -g pixelHeight /Users/kaz/reference-site/public/cursors/target-icon.png)",
       "Bash(sips -z 64 64 /Users/kaz/reference-site/public/cursors/target-icon.png --out /Users/kaz/reference-site/public/cursors/target-icon-64.png)",
       "Bash(git checkout:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "WebFetch(domain:kazbasha.com)"
     ]
   }
 }

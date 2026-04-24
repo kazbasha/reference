@@ -1424,9 +1424,9 @@ const ads = [
   }
 
   // ── Horizontal scroll text ──
-  const hscrollSection   = document.querySelector<HTMLElement>('.manifesto-block--green');
-  const hscrollContainer = hscrollSection?.querySelector<HTMLElement>('.manifesto-hscroll');
-  const hscrollText      = hscrollContainer?.querySelector<HTMLElement>('.manifesto-hscroll-text');
+  let hscrollSection   = document.querySelector<HTMLElement>('.manifesto-block--green');
+  let hscrollContainer = hscrollSection?.querySelector<HTMLElement>('.manifesto-hscroll') ?? null;
+  let hscrollText      = hscrollContainer?.querySelector<HTMLElement>('.manifesto-hscroll-text') ?? null;
 
   let adItems: HTMLElement[] = [];
 
@@ -1465,12 +1465,12 @@ const ads = [
   }
 
   // ── Word scroll (i===3) ──
-  const wordSection  = document.querySelector<HTMLElement>('.manifesto-block--words');
-  const wordOverlay  = wordSection?.querySelector<HTMLElement>('.word-scroll-overlay');
-  const wordEl       = wordOverlay?.querySelector<HTMLElement>('.word-scroll-word');
-  const wslContainer = wordOverlay?.querySelector<HTMLElement>('.word-scroll-lines');
-  const wslLine1     = wslContainer?.querySelector<HTMLElement>('.wsl-line--1');
-  const wslLine2     = wslContainer?.querySelector<HTMLElement>('.wsl-line--2');
+  let wordSection  = document.querySelector<HTMLElement>('.manifesto-block--words');
+  let wordOverlay  = wordSection?.querySelector<HTMLElement>('.word-scroll-overlay') ?? null;
+  let wordEl       = wordOverlay?.querySelector<HTMLElement>('.word-scroll-word') ?? null;
+  let wslContainer = wordOverlay?.querySelector<HTMLElement>('.word-scroll-lines') ?? null;
+  let wslLine1     = wslContainer?.querySelector<HTMLElement>('.wsl-line--1') ?? null;
+  let wslLine2     = wslContainer?.querySelector<HTMLElement>('.wsl-line--2') ?? null;
   const scrollWords  = ['That', 'made', 'the', 'work', 'slow,', 'expensive', 'and', 'shite.'];
   const purpleWords  = new Set(['slow,', 'expensive', 'shite.']);
   let wordIdx  = -1;
@@ -1500,7 +1500,7 @@ const ads = [
   if (wslLine2) buildWslLine(wslLine2, 'Big names faded.');
 
   // All word spans across both lines
-  const wslWords = [
+  let wslWords: HTMLElement[] = [
     ...(wslLine1 ? Array.from(wslLine1.querySelectorAll<HTMLElement>('.wsl-word')) : []),
     ...(wslLine2 ? Array.from(wslLine2.querySelectorAll<HTMLElement>('.wsl-word')) : []),
   ];
@@ -1637,13 +1637,13 @@ const ads = [
   }
 
   // ── Bigger section (i===4) ──
-  const biggerSection  = document.querySelector<HTMLElement>('.manifesto-block--bigger');
-  const biggerOverlay  = biggerSection?.querySelector<HTMLElement>('.bigger-overlay');
-  const biggerInner    = biggerOverlay?.querySelector<HTMLElement>('.bigger-inner');
-  const biggerTop      = biggerOverlay?.querySelector<HTMLElement>('.bigger-top');
-  const biggerWordWrap = biggerOverlay?.querySelector<HTMLElement>('.bigger-word-wrap');
-  const biggerReplace  = biggerOverlay?.querySelector<HTMLElement>('.bigger-replace');
-  const biggerHaze     = biggerOverlay?.querySelector<HTMLElement>('.bigger-haze');
+  let biggerSection  = document.querySelector<HTMLElement>('.manifesto-block--bigger');
+  let biggerOverlay  = biggerSection?.querySelector<HTMLElement>('.bigger-overlay') ?? null;
+  let biggerInner    = biggerOverlay?.querySelector<HTMLElement>('.bigger-inner') ?? null;
+  let biggerTop      = biggerOverlay?.querySelector<HTMLElement>('.bigger-top') ?? null;
+  let biggerWordWrap = biggerOverlay?.querySelector<HTMLElement>('.bigger-word-wrap') ?? null;
+  let biggerReplace  = biggerOverlay?.querySelector<HTMLElement>('.bigger-replace') ?? null;
+  let biggerHaze     = biggerOverlay?.querySelector<HTMLElement>('.bigger-haze') ?? null;
   const biggerTopText  = "Turns out the world doesn\u2019t need";
   if (biggerSection) {
     biggerSection.style.minHeight = `${window.innerHeight * 12}px`;
@@ -1915,16 +1915,9 @@ const ads = [
     setTimeout(() => img.remove(), 2200);
   }
 
-  // Load game font for SHOOT cursor
-  (() => {
-    const lnk = document.createElement('link');
-    lnk.rel  = 'stylesheet';
-    lnk.href = 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap';
-    document.head.appendChild(lnk);
-  })();
-
   // JS-driven cursor elements — bypass all browser cursor reset behaviour
-  const aimCursorEl = document.createElement('div');
+  // Created once; re-appended after each ClientRouter swap (body content is replaced)
+  let aimCursorEl = document.createElement('div');
   aimCursorEl.id = 'bigger-aim-cursor';
   const aimCursorImg = document.createElement('img');
   aimCursorImg.src = '/cursors/target-icon-64.png';
@@ -1932,14 +1925,14 @@ const ads = [
   aimCursorEl.appendChild(aimCursorImg);
   document.body.appendChild(aimCursorEl);
 
-  const shootCursorEl = document.createElement('div');
+  let shootCursorEl = document.createElement('div');
   shootCursorEl.id = 'bigger-shoot-cursor';
   shootCursorEl.textContent = 'SHOOT';
   document.body.appendChild(shootCursorEl);
 
   // ── Space gun (3D model, first-person) ───────────────────────────────────
-  const gunWrapper = document.getElementById('bigger-gun') as HTMLElement | null;
-  const gunCanvas  = document.getElementById('gun-canvas')  as HTMLCanvasElement | null;
+  let gunWrapper = document.getElementById('bigger-gun') as HTMLElement | null;
+  let gunCanvas  = document.getElementById('gun-canvas')  as HTMLCanvasElement | null;
 
   // ── Three.js gun setup ─────────────────────────────────────────────────────
   let gunModel: THREE.Group | null = null;
@@ -1947,9 +1940,14 @@ const ads = [
   let gunRotY = 0, gunRotX = 0;
   // GUN_BASE_Y: 0 = model default orientation; adjust once visible
   const GUN_BASE_Y = 0;
+  // Increment each time we set up a new renderer so old rAF loops self-terminate
+  let gunRenderVersion = 0;
 
-  if (gunCanvas) {
-    const renderer = new THREE.WebGLRenderer({ canvas: gunCanvas, alpha: true, antialias: true });
+  function setupGunRenderer(canvas: HTMLCanvasElement) {
+    const myVersion = ++gunRenderVersion;
+    gunModel = null; // new scene; model will load fresh
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping         = THREE.ACESFilmicToneMapping;
@@ -1957,7 +1955,7 @@ const ads = [
     renderer.setClearColor(0x000000, 0);
 
     const scene  = new THREE.Scene();
-    const aspect = gunCanvas.clientWidth / gunCanvas.clientHeight;
+    const aspect = canvas.clientWidth / canvas.clientHeight;
     const camera = new THREE.PerspectiveCamera(50, aspect, 0.001, 1000);
     camera.position.set(0, 0.3, 1.8);
     camera.lookAt(0, 0, 0);
@@ -1974,6 +1972,7 @@ const ads = [
 
     const loader = new GLTFLoader();
     loader.load('/3d/atom_blaster.glb', (gltf) => {
+      if (gunRenderVersion !== myVersion) return; // navigation happened before model loaded
       gunModel = gltf.scene;
       // Force double-sided rendering so no faces are culled
       gunModel.traverse((child) => {
@@ -1996,15 +1995,14 @@ const ads = [
     }, undefined, (err) => console.error('[gun] load error:', err));
 
     // Resize renderer when canvas changes size
-    const cv = gunCanvas;
     function resizeRenderer() {
-      const w = cv.clientWidth;
-      const h = cv.clientHeight;
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     }
-    new ResizeObserver(resizeRenderer).observe(cv);
+    new ResizeObserver(resizeRenderer).observe(canvas);
     resizeRenderer();
 
     let gunTargetY = window.innerHeight * 1.5; // starts off-screen below
@@ -2014,6 +2012,7 @@ const ads = [
     const BARREL_TIP = new THREE.Vector3(0, 0.2, -20.2);
 
     function renderGun() {
+      if (gunRenderVersion !== myVersion) return; // stop this loop when superseded
       // Lerp rotation toward cursor target
       gunRotY += (gunTargetRotY - gunRotY) * 0.10;
       gunRotX += (gunTargetRotX - gunRotX) * 0.10;
@@ -2024,7 +2023,7 @@ const ads = [
         const tip = BARREL_TIP.clone();
         gunModel.localToWorld(tip);
         tip.project(camera);
-        const cr = cv.getBoundingClientRect();
+        const cr = canvas.getBoundingClientRect();
         (window as any).__gunMuzzleX = cr.left + (tip.x *  0.5 + 0.5) * cr.width;
         (window as any).__gunMuzzleY = cr.top  + (1 - (tip.y * 0.5 + 0.5)) * cr.height;
       }
@@ -2047,12 +2046,15 @@ const ads = [
 
     // Cursor tracking: compute real aim angle from gun base to cursor
     window.addEventListener('mousemove', (e) => {
+      if (gunRenderVersion !== myVersion) return;
       const nx = (e.clientX / window.innerWidth  - 0.5);
       const ny = (e.clientY / window.innerHeight - 0.5);
       gunTargetRotY = -nx * Math.PI * 0.35; // negated: positive cursor-right → barrel swings right
       gunTargetRotX = -ny * Math.PI * 0.20; // ±18° pitch
     }, { passive: true });
   }
+
+  if (gunCanvas) setupGunRenderer(gunCanvas);
 
   // Helper used by flash / scroll handler below
   function gunShow() { (window as any).__gunShow?.(); }
@@ -2354,8 +2356,8 @@ const ads = [
   });
 
   // ── Third section headline: scroll-driven word reveal ──
-  const thirdSection   = document.querySelector<HTMLElement>('.manifesto-block--third');
-  const lostWords      = Array.from(document.querySelectorAll<HTMLElement>('.lost-word'));
+  let thirdSection   = document.querySelector<HTMLElement>('.manifesto-block--third');
+  let lostWords      = Array.from(document.querySelectorAll<HTMLElement>('.lost-word'));
 
   function applyLostHeadline() {
     if (!thirdSection || lostWords.length === 0) return;
@@ -2370,8 +2372,8 @@ const ads = [
   }
 
   // ── Grid overlay: stays viewport-aligned, lines purple → dark as section scrolls in ──
-  const thirdGridSvg   = document.querySelector<SVGSVGElement>('.third-grid');
-  const thirdGridGroup = document.querySelector<SVGGElement>('.third-grid-lines');
+  let thirdGridSvg   = document.querySelector<SVGSVGElement>('.third-grid');
+  let thirdGridGroup = document.querySelector<SVGGElement>('.third-grid-lines');
 
   function applyGridColor() {
     if (!thirdSection || !thirdGridSvg || !thirdGridGroup) return;
@@ -2407,15 +2409,104 @@ const ads = [
   runScrollHandlers();
 
   // ── Re-initialise on each ClientRouter navigation ──
-  // The module is cached after first load, so DOM queries above are stale
-  // after a client-side swap. Re-observe [data-reveal] elements and
-  // recalculate initial scroll state for the new page.
+  // The module is cached after first load so all module-level DOM references
+  // become stale after a client-side swap. Re-query everything here.
   document.addEventListener('astro:page-load', () => {
-    // Re-attach the observer to any [data-reveal] elements on the new page
+    // Re-observe [data-reveal] elements on the new page
     document.querySelectorAll('[data-reveal]').forEach(el => {
       if (!el.classList.contains('is-visible')) observer.observe(el);
     });
-    // Immediately mark elements that are already in the viewport
+
+    // ── Re-query hscroll section ──
+    hscrollSection   = document.querySelector<HTMLElement>('.manifesto-block--green');
+    hscrollContainer = hscrollSection?.querySelector<HTMLElement>('.manifesto-hscroll') ?? null;
+    hscrollText      = hscrollContainer?.querySelector<HTMLElement>('.manifesto-hscroll-text') ?? null;
+    if (hscrollSection && hscrollContainer && hscrollText) {
+      adItems = Array.from(hscrollContainer.querySelectorAll<HTMLElement>('.ad-item'));
+      const sortedByEntry = [...adItems].sort((a, b) =>
+        parseFloat(a.dataset.threshold ?? '0') - parseFloat(b.dataset.threshold ?? '0')
+      );
+      sortedByEntry.forEach((item, i) => {
+        item.dataset.exitThreshold = (0.74 + (i / (sortedByEntry.length - 1)) * 0.23).toFixed(3);
+      });
+      hscrollSection.style.minHeight = `${hscrollText.scrollWidth + window.innerWidth + window.innerHeight}px`;
+    }
+
+    // ── Re-query word scroll section ──
+    wordSection  = document.querySelector<HTMLElement>('.manifesto-block--words');
+    wordOverlay  = wordSection?.querySelector<HTMLElement>('.word-scroll-overlay') ?? null;
+    wordEl       = wordOverlay?.querySelector<HTMLElement>('.word-scroll-word') ?? null;
+    wslContainer = wordOverlay?.querySelector<HTMLElement>('.word-scroll-lines') ?? null;
+    wslLine1     = wslContainer?.querySelector<HTMLElement>('.wsl-line--1') ?? null;
+    wslLine2     = wslContainer?.querySelector<HTMLElement>('.wsl-line--2') ?? null;
+    if (wslLine1) buildWslLine(wslLine1, 'Budgets shrank.');
+    if (wslLine2) buildWslLine(wslLine2, 'Big names faded.');
+    wslWords = [
+      ...(wslLine1 ? Array.from(wslLine1.querySelectorAll<HTMLElement>('.wsl-word')) : []),
+      ...(wslLine2 ? Array.from(wslLine2.querySelectorAll<HTMLElement>('.wsl-word')) : []),
+    ];
+    if (wordSection) wordSection.style.minHeight = `${window.innerHeight * 5.5}px`;
+    wslTimers.forEach(clearTimeout);
+    wslTimers = [];
+    wordIdx = -1; inLines = false; inFading = false;
+
+    // ── Re-query bigger section ──
+    biggerSection  = document.querySelector<HTMLElement>('.manifesto-block--bigger');
+    biggerOverlay  = biggerSection?.querySelector<HTMLElement>('.bigger-overlay') ?? null;
+    biggerInner    = biggerOverlay?.querySelector<HTMLElement>('.bigger-inner') ?? null;
+    biggerTop      = biggerOverlay?.querySelector<HTMLElement>('.bigger-top') ?? null;
+    biggerWordWrap = biggerOverlay?.querySelector<HTMLElement>('.bigger-word-wrap') ?? null;
+    biggerReplace  = biggerOverlay?.querySelector<HTMLElement>('.bigger-replace') ?? null;
+    biggerHaze     = biggerOverlay?.querySelector<HTMLElement>('.bigger-haze') ?? null;
+    natLetterHeights.length = 0;
+    if (biggerSection) biggerSection.style.minHeight = `${window.innerHeight * 12}px`;
+    if (biggerTop) {
+      biggerTop.innerHTML = '';
+      biggerTopText.split(' ').forEach((word, wi) => {
+        if (wi > 0) { const sp = document.createElement('span'); sp.textContent = '\u00a0'; biggerTop!.appendChild(sp); }
+        const ws = document.createElement('span');
+        ws.className = 'bigger-top-word';
+        ws.textContent = word;
+        biggerTop!.appendChild(ws);
+      });
+    }
+    if (biggerReplace) {
+      const words = 'It needs better.'.split(' ');
+      biggerReplace.textContent = '';
+      biggerReplace.style.opacity = '1';
+      words.forEach((word, wi) => {
+        if (wi > 0) biggerReplace!.appendChild(document.createTextNode('\u00a0'));
+        const ws = document.createElement('span');
+        ws.textContent = word;
+        ws.style.cssText = 'display:inline-block;opacity:0;transform:translateX(-14px);';
+        biggerReplace!.appendChild(ws);
+      });
+    }
+    // Calibrate after layout settles and fonts are ready
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      document.fonts.ready.then(calibrateBIGGERFontSize);
+    }));
+
+    // ── Re-query third section ──
+    thirdSection   = document.querySelector<HTMLElement>('.manifesto-block--third');
+    lostWords      = Array.from(document.querySelectorAll<HTMLElement>('.lost-word'));
+    thirdGridSvg   = document.querySelector<SVGSVGElement>('.third-grid');
+    thirdGridGroup = document.querySelector<SVGGElement>('.third-grid-lines');
+
+    // ── Re-attach cursor overlays if removed from body by ClientRouter swap ──
+    if (!document.contains(aimCursorEl)) document.body.appendChild(aimCursorEl);
+    if (!document.contains(shootCursorEl)) document.body.appendChild(shootCursorEl);
+
+    // ── Re-init gun renderer if canvas element changed ──
+    shootFlashState = 'idle';
+    document.body.classList.remove('bigger-aim-mode', 'bigger-shoot-mode');
+    gunWrapper = document.getElementById('bigger-gun') as HTMLElement | null;
+    const newGunCanvas = document.getElementById('gun-canvas') as HTMLCanvasElement | null;
+    if (newGunCanvas && newGunCanvas !== gunCanvas) {
+      gunCanvas = newGunCanvas;
+      setupGunRenderer(gunCanvas);
+    }
+
     runScrollHandlers();
   });
 
@@ -2435,18 +2526,13 @@ const ads = [
 </style>
 
 <script>
-  const burstWord  = document.querySelector('.burst-word');
-  const burstLayer = document.querySelector<HTMLElement>('.burst-layer');
+  function rand(a: number, b: number) { return a + Math.random() * (b - a); }
 
-  if (burstWord && burstLayer) {
-    const word = burstWord as Element;
-    function rand(a: number, b: number) { return a + Math.random() * (b - a); }
-
-    const FILL_COLORS = ['#e8e4de', '#986edf', '#1a5c3a'];
-    const BG = `fill="none"`;
-    const S  = `stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"`;
-    const H  = `<circle cx="20" cy="20" r="17" ${BG}/>`;   // filled head
-    const FACES = [
+  const FILL_COLORS = ['#e8e4de', '#986edf', '#1a5c3a'];
+  const BG = `fill="none"`;
+  const S  = `stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"`;
+  const H  = `<circle cx="20" cy="20" r="17" ${BG}/>`;
+  const FACES = [
       // WOW — round eyes, raised brows, O-mouth
       `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<path d="M9,10 Q13,7 17,10"/><path d="M23,10 Q27,7 31,10"/><circle cx="13" cy="16" r="3.5"/><circle cx="27" cy="16" r="3.5"/><ellipse cx="20" cy="27" rx="5" ry="5.5"/></svg>`,
       // LAUGHING — squint eyes, open grin
@@ -2465,64 +2551,43 @@ const ads = [
       `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" ${S}>${H}<path d="M9,14 Q13,17 17,14"/><path d="M23,14 Q27,17 31,14"/><line x1="10" y1="17" x2="16" y2="17"/><line x1="24" y1="17" x2="30" y2="17"/><path d="M12,28 Q20,23 28,28"/></svg>`,
     ];
 
-    function spawnBurst() {
-      const rect = word.getBoundingClientRect();
-
-      for (let i = 0; i < 8; i++) {
-        const size = rand(48, 72);
-        const el   = document.createElement('div');
-        const bgColor = FILL_COLORS[Math.floor(Math.random() * FILL_COLORS.length)];
-        el.style.cssText = `position:fixed;pointer-events:none;z-index:9998;width:${size}px;height:${size}px;top:0;left:0;border-radius:50%;background:${bgColor};`;
-        el.innerHTML = FACES[Math.floor(Math.random() * FACES.length)];
-        document.body.appendChild(el);
-
-        let x   = rect.left + rand(0, rect.width)  - size / 2;
-        let y   = rect.top  + rand(-6, 6)           - size / 2;
-        let vx  = rand(-2, 2);
-        let vy  = rand(-7, -4);
-        let rot = rand(0, 360);
-        const vr = rand(-1.5, 1.5);
-        (function tick() {
-          vy  += 0.1;
-          x   += vx;
-          y   += vy;
-          rot += vr;
-          el.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg)`;
-          if (y < window.innerHeight + size) requestAnimationFrame(tick);
-          else el.remove();
-        })();
-      }
+  function spawnBurstFrom(target: Element) {
+    const rect = target.getBoundingClientRect();
+    for (let i = 0; i < 8; i++) {
+      const size    = rand(48, 72);
+      const el      = document.createElement('div');
+      const bgColor = FILL_COLORS[Math.floor(Math.random() * FILL_COLORS.length)];
+      el.style.cssText = `position:fixed;pointer-events:none;z-index:9998;width:${size}px;height:${size}px;top:0;left:0;border-radius:50%;background:${bgColor};`;
+      el.innerHTML = FACES[Math.floor(Math.random() * FACES.length)];
+      document.body.appendChild(el);
+      let x   = rect.left + rand(0, rect.width) - size / 2;
+      let y   = rect.top  + rand(-6, 6)          - size / 2;
+      let vx  = rand(-2, 2);
+      let vy  = rand(-7, -4);
+      let rot = rand(0, 360);
+      const vr = rand(-1.5, 1.5);
+      (function tick() {
+        vy += 0.1; x += vx; y += vy; rot += vr;
+        el.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg)`;
+        if (y < window.innerHeight + size) requestAnimationFrame(tick);
+        else el.remove();
+      })();
     }
-
-    word.addEventListener('mouseenter', spawnBurst);
   }
 
-  // Re-attach burst handler on ClientRouter navigation
+  function attachBurst(target: Element) {
+    target.addEventListener('mouseenter', () => spawnBurstFrom(target));
+  }
+
+  const burstWord = document.querySelector('.burst-word');
+  if (burstWord) attachBurst(burstWord);
+
+  // Re-attach on ClientRouter navigation (module is cached; DOM is fresh)
   document.addEventListener('astro:page-load', () => {
     const bw = document.querySelector('.burst-word');
-    const bl = document.querySelector<HTMLElement>('.burst-layer');
-    if (!bw || !bl) return;
-    // Remove old handler (if any) by cloning, then re-attach fresh
+    if (!bw) return;
     const fresh = bw.cloneNode(true) as Element;
     bw.replaceWith(fresh);
-    fresh.addEventListener('mouseenter', () => {
-      const rect = fresh.getBoundingClientRect();
-      for (let i = 0; i < 8; i++) {
-        const size = 48 + Math.random() * 24;
-        const el   = document.createElement('div');
-        const FILL_COLORS = ['#e8e4de', '#986edf', '#1a5c3a'];
-        el.style.cssText = `position:fixed;pointer-events:none;z-index:9998;width:${size}px;height:${size}px;top:0;left:0;border-radius:50%;background:${FILL_COLORS[Math.floor(Math.random()*3)]};`;
-        document.body.appendChild(el);
-        let x = rect.left + Math.random() * rect.width - size / 2;
-        let y = rect.top  + (Math.random() * 12 - 6)   - size / 2;
-        let vx = Math.random() * 4 - 2, vy = -(4 + Math.random() * 3);
-        let rot = Math.random() * 360, vr = Math.random() * 3 - 1.5;
-        (function tick() {
-          vy += 0.1; x += vx; y += vy; rot += vr;
-          el.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg)`;
-          if (y < window.innerHeight + size) requestAnimationFrame(tick); else el.remove();
-        })();
-      }
-    });
+    attachBurst(fresh);
   });
 </script>
