@@ -1,32 +1,39 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 
-const videos = ['wV78-vi1HQA', 'sl_f3zr8Nv0'];
-
-const results = [
-  { value: 3.5, decimals: 1, suffix: 'M', label: 'Views' },
-  { value: 27,  decimals: 0, suffix: 'K', label: 'Uploads' },
-  { value: 17,  decimals: 0, suffix: '%', label: 'Sales increase' },
-];
-
 const awards = [
   {
-    show: 'African Cristals 2016',
+    show: 'Cannes Lions 2013',
     items: [
-      { tier: 'Grand Prix', category: 'Sphinx Awards' },
-      { tier: 'Emerald',    category: 'Viral Film' },
+      { tier: 'National Diploma', category: 'Branded Content & Entertainment' },
     ],
   },
   {
-    show: 'Mena Cristals 2016',
+    show: 'Mena Cristals 2014',
     items: [
-      { tier: 'Emerald', category: 'Digital & Mobile' },
+      { tier: 'Gold',   category: 'Best Use of Social Media' },
+      { tier: 'Bronze', category: 'Digital & Mobile' },
+    ],
+  },
+  {
+    show: 'Dubai Lynx 2013',
+    items: [
+      { tier: 'Silver',    category: 'Best Use of Social Media' },
+      { tier: 'Bronze',    category: 'Viral Marketing' },
+      { tier: 'Finalist',  category: 'Best Use of Music' },
+      { tier: 'Finalist',  category: 'Best Use of User-Generated Content' },
+    ],
+  },
+  {
+    show: 'Mena Effies 2013',
+    items: [
+      { tier: 'Bronze', category: 'Best Use of Social Media' },
     ],
   },
 ];
 ---
 
-<Layout title="Axe — Evolution of Hooking Up — Reference" description="Axe — Evolution of Hooking Up. Reference creative studio.">
+<Layout title="Axe — Wingman — Reference" description="Axe — Wingman. Reference creative studio.">
   <main class="project-page">
     <div class="project-inner">
 
@@ -41,50 +48,33 @@ const awards = [
       <!-- Header -->
       <div class="project-header">
         <p class="project-client">AXE</p>
-        <h1 class="project-title">Evolution of<br/>Hooking Up</h1>
-        <p class="project-meta">Agency: Digital Republic &nbsp;·&nbsp; 2015</p>
+        <h1 class="project-title">Wingman</h1>
+        <p class="project-meta">Agency: Digital Republic &nbsp;·&nbsp; 2013</p>
       </div>
 
-      <!-- Videos -->
-      {videos.map((vid) => (
-        <div class="project-video-wrap">
-          <div class="yt-facade" data-vid={vid} role="button" aria-label="Play video" tabindex="0">
-            <img
-              class="yt-facade__thumb"
-              src={`https://img.youtube.com/vi/${vid}/maxresdefault.jpg`}
-              data-fallback={`https://img.youtube.com/vi/${vid}/hqdefault.jpg`}
-              alt=""
-              loading="lazy"
-            />
-            <button class="yt-facade__play" aria-hidden="true" tabindex="-1">
-              <svg viewBox="0 0 68 48" xmlns="http://www.w3.org/2000/svg">
-                <path d="M66.5 7.7a8.5 8.5 0 0 0-6-6C56 0 34 0 34 0S12 0 7.5 1.7a8.5 8.5 0 0 0-6 6C0 12.1 0 24 0 24s0 11.9 1.5 16.3a8.5 8.5 0 0 0 6 6C12 48 34 48 34 48s22 0 26.5-1.7a8.5 8.5 0 0 0 6-6C68 35.9 68 24 68 24s0-11.9-1.5-16.3z" fill="#fff" opacity="0.9"/>
-                <path d="M27 34l18-10-18-10v20z" fill="#000"/>
-              </svg>
-            </button>
-          </div>
+      <!-- Video -->
+      <div class="project-video-wrap">
+        <div class="yt-facade" data-vid="Jul6n_F-qRA" role="button" aria-label="Play video" tabindex="0">
+          <img
+            class="yt-facade__thumb"
+            src="https://img.youtube.com/vi/Jul6n_F-qRA/maxresdefault.jpg"
+            data-fallback="https://img.youtube.com/vi/Jul6n_F-qRA/hqdefault.jpg"
+            alt=""
+            loading="lazy"
+          />
+          <button class="yt-facade__play" aria-hidden="true" tabindex="-1">
+            <svg viewBox="0 0 68 48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M66.5 7.7a8.5 8.5 0 0 0-6-6C56 0 34 0 34 0S12 0 7.5 1.7a8.5 8.5 0 0 0-6 6C0 12.1 0 24 0 24s0 11.9 1.5 16.3a8.5 8.5 0 0 0 6 6C12 48 34 48 34 48s22 0 26.5-1.7a8.5 8.5 0 0 0 6-6C68 35.9 68 24 68 24s0-11.9-1.5-16.3z" fill="#fff" opacity="0.9"/>
+              <path d="M27 34l18-10-18-10v20z" fill="#000"/>
+            </svg>
+          </button>
         </div>
-      ))}
+      </div>
 
       <!-- Body copy -->
       <p class="project-body">
-        In celebration of Axe changing their look for the first time in 7 years, we created a music video about the evolution of hooking up. People could star in the video by uploading their own pictures showing us how they changed in the last 7 years.
+        It was Valentine's Day in the MENA, and being Axe, we saw it as an opportunity to hook up our male fans across the region. The idea we came up with sounded impossible... and that's what made it brilliant.
       </p>
-
-      <!-- Results -->
-      <div class="project-results">
-        {results.map((r) => (
-          <div class="result-item">
-            <span
-              class="result-number"
-              data-target={r.value}
-              data-decimals={r.decimals}
-              data-suffix={r.suffix}
-            >+0{r.suffix}</span>
-            <span class="result-label">{r.label}</span>
-          </div>
-        ))}
-      </div>
 
       <!-- Awards -->
       <div class="project-awards">
@@ -156,20 +146,20 @@ const awards = [
     margin: 0;
   }
 
-  .project-meta {
-    font-size: clamp(9px, 0.72vw, 11px);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(232, 228, 222, 0.35);
-    margin: 0;
-  }
-
   .project-title {
     font-size: clamp(48px, 7vw, 110px);
     font-weight: 500;
     line-height: 0.92;
     letter-spacing: -0.02em;
     color: #e8e4de;
+    margin: 0;
+  }
+
+  .project-meta {
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(232, 228, 222, 0.35);
     margin: 0;
   }
 
@@ -243,42 +233,6 @@ const awards = [
     margin: 0;
   }
 
-  /* Results */
-  .project-results {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    gap: clamp(16px, 3vw, 40px);
-    padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 48px);
-    border: 1px solid rgba(152, 110, 223, 0.2);
-    border-radius: 4px;
-    background: rgba(152, 110, 223, 0.04);
-  }
-
-  .result-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35em;
-    text-align: center;
-  }
-
-  .result-number {
-    font-size: clamp(28px, 3.8vw, 56px);
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    color: #986edf;
-    white-space: nowrap;
-  }
-
-  .result-label {
-    font-size: clamp(9px, 0.72vw, 11px);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(232, 228, 222, 0.45);
-  }
-
   /* Awards */
   .project-awards {
     display: flex;
@@ -346,14 +300,12 @@ const awards = [
   }
 
   @media (max-width: 480px) {
-    .project-results { flex-direction: column; }
     .awards-row { grid-template-columns: 1fr; gap: 8px; }
   }
 </style>
 
 <script>
   function initProject() {
-    // Thumbnail fallback
     document.querySelectorAll<HTMLImageElement>('.yt-facade__thumb').forEach((img) => {
       const check = () => {
         if (img.naturalWidth <= 120) {
@@ -364,7 +316,6 @@ const awards = [
       if (img.complete) { check(); } else { img.addEventListener('load', check, { once: true }); }
     });
 
-    // Video facades
     document.querySelectorAll<HTMLElement>('.yt-facade').forEach((facade) => {
       function activate() {
         const vid = facade.dataset.vid;
@@ -383,45 +334,5 @@ const awards = [
     });
   }
 
-  // Scroll-triggered counters
-  function initCounters() {
-    const results = document.querySelector('.project-results');
-    if (!results) return;
-
-    const items = Array.from(results.querySelectorAll<HTMLElement>('.result-number'));
-    let ran = false;
-
-    function runCounters() {
-      if (ran) return;
-      ran = true;
-      const duration = 2800;
-      const start = performance.now();
-
-      function tick(now: number) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-
-        items.forEach((el) => {
-          const target   = parseFloat(el.dataset.target ?? '0');
-          const decimals = parseInt(el.dataset.decimals ?? '0', 10);
-          const suffix   = el.dataset.suffix ?? '';
-          const current  = eased * target;
-          el.textContent = `+${current.toFixed(decimals)}${suffix}`;
-        });
-
-        if (progress < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => { if (entries[0].isIntersecting) { runCounters(); observer.disconnect(); } },
-      { threshold: 0.5 }
-    );
-    observer.observe(results);
-  }
-
   document.addEventListener('astro:page-load', initProject);
-  document.addEventListener('astro:page-load', initCounters);
 </script>
