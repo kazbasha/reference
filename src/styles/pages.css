@@ -203,6 +203,7 @@
   .work-cards {
     position: relative;
     inset: auto;
+    height: auto;
     display: flex;
     flex-direction: column;
     gap: 32px;

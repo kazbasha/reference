@@ -136,8 +136,8 @@ const ads = [
                     style={`${ad.pos};--rot:${ad.rot}deg;--float-delay:${ad.floatDelay};--alpha:${ad.alpha}`}
                   >
                     {isImg
-                      ? <img src={ad.src} alt="" loading="lazy" />
-                      : <video autoplay loop muted playsinline><source src={ad.src} type="video/mp4" /></video>
+                      ? <img src={ad.src} alt="" loading="eager" />
+                      : <video autoplay loop muted playsinline preload="auto"><source src={ad.src} type="video/mp4" /></video>
                     }
                   </div>
                 );
@@ -1460,7 +1460,13 @@ const ads = [
     adItems.forEach((item) => {
       const enter = parseFloat(item.dataset.threshold ?? '0');
       const exit  = parseFloat(item.dataset.exitThreshold ?? '1');
-      item.classList.toggle('is-visible', progress >= enter && progress < exit);
+      const nowVisible = progress >= enter && progress < exit;
+      const wasVisible = item.classList.contains('is-visible');
+      item.classList.toggle('is-visible', nowVisible);
+      if (nowVisible && !wasVisible) {
+        const vid = item.querySelector<HTMLVideoElement>('video');
+        if (vid) vid.play().catch(() => {});
+      }
     });
   }
 
@@ -1923,11 +1929,13 @@ const ads = [
   aimCursorImg.src = '/cursors/target-icon-64.png';
   aimCursorImg.style.cssText = 'width:100%;height:100%;display:block;filter:hue-rotate(120deg) saturate(1.4)';
   aimCursorEl.appendChild(aimCursorImg);
+  aimCursorEl.style.display = 'none';
   document.body.appendChild(aimCursorEl);
 
   let shootCursorEl = document.createElement('div');
   shootCursorEl.id = 'bigger-shoot-cursor';
   shootCursorEl.textContent = 'SHOOT';
+  shootCursorEl.style.display = 'none';
   document.body.appendChild(shootCursorEl);
 
   // ── Space gun (3D model, first-person) ───────────────────────────────────
@@ -2496,6 +2504,8 @@ const ads = [
     // ── Re-attach cursor overlays if removed from body by ClientRouter swap ──
     if (!document.contains(aimCursorEl)) document.body.appendChild(aimCursorEl);
     if (!document.contains(shootCursorEl)) document.body.appendChild(shootCursorEl);
+    aimCursorEl.style.display = 'none';
+    shootCursorEl.style.display = 'none';
 
     // ── Re-init gun renderer if canvas element changed ──
     shootFlashState = 'idle';
