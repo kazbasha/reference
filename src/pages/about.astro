@@ -134,14 +134,16 @@ import Layout from "../layouts/Layout.astro";
       } else if (parallaxImg && window.innerWidth <= 640) {
         parallaxImg.style.transform = '';
       }
-      parallaxFullImgs.forEach((img) => {
-        const section = img.parentElement!;
-        const rect    = section.getBoundingClientRect();
-        const vh      = window.innerHeight;
-        const progress = (vh - rect.top) / (vh + rect.height);
-        const offset   = (progress - 0.5) * vh * 0.4;
-        img.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
-      });
+      if (window.innerWidth > 640) {
+        parallaxFullImgs.forEach((img) => {
+          const section = img.parentElement!;
+          const rect    = section.getBoundingClientRect();
+          const vh      = window.innerHeight;
+          const progress = (vh - rect.top) / (vh + rect.height);
+          const offset   = (progress - 0.5) * vh * 0.4;
+          img.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
+        });
+      }
       checkBeenAround();
     }
 
