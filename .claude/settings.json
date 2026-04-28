@@ -8,7 +8,9 @@
       "Bash(sips -z 64 64 /Users/kaz/reference-site/public/cursors/target-icon.png --out /Users/kaz/reference-site/public/cursors/target-icon-64.png)",
       "Bash(git checkout:*)",
       "Bash(npm run:*)",
-      "WebFetch(domain:kazbasha.com)"
+      "WebFetch(domain:kazbasha.com)",
+      "Bash(ffmpeg -version)",
+      "Bash(ffprobe -v quiet -print_format json -show_streams \"/Users/kaz/reference-site/public/video/work/axe - evolution.mov\")"
     ]
   }
 }
