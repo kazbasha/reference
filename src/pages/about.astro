@@ -86,6 +86,10 @@ import Layout from "../layouts/Layout.astro";
       <p>That's when it becomes the benchmark.</p>
     </div>
   </section>
+
+  <div class="about-work-cta">
+    <a class="about-work-cta__btn" href="/work" id="about-work-btn">CHECK OUT OUR WORK</a>
+  </div>
 </Layout>
 
 <script>
@@ -177,13 +181,17 @@ import Layout from "../layouts/Layout.astro";
       }
     }
 
-    pillarsPrev?.addEventListener('click', () => goToPillar(pillarCurrent - 1), { signal });
-    pillarsNext?.addEventListener('click', () => goToPillar(pillarCurrent + 1), { signal });
+    let pillarInteracted = false;
+    const markPillarInteracted = () => { pillarInteracted = true; };
+
+    pillarsPrev?.addEventListener('click', () => { markPillarInteracted(); goToPillar(pillarCurrent - 1); }, { signal });
+    pillarsNext?.addEventListener('click', () => { markPillarInteracted(); goToPillar(pillarCurrent + 1); }, { signal });
 
     const pillarsSwipeTarget = document.querySelector<HTMLElement>('.about-been-around__body');
     let pillarTouchStartX = 0, pillarTouchStartY = 0;
 
     pillarsSwipeTarget?.addEventListener('touchstart', (e) => {
+      markPillarInteracted();
       pillarTouchStartX = e.touches[0].clientX;
       pillarTouchStartY = e.touches[0].clientY;
     }, { passive: true, signal });
@@ -195,7 +203,51 @@ import Layout from "../layouts/Layout.astro";
         goToPillar(dx > 0 ? pillarCurrent + 1 : pillarCurrent - 1);
       }
     }, { passive: true, signal });
+
+    // ── Mobile peek hint ──
+    if (window.innerWidth <= 768 && pillarsTrack && pillarsNext) {
+      const peekTarget = document.querySelector<HTMLElement>('.about-been-around');
+      if (peekTarget) {
+        let peeked = false;
+        const peekObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting || pillarInteracted || peeked) return;
+            peeked = true;
+            peekObserver.disconnect();
+
+            setTimeout(() => {
+              if (pillarInteracted || !pillarsTrack) return;
+
+              pillarsTrack.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+              pillarsTrack.style.transform = 'translateX(-28%)';
+
+              setTimeout(() => {
+                pillarsTrack.style.transition = 'transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                pillarsTrack.style.transform = 'translateX(0)';
+
+                pillarsNext.classList.add('arrow-pulse');
+                setTimeout(() => {
+                  pillarsNext.classList.remove('arrow-pulse');
+                  pillarsTrack.style.transition = '';
+                }, 2200);
+              }, 700);
+            }, 600);
+          });
+        }, { threshold: 0.3 });
+
+        peekObserver.observe(peekTarget);
+      }
+    }
   }
 
-  document.addEventListener('astro:page-load', initAbout);
+  document.addEventListener('astro:page-load', () => {
+    initAbout();
+    const workBtn = document.getElementById('about-work-btn') as HTMLAnchorElement | null;
+    if (workBtn) {
+      workBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        import('astro:transitions/client').then(({ navigate }) => navigate('/work'));
+      });
+    }
+  });
 </script>

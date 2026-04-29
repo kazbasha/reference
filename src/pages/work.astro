@@ -90,7 +90,52 @@ import Layout from "../layouts/Layout.astro";
     </div>
     <div class="work-cursor-label" aria-hidden="true"></div>
   </div>
+
+  <div class="work-cta">
+    <a class="work-cta__btn" href="/contact" id="work-cta-btn">WORK WITH US</a>
+  </div>
 </Layout>
+
+<style>
+  .work-cta {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 clamp(24px, 7vw, 120px) clamp(60px, 8vw, 100px);
+    margin-top: clamp(-160px, -12vw, -100px);
+  }
+
+  .work-cta__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(9px, 0.7vw, 11px);
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #986edf;
+    text-decoration: none;
+    border: 1px solid rgba(152, 110, 223, 0.35);
+    border-radius: 4px;
+    background: #000;
+    padding: 14px 28px;
+    transition:
+      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s ease,
+      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .work-cta__btn:hover {
+    background: #0d0318;
+    border-color: rgba(152, 110, 223, 0.7);
+    padding-left: 42px;
+    padding-right: 42px;
+  }
+
+</style>
 
 <script>
   let _workAC: AbortController | null = null;
@@ -200,5 +245,14 @@ import Layout from "../layouts/Layout.astro";
     signal.addEventListener('abort', () => mobileObserver?.disconnect());
   }
 
-  document.addEventListener('astro:page-load', initWork);
+  document.addEventListener('astro:page-load', () => {
+    initWork();
+    const ctaBtn = document.getElementById('work-cta-btn') as HTMLAnchorElement | null;
+    if (ctaBtn) {
+      ctaBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        import('astro:transitions/client').then(({ navigate }) => navigate('/contact'));
+      });
+    }
+  });
 </script>

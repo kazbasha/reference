@@ -200,6 +200,7 @@ const ads = [
                 </div>
               </div>
               <p class="bigger-replace">It needs better.</p>
+              <a class="bigger-learn-btn" id="bigger-learn-btn" href="/about">LEARN MORE ABOUT REFERENCE</a>
               <span class="word-scroll-sr">{line1} {line2}</span>
             </div>
           : i === 5
@@ -703,6 +704,19 @@ const ads = [
     cursor: default;
   }
 
+  @keyframes arrowPulse {
+    0%   { transform: translateX(0);    box-shadow: none; }
+    30%  { transform: translateX(5px);  box-shadow: 2px 0 12px rgba(152, 110, 223, 0.5); }
+    60%  { transform: translateX(0);    box-shadow: none; }
+    85%  { transform: translateX(4px);  box-shadow: 2px 0 10px rgba(152, 110, 223, 0.4); }
+    100% { transform: translateX(0);    box-shadow: none; }
+  }
+
+  .intro-slider-btn.arrow-pulse {
+    animation: arrowPulse 0.7s ease-in-out 3;
+    border-color: rgba(232, 228, 222, 0.8);
+  }
+
   /* ── Third section: dark green bg, purple text ── */
   .manifesto-block--third {
     background: #986edf;
@@ -1124,6 +1138,38 @@ const ads = [
     pointer-events: none;
   }
 
+  .bigger-learn-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(8px, 0.7vw, 11px);
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #986edf;
+    text-decoration: none;
+    white-space: nowrap;
+    border: 1px solid rgba(152, 110, 223, 0.35);
+    border-radius: 4px;
+    background: #000;
+    padding: 14px 28px;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s ease,
+      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .bigger-learn-btn:hover {
+    background: #0d0318;
+    border-color: rgba(152, 110, 223, 0.7);
+    padding-left: 42px;
+    padding-right: 42px;
+  }
+
   /* ── Target cursor — active during BIGGER interactive phase ── */
   :global(body.bigger-aim-mode),
   :global(body.bigger-aim-mode) *,
@@ -1292,8 +1338,8 @@ const ads = [
     width: clamp(320px, 30vw, 440px);
     height: clamp(320px, 30vw, 440px);
     border-radius: 50%;
-    border-color: rgba(152, 110, 223, 0.7);
-    background: #0d0318;
+    border-color: #ffffff;
+    background: #ffffff;
   }
 
   .contact-btn-label {
@@ -1320,7 +1366,7 @@ const ads = [
 
   .contact-btn-email {
     position: absolute;
-    color: rgba(152, 110, 223, 0.85);
+    color: #0d0d0d;
     font-size: clamp(9px, 0.8vw, 11px);
     font-weight: 400;
     letter-spacing: 0.2em;
@@ -1401,11 +1447,54 @@ const ads = [
       if (nextBtn) nextBtn.disabled = current === total - 1;
     }
 
-    prevBtn?.addEventListener('click', () => goTo(current - 1));
-    nextBtn?.addEventListener('click', () => goTo(current + 1));
+    let hasInteracted = false;
+    const markInteracted = () => { hasInteracted = true; };
+
+    prevBtn?.addEventListener('click', () => { markInteracted(); goTo(current - 1); });
+    nextBtn?.addEventListener('click', () => { markInteracted(); goTo(current + 1); });
     goTo(0);
 
     window.addEventListener('resize', () => goTo(current), { passive: true });
+
+    // ── Mobile peek hint — fires once when slider enters view ──
+    if (window.innerWidth <= 768 && track && nextBtn) {
+      const sliderEl = document.querySelector<HTMLElement>('.intro-slider');
+      if (sliderEl) {
+        let peeked = false;
+        const peekObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting || hasInteracted || peeked) return;
+            peeked = true;
+            peekObserver.disconnect();
+
+            setTimeout(() => {
+              if (hasInteracted || !track) return;
+              const firstSlide = track.children[0] as HTMLElement;
+              const peekPx = (firstSlide?.offsetWidth ?? 0) * 0.28;
+
+              // Slide forward to peek
+              track.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+              track.style.transform = `translateX(-${peekPx}px)`;
+
+              setTimeout(() => {
+                // Spring back with bounce
+                track.style.transition = 'transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                track.style.transform = 'translateX(0)';
+
+                // Pulse the arrow button
+                nextBtn.classList.add('arrow-pulse');
+                setTimeout(() => {
+                  nextBtn.classList.remove('arrow-pulse');
+                  track.style.transition = '';
+                }, 2200);
+              }, 700);
+            }, 600);
+          });
+        }, { threshold: 0.3 });
+
+        peekObserver.observe(sliderEl);
+      }
+    }
 
     // Touch swipe
     let touchStartX = 0;
@@ -1800,13 +1889,23 @@ const ads = [
 
     if (biggerReplace) {
       const replaceWords = Array.from(biggerReplace.children) as HTMLElement[];
-      // Stagger: first word starts at 0.78, last word starts at 0.90, each takes 0.06 to fully reveal
+      // Stagger in: first word at 0.78, last word at 0.90
+      // Stagger out: all words fade at 0.92–0.96
+      const fadeOut = Math.max(0, Math.min(1, (progress - 0.92) / 0.04));
       replaceWords.forEach((word, i) => {
         const start = 0.78 + (i / Math.max(replaceWords.length - 1, 1)) * 0.12;
         const p     = Math.max(0, Math.min(1, (progress - start) / 0.06));
-        word.style.opacity   = String(p);
+        word.style.opacity   = String(p * (1 - fadeOut));
         word.style.transform = `translateX(${(1 - p) * -14}px)`;
       });
+    }
+
+    // Button fades in after "It needs better." fades out
+    const learnBtn = document.getElementById('bigger-learn-btn') as HTMLElement | null;
+    if (learnBtn) {
+      const btnP = Math.max(0, Math.min(1, (progress - 0.95) / 0.04));
+      learnBtn.style.opacity = String(btnP);
+      learnBtn.style.pointerEvents = btnP > 0.5 ? 'all' : 'none';
     }
 
     const wraps = Array.from(biggerWordWrap.querySelectorAll<HTMLElement>('.bigger-letter-wrap'));
@@ -2599,5 +2698,15 @@ const ads = [
     const fresh = bw.cloneNode(true) as Element;
     bw.replaceWith(fresh);
     attachBurst(fresh);
+  });
+
+  // Wire "Learn more" button to slide transition
+  document.addEventListener('astro:page-load', () => {
+    const learnBtn = document.getElementById('bigger-learn-btn') as HTMLAnchorElement | null;
+    if (!learnBtn) return;
+    learnBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      import('astro:transitions/client').then(({ navigate }) => navigate('/about'));
+    });
   });
 </script>

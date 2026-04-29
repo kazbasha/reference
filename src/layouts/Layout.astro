@@ -217,10 +217,153 @@ function isActive(href: string): boolean {
         color: rgba(26, 26, 26, 0.9);
       }
 
+      /* ── Burger button — mobile only ── */
+      .burger-btn {
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        background: none;
+        border: none;
+        padding: 4px;
+        cursor: pointer;
+        z-index: 9100;
+      }
+
+      .burger-bar {
+        display: block;
+        width: 22px;
+        height: 2.5px;
+        background: rgba(232, 228, 222, 0.85);
+        border-radius: 1px;
+        transition: background 0.2s ease,
+                    transform  0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                    opacity    0.3s ease;
+        transform-origin: center;
+      }
+
+      .burger-btn--on-light .burger-bar {
+        background: rgba(26, 26, 26, 0.85);
+      }
+
+      /* ── Mobile full-screen overlay ── */
+      .mobile-menu {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9000;
+        background: #0d0d0d;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 40px;
+        opacity: 0;
+        transition: opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .mobile-menu.is-open {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      /* Keep brand mark visible above the menu overlay */
+      body.burger-open #brand-mark {
+        z-index: 9500;
+        color: #e8e4de !important;
+      }
+
+      /* X close button inside overlay */
+      .mobile-menu__close {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        background: none;
+        border: none;
+        padding: 6px;
+        cursor: pointer;
+        color: rgba(232, 228, 222, 0.5);
+        transition: color 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mobile-menu__close:hover { color: #e8e4de; }
+
+      .mobile-menu__nav {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        width: 100%;
+      }
+
+      .mobile-menu__link {
+        font-family: "ObviouslyWide", system-ui, sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        color: #e8e4de;
+        text-decoration: none;
+        text-transform: uppercase;
+        opacity: 0;
+        transform: translateX(-32px);
+        transition: color 0.2s ease;
+        width: 100%;
+        padding: 20px 0;
+        border-bottom: 1px solid rgba(232, 228, 222, 0.12);
+      }
+
+      .mobile-menu__nav .mobile-menu__link:first-child {
+        border-top: 1px solid rgba(232, 228, 222, 0.12);
+      }
+
+      .mobile-menu__link.is-active {
+        color: #986edf;
+      }
+
+      /* Staggered slide-in when menu opens */
+      .mobile-menu.is-open .mobile-menu__link {
+        animation: menuLinkIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .mobile-menu.is-open .mobile-menu__link:nth-child(1) { animation-delay: 0.06s; }
+      .mobile-menu.is-open .mobile-menu__link:nth-child(2) { animation-delay: 0.12s; }
+      .mobile-menu.is-open .mobile-menu__link:nth-child(3) { animation-delay: 0.18s; }
+      .mobile-menu.is-open .mobile-menu__link:nth-child(4) { animation-delay: 0.24s; }
+      .mobile-menu.is-open .mobile-menu__link:nth-child(5) { animation-delay: 0.30s; }
+
+      /* Staggered slide-out when closing */
+      .mobile-menu.is-closing .mobile-menu__link {
+        animation: menuLinkOut 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .mobile-menu.is-closing .mobile-menu__link:nth-child(5) { animation-delay: 0.00s; }
+      .mobile-menu.is-closing .mobile-menu__link:nth-child(4) { animation-delay: 0.05s; }
+      .mobile-menu.is-closing .mobile-menu__link:nth-child(3) { animation-delay: 0.10s; }
+      .mobile-menu.is-closing .mobile-menu__link:nth-child(2) { animation-delay: 0.15s; }
+      .mobile-menu.is-closing .mobile-menu__link:nth-child(1) { animation-delay: 0.20s; }
+
+      @keyframes menuLinkIn {
+        from { opacity: 0; transform: translateX(-32px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+
+      @keyframes menuLinkOut {
+        from { opacity: 1; transform: translateX(0); }
+        to   { opacity: 0; transform: translateX(-24px); }
+      }
+
       @media (max-width: 640px) {
         .nav-tab {
-          font-size: 7px;
-          letter-spacing: 0.15em;
+          display: none;
+        }
+        .burger-btn {
+          display: flex;
+        }
+        .mobile-menu {
+          display: flex;
         }
         .music-toggle {
           font-size: 7px;
@@ -361,7 +504,29 @@ function isActive(href: string): boolean {
       <a href="/about" class={`nav-tab${isActive('/about') ? ' is-active' : ''}`}>ABOUT</a>
       <a href="/work" class={`nav-tab${isActive('/work') ? ' is-active' : ''}`}>WORK</a>
       <a href="/contact" class={`nav-tab${isActive('/contact') ? ' is-active' : ''}`}>CONTACT</a>
+      <button class="burger-btn" id="burger-btn" aria-label="Open menu" aria-expanded="false">
+        <span class="burger-bar"></span>
+        <span class="burger-bar"></span>
+        <span class="burger-bar"></span>
+      </button>
     </nav>
+
+    <!-- Mobile full-screen menu -->
+    <div class="mobile-menu" id="mobile-menu" aria-hidden="true" transition:persist>
+      <button class="mobile-menu__close" id="mobile-menu-close" aria-label="Close menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="2" y1="2" x2="18" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="18" y1="2" x2="2" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <nav class="mobile-menu__nav">
+        <a class="mobile-menu__link" href="/">HOME</a>
+        <a class="mobile-menu__link" href="/industry">INDUSTRY</a>
+        <a class="mobile-menu__link" href="/about">ABOUT</a>
+        <a class="mobile-menu__link" href="/work">WORK</a>
+        <a class="mobile-menu__link" href="/contact">CONTACT</a>
+      </nav>
+    </div>
 
     <!-- Grain texture — feTurbulence fractalNoise -->
     <svg class="grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -471,7 +636,7 @@ function isActive(href: string): boolean {
         // IDs of fixed UI overlays that should not influence background detection
         const BG_SKIP_IDS = new Set([
           'brand-mark', 'cursor-dot', 'music-toggle', 'nav-bar',
-          'pt-overlay', 'bigger-aim-cursor', 'bigger-shoot-cursor', 'bigger-gun',
+          'pt-overlay', 'bigger-aim-cursor', 'bigger-shoot-cursor', 'bigger-gun', 'mobile-menu',
         ]);
 
         function getBgLuminanceAt(x: number, y: number): number {
@@ -515,6 +680,13 @@ function isActive(href: string): boolean {
             const onLight = getBgLuminanceAt(r.left + r.width / 2, r.top + r.height / 2) > 0.5;
             t.classList.toggle("nav-tab--on-light", onLight);
           });
+          // Burger button colour follows the right edge of the nav bar
+          const burgerEl = document.getElementById('burger-btn');
+          if (burgerEl) {
+            const br = burgerEl.getBoundingClientRect();
+            const onLight = getBgLuminanceAt(br.left + br.width / 2, br.top + br.height / 2) > 0.5;
+            burgerEl.classList.toggle('burger-btn--on-light', onLight);
+          }
         };
         window.addEventListener("scroll", updateBrandMark, { passive: true });
         updateBrandMark();
@@ -645,6 +817,75 @@ function isActive(href: string): boolean {
       document.addEventListener('astro:page-load', () => {
         updateBrandMark();
         updateMusicToggleColor();
+
+        // ── Mobile burger menu ──
+        const burgerBtn   = document.getElementById('burger-btn') as HTMLButtonElement | null;
+        const mobileMenu  = document.getElementById('mobile-menu') as HTMLElement | null;
+        const closeBtn    = document.getElementById('mobile-menu-close') as HTMLButtonElement | null;
+        if (!burgerBtn || !mobileMenu) return;
+
+        // Sync active state on mobile links
+        const path = window.location.pathname;
+        mobileMenu.querySelectorAll<HTMLAnchorElement>('.mobile-menu__link').forEach(link => {
+          const href = link.getAttribute('href') ?? '';
+          const active = href === '/' ? path === '/' : path.startsWith(href);
+          link.classList.toggle('is-active', active);
+        });
+
+        function openMenu() {
+          mobileMenu!.classList.remove('is-closing');
+          mobileMenu!.classList.add('is-open');
+          mobileMenu!.setAttribute('aria-hidden', 'false');
+          burgerBtn!.classList.add('is-open');
+          burgerBtn!.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+          document.body.classList.add('burger-open');
+        }
+
+        const CLOSE_DUR = 380; // ms — matches closing animation total
+
+        function closeMenu(): Promise<void> {
+          return new Promise(resolve => {
+            mobileMenu!.classList.add('is-closing');
+            mobileMenu!.classList.remove('is-open');
+            mobileMenu!.setAttribute('aria-hidden', 'true');
+            burgerBtn!.classList.remove('is-open');
+            burgerBtn!.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+            document.body.classList.remove('burger-open');
+            setTimeout(() => {
+              mobileMenu!.classList.remove('is-closing');
+              resolve();
+            }, CLOSE_DUR);
+          });
+        }
+
+        burgerBtn.onclick = () => {
+          burgerBtn.classList.contains('is-open') ? closeMenu() : openMenu();
+        };
+
+        if (closeBtn) closeBtn.onclick = () => closeMenu();
+
+        mobileMenu.querySelectorAll<HTMLAnchorElement>('.mobile-menu__link').forEach(link => {
+          link.onclick = (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('href') ?? '/';
+            closeMenu().then(() => {
+              import('astro:transitions/client').then(({ navigate }) => navigate(href));
+            });
+          };
+        });
+      });
+
+      // Safety: ensure menu is fully closed if navigation fires unexpectedly
+      document.addEventListener('astro:after-swap', () => {
+        const mobileMenu = document.getElementById('mobile-menu') as HTMLElement | null;
+        const burgerBtn  = document.getElementById('burger-btn') as HTMLButtonElement | null;
+        mobileMenu?.classList.remove('is-open', 'is-closing');
+        mobileMenu?.setAttribute('aria-hidden', 'true');
+        burgerBtn?.classList.remove('is-open');
+        document.body.style.overflow = '';
+        document.body.classList.remove('burger-open');
       });
     </script>
   </body>
