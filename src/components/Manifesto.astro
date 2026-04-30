@@ -24,10 +24,6 @@ const introSlides = [
     title: "The right\ntalent",
     body: "We bring in the right people when required. People we trust, we've worked with. Not whoever's free on Tuesday.",
   },
-  {
-    title: "Our\npartners",
-    body: "Brands, agencies, production houses, directors. The ones who give a shit about the work. They come back for a reason.",
-  },
 ];
 
 const blocks: [string, string][] = [
@@ -224,7 +220,7 @@ const ads = [
                 </div>
                 <div class="intro-slider-nav">
                   <button class="intro-slider-btn intro-slider-prev" aria-label="Previous">&#8592;</button>
-                  <span class="intro-slider-counter">01 / 05</span>
+                  <span class="intro-slider-counter">01 / 04</span>
                   <button class="intro-slider-btn intro-slider-next" aria-label="Next">&#8594;</button>
                 </div>
               </div>
@@ -1479,7 +1475,7 @@ const ads = [
     const prevBtn = document.querySelector<HTMLButtonElement>('.intro-slider-prev');
     const nextBtn = document.querySelector<HTMLButtonElement>('.intro-slider-next');
     const counter = document.querySelector<HTMLElement>('.intro-slider-counter');
-    const total   = 5;
+    const total   = 4;
     let   current = 0;
 
     function goTo(idx: number) {
