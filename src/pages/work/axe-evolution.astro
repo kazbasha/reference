@@ -30,14 +30,6 @@ const awards = [
   <main class="project-page">
     <div class="project-inner">
 
-      <!-- Back link -->
-      <a class="back-link" href="/work">
-        <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M0.646 5.354a.5.5 0 0 1 0-.708L4.293.999a.5.5 0 1 1 .707.708L1.707 5l3.293 3.293a.5.5 0 0 1-.707.708L.646 5.354zM16 5.5H1v-1h15v1z" fill="currentColor"/>
-        </svg>
-        Work
-      </a>
-
       <!-- Header -->
       <div class="project-header">
         <p class="project-client">AXE</p>
@@ -106,6 +98,16 @@ const awards = [
         </div>
       </div>
 
+      <!-- Back to work -->
+      <div class="project-back-wrap">
+        <a class="project-back-btn" id="project-back-btn" href="/work">
+          <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M0.646 5.354a.5.5 0 0 1 0-.708L4.293.999a.5.5 0 1 1 .707.708L1.707 5l3.293 3.293a.5.5 0 0 1-.707.708L.646 5.354zM16 5.5H1v-1h15v1z" fill="currentColor"/>
+          </svg>
+          BACK TO WORK
+        </a>
+      </div>
+
     </div>
   </main>
 </Layout>
@@ -128,19 +130,48 @@ const awards = [
     gap: clamp(24px, 3vw, 40px);
   }
 
-  .back-link {
+  .project-back-wrap {
+    display: flex;
+    justify-content: center;
+    padding-top: clamp(16px, 3vw, 32px);
+  }
+
+  .project-back-btn {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    color: rgba(232, 228, 222, 0.4);
-    text-decoration: none;
-    font-size: clamp(9px, 0.72vw, 11px);
-    letter-spacing: 0.16em;
+    gap: 14px;
+    background: #000;
+    border: 1px solid rgba(152, 110, 223, 0.35);
+    border-radius: 4px;
+    color: #986edf;
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(9px, 0.7vw, 11px);
+    font-weight: 400;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    transition: color 0.2s ease;
-    align-self: flex-start;
+    text-decoration: none;
+    padding: 14px 28px;
+    transition:
+      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s ease,
+      gap 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .back-link:hover { color: #986edf; }
+
+  .project-back-btn:hover {
+    background: #0d0318;
+    border-color: rgba(152, 110, 223, 0.7);
+    gap: 22px;
+    padding-left: 42px;
+    padding-right: 42px;
+  }
+
+  .project-back-btn svg {
+    flex-shrink: 0;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-back-btn:hover svg { transform: translateX(-4px); }
 
   .project-header {
     display: flex;
@@ -345,6 +376,10 @@ const awards = [
     letter-spacing: 0.02em;
   }
 
+  @media (max-width: 768px) {
+    .project-inner { padding-top: 80px; }
+  }
+
   @media (max-width: 480px) {
     .project-results { flex-direction: column; }
     .awards-row { grid-template-columns: 1fr; gap: 8px; }
@@ -424,4 +459,13 @@ const awards = [
 
   document.addEventListener('astro:page-load', initProject);
   document.addEventListener('astro:page-load', initCounters);
+  document.addEventListener('astro:page-load', () => {
+    const backBtn = document.getElementById('project-back-btn') as HTMLAnchorElement | null;
+    if (backBtn) {
+      backBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        import('astro:transitions/client').then(({ navigate }) => navigate('/work'));
+      });
+    }
+  });
 </script>

@@ -3,6 +3,10 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Work — Reference" description="Reference — Supersonic creative. Our work.">
+  <section class="work-intro">
+    <p class="work-intro__label">Selected Work</p>
+    <p class="work-intro__text">Made with partners who back bold ideas. And fight for them until they exist.</p>
+  </section>
   <div class="work-scene">
     <!-- Sticky background — stays in viewport while cards scroll -->
     <div class="work-bg">
@@ -97,6 +101,31 @@ import Layout from "../layouts/Layout.astro";
 </Layout>
 
 <style>
+  .work-intro {
+    position: relative;
+    z-index: 5;
+    padding: clamp(80px, 10vw, 140px) 6% 0;
+  }
+
+  .work-intro__label {
+    font-size: clamp(48px, 7vw, 110px);
+    font-weight: 500;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: #f2c4ce;
+    margin: 0 0 clamp(12px, 1.2vw, 20px);
+    margin-left: -6px;
+  }
+
+  .work-intro__text {
+    font-size: clamp(15px, 1.3vw, 20px);
+    font-weight: 400;
+    line-height: 1.65;
+    color: rgba(232, 228, 222, 0.7);
+    max-width: 60ch;
+    margin: 0;
+  }
+
   .work-cta {
     position: relative;
     z-index: 10;
@@ -133,6 +162,18 @@ import Layout from "../layouts/Layout.astro";
     border-color: rgba(152, 110, 223, 0.7);
     padding-left: 42px;
     padding-right: 42px;
+  }
+
+  @media (max-width: 640px) {
+    .work-intro {
+      background: #1a4a6e;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .work-cta {
+      margin-top: 40px;
+    }
   }
 
 </style>

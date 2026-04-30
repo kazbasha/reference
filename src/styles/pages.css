@@ -147,20 +147,22 @@
 .work-card--8  { right: 6%; top: 352svh; }
 .work-card--10 { right: 6%; top: 452svh; }
 
-.work-card:hover {
-  transform: scale(1.1);
-  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.70);
-  z-index: 10;
-}
+@media (hover: hover) and (pointer: fine) {
+  .work-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0 24px 90px rgba(0, 0, 0, 0.70);
+    z-index: 10;
+  }
 
-.work-cards:has(.work-card:hover) .work-card:not(:hover) {
-  filter: blur(4px);
-  opacity: 0.6;
-  transition:
-    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.55s ease,
-    filter 0.55s ease,
-    opacity 0.55s ease;
+  .work-cards:has(.work-card:hover) .work-card:not(:hover) {
+    filter: blur(4px);
+    opacity: 0.6;
+    transition:
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.55s ease,
+      filter 0.55s ease,
+      opacity 0.55s ease;
+  }
 }
 
 .work-card__video {
@@ -207,7 +209,7 @@
     display: flex;
     flex-direction: column;
     gap: 32px;
-    padding: 40px 20px;
+    padding: 80px 20px 40px;
     pointer-events: all;
   }
   .work-card-wrap {
