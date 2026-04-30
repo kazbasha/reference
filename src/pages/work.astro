@@ -96,6 +96,7 @@ import Layout from "../layouts/Layout.astro";
   </div>
 
   <div class="work-cta">
+    <p class="work-cta__headline">Like what you see?</p>
     <a class="work-cta__btn" href="/contact" id="work-cta-btn">WORK WITH US</a>
   </div>
 </Layout>
@@ -130,10 +131,22 @@ import Layout from "../layouts/Layout.astro";
     position: relative;
     z-index: 10;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: clamp(24px, 3vw, 40px);
     padding: 0 clamp(24px, 7vw, 120px) clamp(60px, 8vw, 100px);
     margin-top: clamp(-160px, -12vw, -100px);
+  }
+
+  .work-cta__headline {
+    font-size: clamp(16px, 4.8vw, 76px);
+    font-weight: 500;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: #e8e4de;
+    margin: 0;
+    text-align: center;
   }
 
   .work-cta__btn {
@@ -164,15 +177,19 @@ import Layout from "../layouts/Layout.astro";
     padding-right: 42px;
   }
 
+  @media (max-width: 768px) {
+    .work-cta {
+      margin-top: 40px;
+    }
+  }
+
   @media (max-width: 640px) {
     .work-intro {
       background: #1a4a6e;
     }
-  }
-
-  @media (max-width: 768px) {
     .work-cta {
-      margin-top: 40px;
+      background: #1a4a6e;
+      margin-top: -1px;
     }
   }
 

@@ -836,8 +836,10 @@ const ads = [
     cursor: none;
   }
 
-  :global(.burst-word:hover) {
-    color: #986edf;
+  @media (hover: hover) and (pointer: fine) {
+    :global(.burst-word:hover) {
+      color: #986edf;
+    }
   }
 
   /* ── Reveal state ── */
@@ -1903,7 +1905,7 @@ const ads = [
     // Button fades in after "It needs better." fades out
     const learnBtn = document.getElementById('bigger-learn-btn') as HTMLElement | null;
     if (learnBtn) {
-      const btnP = Math.max(0, Math.min(1, (progress - 0.95) / 0.04));
+      const btnP = Math.max(0, Math.min(1, (progress - 0.97) / 0.03));
       learnBtn.style.opacity = String(btnP);
       learnBtn.style.pointerEvents = btnP > 0.5 ? 'all' : 'none';
     }
@@ -2162,6 +2164,15 @@ const ads = [
   }
 
   if (gunCanvas) setupGunRenderer(gunCanvas);
+
+  document.addEventListener('astro:page-load', () => {
+    const newCanvas  = document.getElementById('gun-canvas')  as HTMLCanvasElement | null;
+    const newWrapper = document.getElementById('bigger-gun')  as HTMLElement | null;
+    if (!newCanvas || newCanvas === gunCanvas) return; // same page or no gun on this page
+    gunWrapper = newWrapper;
+    gunCanvas  = newCanvas;
+    setupGunRenderer(newCanvas);
+  });
 
   // Helper used by flash / scroll handler below
   function gunShow() { (window as any).__gunShow?.(); }
