@@ -262,28 +262,34 @@ const ads = [
         )}
       </section>
       {i === 5 && (
-        <div class="partners-bar" aria-label="Our partners">
-          <div class="partners-track">
-            {[
-              { src: "/images/Partners-Copa90-2.jpg",   alt: "Copa90" },
-              { src: "/images/Partners-Goodpeople.jpg", alt: "Good People" },
-              { src: "/images/Partners-Ogilvy.jpg",     alt: "Ogilvy" },
-              { src: "/images/Partners-StudioOne.jpg",  alt: "Studio One" },
-              { src: "/images/Partners-TeamLewis.jpg",  alt: "Team Lewis" },
-              { src: "/images/Partners-VML.jpg",        alt: "VML" },
-              { src: "/images/Partners-Vice.jpg",       alt: "Vice" },
-              { src: "/images/Partners-Copa90-2.jpg",   alt: "Copa90" },
-              { src: "/images/Partners-Goodpeople.jpg", alt: "Good People" },
-              { src: "/images/Partners-Ogilvy.jpg",     alt: "Ogilvy" },
-              { src: "/images/Partners-StudioOne.jpg",  alt: "Studio One" },
-              { src: "/images/Partners-TeamLewis.jpg",  alt: "Team Lewis" },
-              { src: "/images/Partners-VML.jpg",        alt: "VML" },
-              { src: "/images/Partners-Vice.jpg",       alt: "Vice" },
-            ].map(({ src, alt }) => (
-              <div class="partner-item">
-                <img src={src} alt={alt} class="partner-logo" loading="lazy" />
-              </div>
-            ))}
+        <div class="partners-section">
+          <div class="partners-header">
+            <p class="partners-label">Partner with <span class="partners-label--purple">Reference</span>.</p>
+            <p class="partners-body">We've collaborated with some of the best out there. Different roles, different projects, but always the same goal. Make work that actually matters.</p>
+          </div>
+          <div class="partners-bar" aria-label="Our partners">
+            <div class="partners-track">
+              {[
+                { src: "/images/Partners-Copa90-2.jpg",   alt: "Copa90" },
+                { src: "/images/Partners-Goodpeople.jpg", alt: "Good People" },
+                { src: "/images/Partners-Ogilvy.jpg",     alt: "Ogilvy" },
+                { src: "/images/Partners-StudioOne.jpg",  alt: "Studio One" },
+                { src: "/images/Partners-TeamLewis.jpg",  alt: "Team Lewis" },
+                { src: "/images/Partners-VML.jpg",        alt: "VML" },
+                { src: "/images/Partners-Vice.jpg",       alt: "Vice" },
+                { src: "/images/Partners-Copa90-2.jpg",   alt: "Copa90" },
+                { src: "/images/Partners-Goodpeople.jpg", alt: "Good People" },
+                { src: "/images/Partners-Ogilvy.jpg",     alt: "Ogilvy" },
+                { src: "/images/Partners-StudioOne.jpg",  alt: "Studio One" },
+                { src: "/images/Partners-TeamLewis.jpg",  alt: "Team Lewis" },
+                { src: "/images/Partners-VML.jpg",        alt: "VML" },
+                { src: "/images/Partners-Vice.jpg",       alt: "Vice" },
+              ].map(({ src, alt }) => (
+                <div class="partner-item">
+                  <img src={src} alt={alt} class="partner-logo" loading="lazy" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -363,13 +369,50 @@ const ads = [
     background: transparent;
   }
 
-  /* ── Partner logos marquee ── */
+  /* ── Partner logos section ── */
+  .partners-section {
+    background: #000;
+    padding: clamp(60px, 8vw, 120px) 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(40px, 5vw, 72px);
+  }
+
+  .partners-header {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 2vw, 24px);
+    padding: 0 clamp(24px, 7vw, 120px);
+  }
+
+  .partners-label {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(16px, 3.5vw, 54px);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: #e8e4de;
+    margin: 0;
+  }
+
+  .partners-label--purple {
+    color: #986edf;
+  }
+
+  .partners-body {
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(11px, 0.85vw, 14px);
+    font-weight: 400;
+    line-height: 1.65;
+    color: rgba(232, 228, 222, 0.55);
+    margin: 0;
+  }
+
   .partners-bar {
-    background: #000000;
     overflow: hidden;
-    padding: clamp(20px, 3vw, 40px) 0;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: clamp(28px, 4vw, 56px) 0;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
   }
 
   .partners-track {
@@ -402,6 +445,7 @@ const ads = [
     opacity: 0.6;
     transition: opacity 0.2s, filter 0.2s;
   }
+
 
   .partner-logo:hover {
     opacity: 1;
@@ -552,7 +596,8 @@ const ads = [
 
   .intro-say {
     font-size: clamp(16px, 3.5vw, 54px);
-    font-weight: 400;
+    font-weight: 500;
+    letter-spacing: -0.01em;
     color: #e8e4de;
     line-height: 0.9;
   }
