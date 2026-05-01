@@ -146,6 +146,7 @@
 .work-card--6  { right: 6%; top: 252svh; }
 .work-card--8  { right: 6%; top: 352svh; }
 .work-card--10 { right: 6%; top: 452svh; }
+.work-card--12 { right: 6%; top: 552svh; }
 
 @media (hover: hover) and (pointer: fine) {
   .work-card:hover {
@@ -165,7 +166,8 @@
   }
 }
 
-.work-card__video {
+.work-card__video,
+.work-card__img {
   width: 100%;
   height: 100%;
   object-fit: cover;

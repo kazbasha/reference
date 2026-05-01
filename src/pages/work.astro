@@ -91,6 +91,12 @@ import Layout from "../layouts/Layout.astro";
         </div>
         <span class="work-card__mobile-label">SHAHID X MASTERCARD — GONE</span>
       </div>
+      <div class="work-card-wrap" data-href="/work/shahid-devils-promise">
+        <div class="work-card work-card--12" data-label="SHAHID — THE DEVIL'S PROMISE" data-color="rgb(35,15,55)">
+          <img class="work-card__img" src="/images/work/shahid-devils-promise.webp" alt="" loading="lazy" />
+        </div>
+        <span class="work-card__mobile-label">SHAHID — THE DEVIL'S PROMISE</span>
+      </div>
     </div>
     <div class="work-cursor-label" aria-hidden="true"></div>
   </div>
@@ -135,8 +141,8 @@ import Layout from "../layouts/Layout.astro";
     align-items: center;
     justify-content: center;
     gap: clamp(24px, 3vw, 40px);
-    padding: 0 clamp(24px, 7vw, 120px) clamp(60px, 8vw, 100px);
-    margin-top: clamp(-160px, -12vw, -100px);
+    padding: clamp(60px, 7vw, 120px) clamp(24px, 7vw, 120px) clamp(60px, 8vw, 100px);
+    margin-top: 0;
   }
 
   .work-cta__headline {
@@ -257,14 +263,11 @@ import Layout from "../layouts/Layout.astro";
 
     workCardEls.forEach((card) => {
       const video = card.querySelector<HTMLVideoElement>('.work-card__video');
-      if (!video) return;
-
-      const wrap = card.closest<HTMLElement>('.work-card-wrap');
-      const href = wrap?.dataset.href;
+      const wrap  = card.closest<HTMLElement>('.work-card-wrap');
+      const href  = wrap?.dataset.href;
 
       if (isTouch) {
-        video.preload = 'none';
-        mobileObserver?.observe(card);
+        if (video) { video.preload = 'none'; mobileObserver?.observe(card); }
         if (href) {
           card.addEventListener('click', () => {
             import('astro:transitions/client').then(({ navigate }) => navigate(href));
@@ -273,12 +276,14 @@ import Layout from "../layouts/Layout.astro";
         return;
       }
 
-      video.addEventListener('loadeddata', () => {
-        card.dataset.color = sampleColor(video);
-      }, { once: true, signal });
+      if (video) {
+        video.addEventListener('loadeddata', () => {
+          card.dataset.color = sampleColor(video);
+        }, { once: true, signal });
+      }
 
       card.addEventListener('mouseenter', () => {
-        video.muted = false; video.currentTime = 0; video.play();
+        if (video) { video.muted = false; video.currentTime = 0; video.play(); }
         if (workBg) workBg.style.backgroundColor = card.dataset.color || workDefaultBg;
         if (cursorLabel) { cursorLabel.textContent = card.dataset.label || ''; cursorLabel.classList.add('is-visible'); }
       }, { signal });
@@ -288,7 +293,7 @@ import Layout from "../layouts/Layout.astro";
       }, { signal });
 
       card.addEventListener('mouseleave', () => {
-        video.muted = true; video.pause(); video.currentTime = 0;
+        if (video) { video.muted = true; video.pause(); video.currentTime = 0; }
         if (workBg) workBg.style.backgroundColor = workDefaultBg;
         if (cursorLabel) cursorLabel.classList.remove('is-visible');
       }, { signal });
