@@ -5,11 +5,16 @@ import { ClientRouter } from 'astro:transitions';
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
 }
 const {
-  title = "Reference",
-  description = "Reference — Supersonic creative.",
+  title = "Reference — Supersonic Creative Studio",
+  description = "Reference is a supersonic creative studio. We make bold, entertainment-led work for brands who want to win.",
+  image = "/images/og.webp",
 } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImage = new URL(image, Astro.site).toString();
 
 const pathname = Astro.url.pathname;
 // Determine current page slug for body data-page and active nav
@@ -34,6 +39,36 @@ function isActive(href: string): boolean {
     <ClientRouter />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content="Reference" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- JSON-LD -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Reference",
+      "url": "https://reference.studio",
+      "logo": "https://reference.studio/brand/reference-logo.svg",
+      "description": "Reference is a supersonic creative studio. We make bold, entertainment-led work for brands who want to win.",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "sales",
+        "areaServed": "Worldwide"
+      }
+    })} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Press+Start+2P&display=swap" rel="stylesheet" />
