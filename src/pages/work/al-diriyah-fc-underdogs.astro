@@ -1,0 +1,251 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const vimeoId = '1126127385';
+
+let vimeoThumb = '';
+try {
+  const res = await fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${vimeoId}&width=1920`);
+  if (res.ok) {
+    const data = await res.json();
+    vimeoThumb = data.thumbnail_url ?? '';
+  }
+} catch { /* fallback handled below */ }
+---
+
+<Layout title="Al Diriyah FC — Underdogs | Reference" description="Underdogs followed Al Diriyah FC's rise with the intensity of a sports drama. Reference partnered with director Maged Nassar on storyline, visual research, art direction, and music.">
+  <main class="project-page">
+    <div class="project-inner">
+
+      <!-- Header -->
+      <div class="project-header">
+        <p class="project-client">AL DIRIYAH FC</p>
+        <h1 class="project-title">Underdogs</h1>
+        <p class="project-meta">Agency: Habbar &nbsp;·&nbsp; Production: Good People &nbsp;·&nbsp; Director: Maged Nassar &nbsp;·&nbsp; 2025</p>
+      </div>
+
+      <!-- Vimeo video -->
+      <div class="project-video-wrap">
+        <div class="vm-facade" data-vid={vimeoId} role="button" aria-label="Play video" tabindex="0">
+          {vimeoThumb ? (
+            <img class="vm-facade__thumb" src={vimeoThumb} alt="" loading="lazy" />
+          ) : (
+            <div class="vm-facade__thumb vm-facade__thumb--fallback"></div>
+          )}
+          <button class="vm-facade__play" aria-hidden="true" tabindex="-1">
+            <svg viewBox="0 0 68 48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M66.5 7.7a8.5 8.5 0 0 0-6-6C56 0 34 0 34 0S12 0 7.5 1.7a8.5 8.5 0 0 0-6 6C0 12.1 0 24 0 24s0 11.9 1.5 16.3a8.5 8.5 0 0 0 6 6C12 48 34 48 34 48s22 0 26.5-1.7a8.5 8.5 0 0 0 6-6C68 35.9 68 24 68 24s0-11.9-1.5-16.3z" fill="#fff" opacity="0.9"/>
+              <path d="M27 34l18-10-18-10v20z" fill="#000"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Body copy -->
+      <p class="project-body">
+        Underdogs followed Al Diriyah FC's rise with the intensity of a sports drama, turning every match into a statement. Working closely with director Maged Nassar, Reference helped shape the visual world of the film through storyline development, visual research, art direction, and music selection, acting as a creative partner throughout the process. The result was a raw, emotional film about pressure, belief, and proving everyone wrong.
+      </p>
+
+      <!-- Back to work -->
+      <div class="project-back-wrap">
+        <a class="project-back-btn" id="project-back-btn" href="/work">
+          <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M0.646 5.354a.5.5 0 0 1 0-.708L4.293.999a.5.5 0 1 1 .707.708L1.707 5l3.293 3.293a.5.5 0 0 1-.707.708L.646 5.354zM16 5.5H1v-1h15v1z" fill="currentColor"/>
+          </svg>
+          BACK TO WORK
+        </a>
+      </div>
+
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .project-page {
+    min-height: 100svh;
+    background: #000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .project-inner {
+    width: 100%;
+    max-width: clamp(320px, 88vw, 960px);
+    padding: clamp(48px, 8vw, 100px) 0 clamp(80px, 10vw, 140px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(24px, 3vw, 40px);
+  }
+
+  .project-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+  }
+
+  .project-client {
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #986edf;
+    margin: 0;
+  }
+
+  .project-title {
+    font-size: clamp(48px, 7vw, 110px);
+    font-weight: 500;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: #e8e4de;
+    margin: 0;
+  }
+
+  .project-meta {
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(232, 228, 222, 0.35);
+    margin: 0;
+  }
+
+  .project-video-wrap {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #0a0a0a;
+  }
+
+  .vm-facade {
+    position: absolute;
+    inset: 0;
+    cursor: none;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .vm-facade__thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .vm-facade__thumb--fallback {
+    background: #0a0a0a;
+  }
+
+  .vm-facade:hover .vm-facade__thumb { transform: scale(1.03); }
+
+  .vm-facade__play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.18);
+    border: none;
+    cursor: none;
+    transition: background 0.25s ease;
+  }
+
+  .vm-facade:hover .vm-facade__play { background: rgba(0, 0, 0, 0.32); }
+
+  .vm-facade__play svg {
+    width: clamp(48px, 6vw, 80px);
+    height: auto;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 2px 12px rgba(0,0,0,0.4));
+  }
+
+  .vm-facade:hover .vm-facade__play svg { transform: scale(1.1); }
+
+  .project-body {
+    font-size: clamp(14px, 1.2vw, 18px);
+    font-weight: 400;
+    line-height: 1.65;
+    color: rgba(232, 228, 222, 0.7);
+    max-width: 68ch;
+    margin: 0;
+  }
+
+  .project-back-wrap {
+    display: flex;
+    justify-content: center;
+    padding-top: clamp(16px, 3vw, 32px);
+  }
+
+  .project-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: #000;
+    border: 1px solid rgba(152, 110, 223, 0.35);
+    border-radius: 4px;
+    color: #986edf;
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(9px, 0.7vw, 11px);
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 28px;
+    transition:
+      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s ease,
+      gap 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-back-btn:hover {
+    background: #0d0318;
+    border-color: rgba(152, 110, 223, 0.7);
+    gap: 22px;
+    padding-left: 42px;
+    padding-right: 42px;
+  }
+
+  .project-back-btn svg {
+    flex-shrink: 0;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-back-btn:hover svg { transform: translateX(-4px); }
+
+  @media (max-width: 768px) {
+    .project-inner { padding-top: 80px; }
+  }
+</style>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLElement>('.vm-facade').forEach((facade) => {
+      function activate() {
+        const vid = facade.dataset.vid;
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+        iframe.src = `https://player.vimeo.com/video/${vid}?autoplay=1&title=0&byline=0&portrait=0`;
+        iframe.title = 'Video';
+        iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+        iframe.allowFullscreen = true;
+        facade.replaceWith(iframe);
+      }
+      facade.addEventListener('click', activate, { once: true });
+      facade.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') activate();
+      }, { once: true });
+    });
+
+    const backBtn = document.getElementById('project-back-btn') as HTMLAnchorElement | null;
+    if (backBtn) {
+      backBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        import('astro:transitions/client').then(({ navigate }) => navigate('/work'));
+      });
+    }
+  });
+</script>
