@@ -10,11 +10,11 @@ const { startIndex = 0, endIndex = 7 } = Astro.props;
 const introSlides = [
   {
     title: "Run like\na band",
-    body: "Small. Tight. Experienced. Hands-on from start to finish. No passengers. Everyone plays. No one's just holding a tambourine.",
+    body: "Small. Tight. Experienced. Hands-on from start to finish. No passengers. Everyone plays.",
   },
   {
     title: "Dangerously\nfast",
-    body: "Because we're run like a band. The same people thinking it, making it, and delivering it. No layers. No delays.",
+    body: "The same people thinking it, making it, and delivering it. No layers. No delays.",
   },
   {
     title: "End-\nto-end",
@@ -29,7 +29,7 @@ const introSlides = [
 const blocks: [string, string][] = [
   [
     "Every great idea starts with a reference.",
-    "You see it and think\u00a0\u201cFuck I wish I\u2019d done that\u201d",
+    "You see it and think\u00a0\u201cFu** I wish I\u2019d done that\u201d",
   ],
   [
     "That kind of work is an unfair advantage.",
@@ -228,7 +228,7 @@ const ads = [
             </Fragment>
           : <div class="manifesto-inner" data-reveal>
               {i === 0
-                ? <p class="manifesto-line" set:html={`${line1} ${line2.replace('Fuck', '<span class="burst-word">Fuck</span>')}`} />
+                ? <p class="manifesto-line" set:html={`${line1} ${line2.replace('Fu**', '<span class="burst-word">Fu**</span>')}`} />
                 : <p class="manifesto-line">{line1} {line2}</p>
               }
             </div>
@@ -1470,8 +1470,15 @@ const ads = [
   }
 
   // ── Intro slider (i===5) ──
-  {
+  // Re-init on both initial load AND each SPA navigation. AbortController prevents
+  // duplicate listeners when astro:page-load fires for the initial parse as well.
+  let _sliderAC: AbortController | null = null;
+  function initIntroSlider() {
     const track   = document.querySelector<HTMLElement>('.intro-slides-track');
+    if (!track) return; // slider not on this page
+    _sliderAC?.abort();
+    _sliderAC = new AbortController();
+    const sliderSignal = _sliderAC.signal;
     const prevBtn = document.querySelector<HTMLButtonElement>('.intro-slider-prev');
     const nextBtn = document.querySelector<HTMLButtonElement>('.intro-slider-next');
     const counter = document.querySelector<HTMLElement>('.intro-slider-counter');
@@ -1493,11 +1500,11 @@ const ads = [
     let hasInteracted = false;
     const markInteracted = () => { hasInteracted = true; };
 
-    prevBtn?.addEventListener('click', () => { markInteracted(); goTo(current - 1); });
-    nextBtn?.addEventListener('click', () => { markInteracted(); goTo(current + 1); });
+    prevBtn?.addEventListener('click', () => { markInteracted(); goTo(current - 1); }, { signal: sliderSignal });
+    nextBtn?.addEventListener('click', () => { markInteracted(); goTo(current + 1); }, { signal: sliderSignal });
     goTo(0);
 
-    window.addEventListener('resize', () => goTo(current), { passive: true });
+    window.addEventListener('resize', () => goTo(current), { passive: true, signal: sliderSignal });
 
     // ── Mobile peek hint — fires once when slider enters view ──
     if (window.innerWidth <= 768 && track && nextBtn) {
@@ -1545,15 +1552,18 @@ const ads = [
     track?.addEventListener('touchstart', (e) => {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
-    }, { passive: true });
+    }, { passive: true, signal: sliderSignal });
     track?.addEventListener('touchend', (e) => {
       const dx = touchStartX - e.changedTouches[0].clientX;
       const dy = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
         goTo(dx > 0 ? current + 1 : current - 1);
       }
-    }, { passive: true });
+    }, { passive: true, signal: sliderSignal });
   }
+
+  initIntroSlider();
+  document.addEventListener('astro:page-load', initIntroSlider);
 
   // ── Horizontal scroll text ──
   let hscrollSection   = document.querySelector<HTMLElement>('.manifesto-block--green');
@@ -1932,11 +1942,12 @@ const ads = [
 
     if (biggerReplace) {
       const replaceWords = Array.from(biggerReplace.children) as HTMLElement[];
-      // Stagger in: first word at 0.78, last word at 0.90
-      // Stagger out: all words fade at 0.92–0.96
-      const fadeOut = Math.max(0, Math.min(1, (progress - 0.92) / 0.04));
+      // Stagger in: first word at 0.78, last word fully in at 0.92
+      // Hold at full opacity 0.92–0.96 (~1s pause on full white)
+      // Stagger out: all words fade at 0.96–0.98
+      const fadeOut = Math.max(0, Math.min(1, (progress - 0.96) / 0.02));
       replaceWords.forEach((word, i) => {
-        const start = 0.78 + (i / Math.max(replaceWords.length - 1, 1)) * 0.12;
+        const start = 0.78 + (i / Math.max(replaceWords.length - 1, 1)) * 0.08;
         const p     = Math.max(0, Math.min(1, (progress - start) / 0.06));
         word.style.opacity   = String(p * (1 - fadeOut));
         word.style.transform = `translateX(${(1 - p) * -14}px)`;
@@ -1946,7 +1957,7 @@ const ads = [
     // Button fades in after "It needs better." fades out
     const learnBtn = document.getElementById('bigger-learn-btn') as HTMLElement | null;
     if (learnBtn) {
-      const btnP = Math.max(0, Math.min(1, (progress - 0.97) / 0.03));
+      const btnP = Math.max(0, Math.min(1, (progress - 0.98) / 0.02));
       learnBtn.style.opacity = String(btnP);
       learnBtn.style.pointerEvents = btnP > 0.5 ? 'all' : 'none';
     }
