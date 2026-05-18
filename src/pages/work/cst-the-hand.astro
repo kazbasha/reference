@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 
-const vimeoId = '857104975';
+const vimeoId = '1014807708';
 
 let vimeoThumb = '';
 try {
@@ -11,28 +11,17 @@ try {
     vimeoThumb = data.thumbnail_url ?? '';
   }
 } catch { /* fallback handled below */ }
-
-const awards = [
-  {
-    show: 'Dubai Lynx 2018',
-    items: [
-      { tier: 'Bronze', category: 'Film Craft — Script' },
-      { tier: 'Bronze', category: 'Film Craft — Casting' },
-      { tier: 'Bronze', category: 'Film Craft — Direction' },
-    ],
-  },
-];
 ---
 
-<Layout title="Du — Love It | Reference" description="Du's search for the future champions of LaLiga, turned into a music-led story of ambition and belief. Reference wrote the lyrics that became the backbone of the film.">
+<Layout title="CST — The Hand | Reference" description="A visually striking film for Saudi Arabia's Communications, Space & Technology Commission celebrating humanity's greatest ideas through the human hand. Reference developed the script and voiceover.">
   <main class="project-page">
     <div class="project-inner">
 
       <!-- Header -->
       <div class="project-header">
-        <p class="project-client">DU</p>
-        <h1 class="project-title">Love It</h1>
-        <p class="project-meta">Agency: Leo Burnett &nbsp;·&nbsp; Production: Good People &nbsp;·&nbsp; Director: Maged Nassar &nbsp;·&nbsp; 2018</p>
+        <p class="project-client">CST</p>
+        <h1 class="project-title">The Hand</h1>
+        <p class="project-meta">Agency: TTP &nbsp;·&nbsp; Production: Good People &nbsp;·&nbsp; Director: Maged Nassar &nbsp;·&nbsp; 2024</p>
       </div>
 
       <!-- Vimeo video -->
@@ -54,28 +43,8 @@ const awards = [
 
       <!-- Body copy -->
       <p class="project-body">
-        Love It was created for Du's search for the future champions of LaLiga, turning young football dreams into a music-led story of ambition, belief, and possibility. Working with director Maged Nassar, Reference wrote the lyrics for the track, which then became the backbone of the film itself, with scenes built around the words, rhythm, and emotional journey of the song.
+        This visually striking piece for Saudi Arabia's Communications, Space & Technology Commission celebrated the power behind humanity's greatest ideas, achievements, and breakthroughs through one simple thing: the human hand. Moving through iconic moments in history, from the hands that wrote legendary words, to the ones that mapped the world, changed sport, shaped culture, and pushed humanity forward, the story became a reminder that the next great hand could be yours. Reference developed the script and voiceover, helping shape the poetic storytelling that connected these moments across history into one continuous human journey.
       </p>
-
-      <!-- Awards -->
-      <div class="project-awards">
-        <h2 class="awards-heading">Awards</h2>
-        <div class="awards-table">
-          {awards.map((show) => (
-            <div class="awards-row">
-              <div class="awards-show">{show.show}</div>
-              <div class="awards-items">
-                {show.items.map((item) => (
-                  <div class="awards-item">
-                    <span class="awards-tier">{item.tier}</span>
-                    <span class="awards-category">{item.category}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       <!-- Back to work -->
       <div class="project-back-wrap">
@@ -247,77 +216,8 @@ const awards = [
 
   .project-back-btn:hover svg { transform: translateX(-4px); }
 
-  .project-awards {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(16px, 2vw, 24px);
-  }
-
-  .awards-heading {
-    font-size: clamp(9px, 0.72vw, 11px);
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(232, 228, 222, 0.4);
-    margin: 0;
-    font-weight: 400;
-  }
-
-  .awards-table {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid rgba(232, 228, 222, 0.08);
-  }
-
-  .awards-row {
-    display: grid;
-    grid-template-columns: clamp(180px, 28%, 260px) 1fr;
-    gap: clamp(16px, 3vw, 48px);
-    padding: clamp(16px, 2vw, 24px) 0;
-    border-bottom: 1px solid rgba(232, 228, 222, 0.08);
-    align-items: start;
-  }
-
-  .awards-show {
-    font-size: clamp(10px, 0.8vw, 12px);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(232, 228, 222, 0.4);
-    padding-top: 0.1em;
-  }
-
-  .awards-items {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6em;
-  }
-
-  .awards-item {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75em;
-  }
-
-  .awards-tier {
-    font-size: clamp(9px, 0.72vw, 11px);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #986edf;
-    flex-shrink: 0;
-  }
-
-  .awards-category {
-    font-size: clamp(13px, 1.1vw, 16px);
-    font-weight: 400;
-    color: #e8e4de;
-    letter-spacing: 0.02em;
-  }
-
   @media (max-width: 768px) {
     .project-inner { padding-top: 80px; }
-  }
-
-  @media (max-width: 480px) {
-    .awards-row { grid-template-columns: 1fr; gap: 8px; }
   }
 </style>
 

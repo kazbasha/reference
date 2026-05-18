@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 
-const vimeoId = '857104975';
+const vimeoId = '857106255';
 
 let vimeoThumb = '';
 try {
@@ -14,25 +14,29 @@ try {
 
 const awards = [
   {
-    show: 'Dubai Lynx 2018',
+    show: 'Dubai Lynx 2019',
     items: [
-      { tier: 'Bronze', category: 'Film Craft — Script' },
-      { tier: 'Bronze', category: 'Film Craft — Casting' },
-      { tier: 'Bronze', category: 'Film Craft — Direction' },
+      { tier: 'Bronze', category: 'Animation' },
+    ],
+  },
+  {
+    show: 'D&AD 2019',
+    items: [
+      { tier: 'Shortlist', category: 'Animation' },
     ],
   },
 ];
 ---
 
-<Layout title="Du — Love It | Reference" description="Du's search for the future champions of LaLiga, turned into a music-led story of ambition and belief. Reference wrote the lyrics that became the backbone of the film.">
+<Layout title="Rexona — Alphabet of Cheering | Reference" description="Rexona's Alphabet of Cheering turned football fandom into its own language. Reference wrote the song and lyrics, building an entire alphabet of chants, sounds, and expressions.">
   <main class="project-page">
     <div class="project-inner">
 
       <!-- Header -->
       <div class="project-header">
-        <p class="project-client">DU</p>
-        <h1 class="project-title">Love It</h1>
-        <p class="project-meta">Agency: Leo Burnett &nbsp;·&nbsp; Production: Good People &nbsp;·&nbsp; Director: Maged Nassar &nbsp;·&nbsp; 2018</p>
+        <p class="project-client">REXONA</p>
+        <h1 class="project-title">Alphabet of<br/>Cheering</h1>
+        <p class="project-meta">Agency: FP7 &nbsp;·&nbsp; Production: Good People &nbsp;·&nbsp; Director: Maged Nassar &nbsp;·&nbsp; 2018</p>
       </div>
 
       <!-- Vimeo video -->
@@ -53,9 +57,10 @@ const awards = [
       </div>
 
       <!-- Body copy -->
-      <p class="project-body">
-        Love It was created for Du's search for the future champions of LaLiga, turning young football dreams into a music-led story of ambition, belief, and possibility. Working with director Maged Nassar, Reference wrote the lyrics for the track, which then became the backbone of the film itself, with scenes built around the words, rhythm, and emotional journey of the song.
-      </p>
+      <div class="project-body">
+        <p>Rexona's Alphabet of Cheering turned football fandom into its own language. Reference wrote the song and lyrics, creating an entire "alphabet" of chants, sounds, reactions, and expressions inspired by the chaos and emotion of football culture.</p>
+        <p>That world was then brought to life visually by Zanad through a playful universe of animated mascots packed with energy, sweat, superstition, and pure match-day madness. To give every mascot its own identity and movement style, Zanad collaborated with Mohamed Mostafa, also known as Picasso, one of the world's top illustrators.</p>
+      </div>
 
       <!-- Awards -->
       <div class="project-awards">
@@ -196,6 +201,12 @@ const awards = [
   .vm-facade:hover .vm-facade__play svg { transform: scale(1.1); }
 
   .project-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2em;
+  }
+
+  .project-body p {
     font-size: clamp(14px, 1.2vw, 18px);
     font-weight: 400;
     line-height: 1.65;
@@ -203,49 +214,6 @@ const awards = [
     max-width: 68ch;
     margin: 0;
   }
-
-  .project-back-wrap {
-    display: flex;
-    justify-content: center;
-    padding-top: clamp(16px, 3vw, 32px);
-  }
-
-  .project-back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 14px;
-    background: #000;
-    border: 1px solid rgba(152, 110, 223, 0.35);
-    border-radius: 4px;
-    color: #986edf;
-    font-family: "ObviouslyWide", system-ui, sans-serif;
-    font-size: clamp(9px, 0.7vw, 11px);
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    text-decoration: none;
-    padding: 14px 28px;
-    transition:
-      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.25s ease,
-      gap 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .project-back-btn:hover {
-    background: #0d0318;
-    border-color: rgba(152, 110, 223, 0.7);
-    gap: 22px;
-    padding-left: 42px;
-    padding-right: 42px;
-  }
-
-  .project-back-btn svg {
-    flex-shrink: 0;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .project-back-btn:hover svg { transform: translateX(-4px); }
 
   .project-awards {
     display: flex;
@@ -311,6 +279,49 @@ const awards = [
     color: #e8e4de;
     letter-spacing: 0.02em;
   }
+
+  .project-back-wrap {
+    display: flex;
+    justify-content: center;
+    padding-top: clamp(16px, 3vw, 32px);
+  }
+
+  .project-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: #000;
+    border: 1px solid rgba(152, 110, 223, 0.35);
+    border-radius: 4px;
+    color: #986edf;
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(9px, 0.7vw, 11px);
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 28px;
+    transition:
+      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s ease,
+      gap 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-back-btn:hover {
+    background: #0d0318;
+    border-color: rgba(152, 110, 223, 0.7);
+    gap: 22px;
+    padding-left: 42px;
+    padding-right: 42px;
+  }
+
+  .project-back-btn svg {
+    flex-shrink: 0;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-back-btn:hover svg { transform: translateX(-4px); }
 
   @media (max-width: 768px) {
     .project-inner { padding-top: 80px; }

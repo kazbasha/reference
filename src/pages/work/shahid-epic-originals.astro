@@ -7,6 +7,22 @@ const pairs = [
   ['oMKu53Rp4ZU', '_j1DHhoss18'],
   ['bfY0UMejJdI', 'obuSi6kKTk0'],
 ];
+
+const awards = [
+  {
+    show: 'Mena Effies 2025',
+    items: [
+      { tier: 'Silver', category: 'Marketing Disruptor' },
+      { tier: 'Bronze', category: 'Media & Entertainment' },
+    ],
+  },
+  {
+    show: 'Athar 2025',
+    items: [
+      { tier: 'Bronze', category: 'Best Storytelling Campaign' },
+    ],
+  },
+];
 ---
 
 <Layout title="Shahid — Epic Originals | Reference" description="Reference's brand campaign launching Shahid's slate of Original series — bold, entertainment-led creative built to match the ambition of the content itself.">
@@ -77,6 +93,26 @@ const pairs = [
         <div class="result-item">
           <span class="result-number" data-target="54">+0%</span>
           <span class="result-label">Multi-title viewing YoY</span>
+        </div>
+      </div>
+
+      <!-- Awards -->
+      <div class="project-awards">
+        <h2 class="awards-heading">Awards</h2>
+        <div class="awards-table">
+          {awards.map((show) => (
+            <div class="awards-row">
+              <div class="awards-show">{show.show}</div>
+              <div class="awards-items">
+                {show.items.map((item) => (
+                  <div class="awards-item">
+                    <span class="awards-tier">{item.tier}</span>
+                    <span class="awards-category">{item.category}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -333,6 +369,75 @@ const pairs = [
     color: rgba(232, 228, 222, 0.7);
     max-width: 68ch;
     margin: 0;
+  }
+
+  .project-awards {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 2vw, 24px);
+  }
+
+  .awards-heading {
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(232, 228, 222, 0.4);
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .awards-table {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid rgba(232, 228, 222, 0.08);
+  }
+
+  .awards-row {
+    display: grid;
+    grid-template-columns: clamp(180px, 28%, 260px) 1fr;
+    gap: clamp(16px, 3vw, 48px);
+    padding: clamp(16px, 2vw, 24px) 0;
+    border-bottom: 1px solid rgba(232, 228, 222, 0.08);
+    align-items: start;
+  }
+
+  .awards-show {
+    font-size: clamp(10px, 0.8vw, 12px);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(232, 228, 222, 0.4);
+    padding-top: 0.1em;
+  }
+
+  .awards-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+  }
+
+  .awards-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75em;
+  }
+
+  .awards-tier {
+    font-size: clamp(9px, 0.72vw, 11px);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #986edf;
+    flex-shrink: 0;
+  }
+
+  .awards-category {
+    font-size: clamp(13px, 1.1vw, 16px);
+    font-weight: 400;
+    color: #e8e4de;
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 480px) {
+    .awards-row { grid-template-columns: 1fr; gap: 8px; }
   }
 </style>
 
