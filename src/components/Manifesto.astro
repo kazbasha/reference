@@ -264,28 +264,36 @@ const ads = [
             <p class="partners-body">We've collaborated with some of the best out there. Different roles, different projects, but always the same goal. Make work that actually matters.</p>
           </div>
           <div class="partners-bar" aria-label="Our partners">
-            <div class="partners-track">
-              {[
-                { src: "/images/Partners-Copa90-2.jpg",   alt: "Copa90" },
-                { src: "/images/Partners-Goodpeople.jpg", alt: "Good People" },
-                { src: "/images/Partners-Ogilvy.jpg",     alt: "Ogilvy" },
-                { src: "/images/Partners-StudioOne.jpg",  alt: "Studio One" },
-                { src: "/images/Partners-TeamLewis.jpg",  alt: "Team Lewis" },
-                { src: "/images/Partners-VML.jpg",        alt: "VML" },
-                { src: "/images/Partners-Vice.jpg",       alt: "Vice" },
-                { src: "/images/Partners-Copa90-2.jpg",   alt: "Copa90" },
-                { src: "/images/Partners-Goodpeople.jpg", alt: "Good People" },
-                { src: "/images/Partners-Ogilvy.jpg",     alt: "Ogilvy" },
-                { src: "/images/Partners-StudioOne.jpg",  alt: "Studio One" },
-                { src: "/images/Partners-TeamLewis.jpg",  alt: "Team Lewis" },
-                { src: "/images/Partners-VML.jpg",        alt: "VML" },
-                { src: "/images/Partners-Vice.jpg",       alt: "Vice" },
-              ].map(({ src, alt }) => (
-                <div class="partner-item">
-                  <img src={src} alt={alt} class="partner-logo" loading="lazy" />
-                </div>
-              ))}
-            </div>
+            {(() => { const partners = [
+                { src: "/images/Partners-Copa90-2.jpg",     alt: "Copa90" },
+                { src: "/images/Partners-Goodpeople.jpg",   alt: "Good People" },
+                { src: "/images/Partners-Ogilvy.jpg",       alt: "Ogilvy" },
+                { src: "/images/Partners-StudioOne.jpg",    alt: "Studio One" },
+                { src: "/images/Partners-TeamLewis.jpg",    alt: "Team Lewis" },
+                { src: "/images/Partners-VML.jpg",          alt: "VML" },
+                { src: "/images/Partners-Vice.jpg",         alt: "Vice" },
+                { src: "/images/Partners-WeAreSocial.jpg",  alt: "We Are Social" },
+              ]; return (
+              <div class="partners-track">
+                {/* Server renders two identical groups. JS clones more if the
+                    viewport is wider than one group's width, then animates by
+                    exactly one group's pixel width — a truly seamless loop. */}
+                <ul class="partners-group">
+                  {partners.map(({ src, alt }) => (
+                    <li class="partner-item">
+                      <img src={src} alt={alt} class="partner-logo" loading="lazy" decoding="async" width="200" height="200" />
+                    </li>
+                  ))}
+                </ul>
+                <ul class="partners-group" aria-hidden="true">
+                  {partners.map(({ src }) => (
+                    <li class="partner-item">
+                      <img src={src} alt="" class="partner-logo" loading="lazy" decoding="async" width="200" height="200" aria-hidden="true" />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ); })()}
           </div>
         </div>
       )}
@@ -413,24 +421,35 @@ const ads = [
 
   .partners-track {
     display: flex;
-    align-items: center;
-    gap: clamp(80px, 11vw, 160px);
     width: max-content;
-    animation: partners-scroll 50s linear infinite;
     will-change: transform;
     backface-visibility: hidden;
-    transform: translate3d(-50%, 0, 0);
   }
 
-  @keyframes partners-scroll {
-    from { transform: translate3d(-50%, 0, 0); }
-    to   { transform: translate3d(0%, 0, 0); }
+  .partners-group {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 
   .partner-item {
     flex-shrink: 0;
     display: flex;
     align-items: center;
+    /* Spacing lives on the item (not as flex `gap`) so the last item of each
+       group carries a trailing gap — makes the join between groups spacing-
+       consistent with spacing inside a group, i.e. the loop is truly seamless. */
+    padding-right: clamp(80px, 11vw, 160px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .partners-track {
+      transform: none !important;
+      animation: none !important;
+    }
   }
 
   .partner-logo {
@@ -1565,6 +1584,88 @@ const ads = [
 
   initIntroSlider();
   document.addEventListener('astro:page-load', initIntroSlider);
+
+  // ── Partners marquee ──
+  // Server renders 2 identical groups. We measure one group's pixel width,
+  // clone more groups until the track exceeds ~2× the viewport (so there's
+  // never an empty area during the loop), then animate leftward by exactly
+  // one group's width — content past the seam is identical to content at the
+  // seam, so the join is invisible.
+  let _marqueeAnim: Animation | null = null;
+  let _marqueeResizeHandler: (() => void) | null = null;
+
+  function initPartnersMarquee() {
+    const track = document.querySelector<HTMLElement>('.partners-track');
+    if (!track) return; // not on a page that renders the partners section
+
+    const groups = Array.from(track.querySelectorAll<HTMLElement>('.partners-group'));
+    if (groups.length < 1) return;
+    const template = groups[0];
+
+    // Detach any resize listener from a prior init on the same session.
+    if (_marqueeResizeHandler) {
+      window.removeEventListener('resize', _marqueeResizeHandler);
+      _marqueeResizeHandler = null;
+    }
+    _marqueeAnim?.cancel();
+    _marqueeAnim = null;
+
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function build() {
+      if (!track) return;
+      _marqueeAnim?.cancel();
+      _marqueeAnim = null;
+      // Reset: keep only the two server-rendered groups; drop any prior clones.
+      while (track.children.length > 2) track.lastElementChild?.remove();
+      track.style.transform = '';
+      if (reduce) return;
+
+      // Group width is stable pre-load because each <img> declares width/height
+      // so the browser reserves layout via aspect-ratio.
+      const groupWidth = (track.children[0] as HTMLElement).getBoundingClientRect().width;
+      if (!groupWidth || !Number.isFinite(groupWidth)) return;
+
+      // Ensure enough total content to fill any viewport during the whole loop.
+      // We need trackWidth >= groupWidth + viewportWidth at the animation's
+      // furthest point. Aim for 2.2× viewport with a safety margin.
+      const targetTrackWidth = Math.max(window.innerWidth * 2.2, groupWidth * 2);
+      while (track.getBoundingClientRect().width < targetTrackWidth) {
+        const clone = template.cloneNode(true) as HTMLElement;
+        clone.setAttribute('aria-hidden', 'true');
+        clone.querySelectorAll('img').forEach((img) => img.setAttribute('aria-hidden', 'true'));
+        track.appendChild(clone);
+      }
+
+      // Speed matches the pre-existing cadence (roughly 40 px/s on desktop).
+      const SPEED_PX_PER_SEC = 40;
+      const duration = (groupWidth / SPEED_PX_PER_SEC) * 1000;
+      _marqueeAnim = track.animate(
+        [
+          { transform: 'translate3d(0, 0, 0)' },
+          { transform: `translate3d(-${groupWidth}px, 0, 0)` },
+        ],
+        { duration, iterations: Infinity, easing: 'linear' }
+      );
+    }
+
+    build();
+
+    // Rebuild if viewport width changes (debounced) — clone count + duration
+    // may need to change.
+    let resizeTimer: number | undefined;
+    let lastW = window.innerWidth;
+    _marqueeResizeHandler = () => {
+      if (window.innerWidth === lastW) return; // ignore mobile URL-bar height flicks
+      lastW = window.innerWidth;
+      if (resizeTimer) window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(build, 200) as unknown as number;
+    };
+    window.addEventListener('resize', _marqueeResizeHandler);
+  }
+
+  initPartnersMarquee();
+  document.addEventListener('astro:page-load', initPartnersMarquee);
 
   // ── Horizontal scroll text ──
   let hscrollSection   = document.querySelector<HTMLElement>('.manifesto-block--green');
