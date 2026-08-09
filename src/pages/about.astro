@@ -3,6 +3,18 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="About — Reference | Senior Creatives, Bold Work" description="Two senior creatives. Careers at Leo Burnett, BBDO, Publicis and AKQA. We built Reference to stay close to the work, make the calls, and keep the bar high — from first thought to final frame.">
+  <Fragment slot="head">
+    <!-- LCP asset — preload the desktop hero portrait with high priority.
+         imagesrcset lets the preload also cover mobile via the same <picture>. -->
+    <link
+      rel="preload"
+      as="image"
+      href="/images/about-us.webp"
+      imagesrcset="/images/about-us-mobile.webp 900w, /images/about-us.webp 1026w"
+      imagesizes="(max-width: 640px) 70vw, 50vw"
+      fetchpriority="high"
+    />
+  </Fragment>
   <section class="about-page">
     <div class="ab-blob ab-blob--1" aria-hidden="true"></div>
     <div class="ab-blob ab-blob--2" aria-hidden="true"></div>
@@ -15,7 +27,19 @@ import Layout from "../layouts/Layout.astro";
       </div>
     </div>
     <div class="about-image-wrap">
-      <img src="/images/about-us.webp" alt="The Reference creative studio team" class="about-img" id="about-parallax-img" />
+      <picture>
+        <source media="(max-width: 640px)" srcset="/images/about-us-mobile.webp" type="image/webp" />
+        <img
+          src="/images/about-us.webp"
+          alt="The Reference creative studio team"
+          class="about-img"
+          id="about-parallax-img"
+          width="1026"
+          height="1400"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
     </div>
     <div class="about-content">
       <div class="about-body">
@@ -25,7 +49,20 @@ import Layout from "../layouts/Layout.astro";
       </div>
     </div>
   </section>
-  <section class="about-parallax-full"><div class="about-parallax-full__img"></div></section>
+  <section class="about-parallax-full">
+    <picture>
+      <source media="(max-width: 640px)" srcset="/images/about-started2-mobile.webp" type="image/webp" />
+      <img
+        class="about-parallax-full__img"
+        src="/images/about-started2.webp"
+        alt=""
+        loading="lazy"
+        decoding="async"
+        width="1920"
+        height="1328"
+      />
+    </picture>
+  </section>
   <section class="about-been-around">
     <div class="ba-blob ba-blob--1" aria-hidden="true"></div>
     <div class="ba-blob ba-blob--2" aria-hidden="true"></div>
@@ -60,7 +97,17 @@ import Layout from "../layouts/Layout.astro";
     </div>
   </section>
   <section class="about-video-full">
-    <video class="about-video-full__video" src="/video/love-it.mp4" autoplay muted loop playsinline></video>
+    <video
+      class="about-video-full__video"
+      muted
+      loop
+      playsinline
+      preload="none"
+      poster="/images/love-it-poster.webp"
+    >
+      <source src="/video/love-it-mobile.mp4" type="video/mp4" media="(max-width: 900px)" />
+      <source src="/video/love-it.mp4" type="video/mp4" />
+    </video>
   </section>
   <section class="about-done-it-all">
     <h2 class="about-done-it-all__label">WE'VE DONE IT ALL</h2>
@@ -71,7 +118,17 @@ import Layout from "../layouts/Layout.astro";
     </div>
   </section>
   <section class="about-video-full">
-    <video class="about-video-full__video" src="/video/kfc2.mp4" autoplay muted loop playsinline></video>
+    <video
+      class="about-video-full__video"
+      muted
+      loop
+      playsinline
+      preload="none"
+      poster="/images/kfc2-poster.webp"
+    >
+      <source src="/video/kfc2-mobile.mp4" type="video/mp4" media="(max-width: 900px)" />
+      <source src="/video/kfc2.mp4" type="video/mp4" />
+    </video>
   </section>
   <section class="about-our-way">
     <div class="ow-blob ow-blob--1" aria-hidden="true"></div>
@@ -164,6 +221,21 @@ import Layout from "../layouts/Layout.astro";
       requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);
+
+    // Lazy-play the two full-bleed videos only when they scroll into view.
+    // With preload="none" no bytes fetch until IntersectionObserver fires play().
+    const videos = document.querySelectorAll<HTMLVideoElement>('.about-video-full__video');
+    if (videos.length) {
+      const vio = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          const v = e.target as HTMLVideoElement;
+          if (e.isIntersecting) { v.play().catch(() => {}); }
+          else { v.pause(); }
+        });
+      }, { threshold: 0.25, rootMargin: '200px 0px' });
+      videos.forEach((v) => vio.observe(v));
+      signal.addEventListener('abort', () => vio.disconnect());
+    }
 
     // Mobile pillar slider
     const pillarsTrack   = document.querySelector<HTMLElement>('.about-pillars-track');
