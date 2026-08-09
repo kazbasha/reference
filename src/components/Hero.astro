@@ -8,16 +8,18 @@
   <div class="hero-blob hero-blob--3" aria-hidden="true"></div>
   <div class="hero-blob hero-blob--4" aria-hidden="true"></div>
 
-  <!-- Background video — drop /public/video/hero.mp4 to activate -->
+  <!-- Background video — poster shows instantly; video defers until page-load then plays -->
   <div class="hero-bg" aria-hidden="true">
     <video
       class="hero-video"
-      autoplay
       muted
       loop
       playsinline
+      preload="none"
+      poster="/images/hero-poster.webp"
       aria-hidden="true"
     >
+      <source src="/video/hero-mobile.mp4" type="video/mp4" media="(max-width: 900px)" />
       <source src="/video/hero.mp4" type="video/mp4" />
     </video>
   </div>
@@ -229,6 +231,17 @@
   const hero  = document.querySelector<HTMLElement>(".hero");
   const video = document.querySelector<HTMLVideoElement>(".hero-video");
   const logo  = document.querySelector<HTMLImageElement>(".hero-logo");
+
+  // Defer video fetch until page is interactive. The poster shows instantly;
+  // we let critical work finish, then kick the video load in the background.
+  function startHeroVideo() {
+    if (!video) return;
+    // requestIdleCallback if available, else short timeout.
+    const rIC = (window as any).requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 200));
+    rIC(() => { video.play().catch(() => {}); });
+  }
+  if (document.readyState === 'complete') startHeroVideo();
+  else window.addEventListener('load', startHeroVideo, { once: true });
 
   // ── Parallax on scroll ──
   const heroContent = document.querySelector<HTMLElement>(".hero-content");

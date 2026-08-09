@@ -1428,9 +1428,10 @@ const ads = [
 </style>
 
 <script>
-  import * as THREE from 'three';
-  import { GLTFLoader }     from 'three/examples/jsm/loaders/GLTFLoader.js';
-  import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+  // Three.js is only needed on the Industry page (for the space-gun canvas).
+  // Types are imported statically (erased at build); values are loaded dynamically
+  // inside setupGunRenderer so non-Industry pages never download ~500KB of Three.
+  import type * as THREE from 'three';
 
 
   // ── Reveal on scroll ──
@@ -2104,9 +2105,19 @@ const ads = [
   // Increment each time we set up a new renderer so old rAF loops self-terminate
   let gunRenderVersion = 0;
 
-  function setupGunRenderer(canvas: HTMLCanvasElement) {
+  async function setupGunRenderer(canvas: HTMLCanvasElement) {
     const myVersion = ++gunRenderVersion;
     gunModel = null; // new scene; model will load fresh
+
+    // Dynamically import Three.js only when we actually need to render the gun.
+    // This keeps ~500KB of library code out of every non-Industry page bundle.
+    const [THREE, { GLTFLoader }, { RoomEnvironment }] = await Promise.all([
+      import('three'),
+      import('three/examples/jsm/loaders/GLTFLoader.js'),
+      import('three/examples/jsm/environments/RoomEnvironment.js'),
+    ]);
+    // Bail if a newer setupGunRenderer call superseded us while we awaited.
+    if (myVersion !== gunRenderVersion) return;
 
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

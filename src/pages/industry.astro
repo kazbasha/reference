@@ -4,5 +4,8 @@ import Manifesto from "../components/Manifesto.astro";
 ---
 
 <Layout title="Industry — Reference | Entertainment, FMCG, Sports & Telecoms" description="Reference works across streaming, entertainment, FMCG, sports, and telecoms. Entertainment is at the core of everything we make — whatever the category.">
+  <Fragment slot="head">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  </Fragment>
   <Manifesto endIndex={5} />
 </Layout>

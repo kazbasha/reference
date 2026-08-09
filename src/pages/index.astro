@@ -6,21 +6,49 @@ import StudioIntro from "../components/StudioIntro.astro";
 ---
 
 <Layout title="Reference — Creative Studio | Entertainment-Led Campaigns, Content & Creative" description="Reference is a supersonic creative studio. We make bold, entertainment-led work for brands who back big ideas — from strategy and concept through to production and delivery.">
+  <Fragment slot="head">
+    <!-- LCP asset: preload the hero poster so it arrives on the critical path. -->
+    <link rel="preload" as="image" href="/images/hero-poster.webp" fetchpriority="high" />
+  </Fragment>
   <Hero />
   <StudioIntro />
   <div class="home-video-full">
-    <video class="home-video-full__video" src="/video/hand.mp4" autoplay muted loop playsinline></video>
+    <video
+      class="home-video-full__video"
+      muted
+      loop
+      playsinline
+      preload="none"
+      poster="/images/hand-poster.webp"
+    >
+      <source src="/video/hand-mobile.mp4" type="video/mp4" media="(max-width: 900px)" />
+      <source src="/video/hand.mp4" type="video/mp4" />
+    </video>
   </div>
   <Manifesto startIndex={5} endIndex={6} />
 
   <script>
     document.addEventListener('astro:page-load', () => {
       const btn = document.querySelector<HTMLAnchorElement>('.home-cta__btn');
-      if (!btn) return;
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        import('astro:transitions/client').then(({ navigate }) => navigate('/contact'));
-      });
+      if (btn) {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          import('astro:transitions/client').then(({ navigate }) => navigate('/contact'));
+        });
+      }
+
+      // Lazy-play the mid-page hand video only when it scrolls into view.
+      // Nothing fetches until IntersectionObserver fires .play().
+      const handVideo = document.querySelector<HTMLVideoElement>('.home-video-full__video');
+      if (handVideo) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) { handVideo.play().catch(() => {}); }
+            else { handVideo.pause(); }
+          });
+        }, { threshold: 0.25, rootMargin: '200px 0px' });
+        io.observe(handVideo);
+      }
     });
   </script>
 

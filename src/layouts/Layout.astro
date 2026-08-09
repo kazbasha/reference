@@ -70,9 +70,14 @@ function isActive(href: string): boolean {
       }
     })} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
+    <!-- Preload critical above-the-fold font so the studio-intro headline
+         doesn't flash a fallback before ObviouslyWide swaps in. -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/ObviouslyWide-Regular.woff2" crossorigin />
+    <!-- Press Start 2P (Industry-only) still loads from Google Fonts via the
+         "head" slot on that page — preconnect kept for that case. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <slot name="head" />
 
     <style is:global>
       *, *::before, *::after { cursor: none !important; }
@@ -89,6 +94,15 @@ function isActive(href: string): boolean {
       @font-face {
         font-family: "TrashHand";
         src: url("/fonts/TrashHand.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      /* Self-hosted Bebas Neue (was Google Fonts) — removes one third-party origin. */
+      @font-face {
+        font-family: "Bebas Neue";
+        src: url("/fonts/BebasNeue-Regular.woff2") format("woff2");
         font-weight: 400;
         font-style: normal;
         font-display: swap;
