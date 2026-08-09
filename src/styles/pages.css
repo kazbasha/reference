@@ -166,12 +166,26 @@
   }
 }
 
+.work-card__poster,
 .work-card__video,
 .work-card__img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Poster sits behind the video; video overlays it once bytes load and playback begins.
+   Video is transparent until it has data so the poster underneath stays visible. */
+.work-card__poster {
+  z-index: 1;
+}
+
+.work-card__video {
+  z-index: 2;
+  background: transparent;
 }
 
 .work-card__mobile-label {
