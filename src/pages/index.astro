@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
 import Manifesto from "../components/Manifesto.astro";
 import StudioIntro from "../components/StudioIntro.astro";
+import FeaturedWork from "../components/FeaturedWork.astro";
 ---
 
 <Layout title="Reference — Creative Studio | Entertainment-Led Campaigns, Content & Creative" description="Reference is a supersonic creative studio. We make bold, entertainment-led work for brands who back big ideas — from strategy and concept through to production and delivery.">
@@ -25,7 +26,9 @@ import StudioIntro from "../components/StudioIntro.astro";
       <source src="/video/hand.mp4" type="video/mp4" />
     </video>
   </div>
-  <Manifesto startIndex={5} endIndex={6} />
+  <Manifesto startIndex={5} endIndex={6}>
+    <FeaturedWork />
+  </Manifesto>
 
   <script>
     document.addEventListener('astro:page-load', () => {
@@ -54,7 +57,12 @@ import StudioIntro from "../components/StudioIntro.astro";
 
   <section class="home-cta">
     <p class="home-cta__text">We're not here to follow the reference. We're here to be it.</p>
-    <a class="home-cta__btn" href="/contact">GET IN TOUCH</a>
+    <a class="home-cta__btn" href="/contact">
+      <span>GET IN TOUCH</span>
+      <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M23.354 7.354a.5.5 0 0 0 0-.708L18.5 1.79a.5.5 0 1 0-.707.707L22.293 7l-4.5 4.5a.5.5 0 0 0 .707.707l4.854-4.853zM0 7.5h23v-1H0v1z" fill="currentColor"/>
+      </svg>
+    </a>
   </section>
 </Layout>
 
@@ -80,32 +88,41 @@ import StudioIntro from "../components/StudioIntro.astro";
     max-width: 26em;
   }
 
+  /* Matches the .featured-work-cta styling: filled black, purple text,
+     purple/black flip on hover, no motion. */
   .home-cta__btn {
     margin-top: clamp(36px, 5vw, 64px);
-    display: inline-block;
-    padding: 14px 28px;
-    border-radius: 4px;
-    border: 1px solid #111;
-    background: transparent;
-    color: #111;
+    display: flex;
+    /* Parent uses align-items: center for the text; stretch the button
+       so it fills the section width like the SEE ALL WORK CTA. */
+    align-self: stretch;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(18px, 2vw, 32px);
+    padding: clamp(20px, 3vw, 40px) clamp(24px, 6vw, 80px);
+    border: 2px solid #0a0a0a;
+    border-radius: 6px;
+    background: #0a0a0a;
+    color: #986edf;
     font-family: "ObviouslyWide", system-ui, sans-serif;
-    font-size: clamp(9px, 0.7vw, 11px);
-    font-weight: 400;
-    letter-spacing: 0.2em;
+    font-size: clamp(10px, 1.4vw, 20px);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
     text-decoration: none;
-    text-transform: uppercase;
-    transition:
-      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.25s ease,
-      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+  }
+
+  .home-cta__btn svg {
+    width: clamp(14px, 1.7vw, 24px);
+    height: auto;
+    flex-shrink: 0;
   }
 
   .home-cta__btn:hover {
-    background: #111;
-    color: #e8e4de;
-    border-color: #111;
-    padding-left: 42px;
-    padding-right: 42px;
+    background: #986edf;
+    color: #0a0a0a;
+    border-color: #986edf;
   }
 </style>

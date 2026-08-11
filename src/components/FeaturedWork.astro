@@ -1,0 +1,207 @@
+---
+import WorkScene from "./WorkScene.astro";
+
+// Featured Work — the same scene as /work (shared <WorkScene>), limited to
+// 4 projects arranged in a 2×2 grid, plus a large "SEE ALL WORK" CTA below.
+// Every interaction (video-on-hover, dynamic bg colour, cursor-label with
+// brand·title, blur-others, click-to-navigate, mobile IntersectionObserver)
+// comes from WorkScene — no duplicated logic here.
+const projects = [
+  {
+    href: "/work/axe-evolution",
+    label: "AXE — EVOLUTION OF HOOKING UP",
+    poster: "/images/work/axe-evolution.webp",
+    video: "/video/work/axe%20-%20evolution.mp4",
+  },
+  {
+    href: "/work/abtal-x-la-liga-made-for-champions",
+    label: "ABTAL X LA LIGA — MADE FOR CHAMPIONS",
+    poster: "/images/work/abtal-x-la-liga-made-for-champions.webp",
+    video: "/video/work/abtal%20x%20la%20liga%20-%20made%20for%20champions.mp4",
+  },
+  {
+    href: "/work/shahid-epic-originals",
+    label: "SHAHID — EPIC ORIGINALS",
+    poster: "/images/work/shahid-epic-originals.webp",
+    video: "/video/work/shahid%20-%20epic%20originals.mp4",
+  },
+  {
+    href: "/work/kfc-winner-winner-chicken-dinner",
+    label: "KFC — WINNER WINNER CHICKEN DINNER",
+    poster: "/images/work/kfc-winner-winner-chicken-dinner.webp",
+    video: "/video/work/kfc%20-%20winner%20winner%20chicken%20dinner.mp4",
+  },
+];
+---
+
+<section class="featured-work">
+  <p class="featured-work__label">Some of our work</p>
+  <WorkScene>
+    <div class="featured-work-grid">
+      {projects.map((p) => (
+        <div class="work-card-wrap" data-href={p.href}>
+          <div class="work-card" data-label={p.label}>
+            <img class="work-card__poster" src={p.poster} alt="" loading="lazy" decoding="async" />
+            <video class="work-card__video" data-src={p.video} muted playsinline preload="none" loop></video>
+          </div>
+          <span class="work-card__mobile-label">{p.label}</span>
+        </div>
+      ))}
+    </div>
+  </WorkScene>
+
+  <a class="featured-work-cta" href="/work" id="featured-work-cta">
+    <span>SEE MORE WORK</span>
+    <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M23.354 7.354a.5.5 0 0 0 0-.708L18.5 1.79a.5.5 0 1 0-.707.707L22.293 7l-4.5 4.5a.5.5 0 0 0 .707.707l4.854-4.853zM0 7.5h23v-1H0v1z" fill="currentColor"/>
+    </svg>
+  </a>
+</section>
+
+<style>
+  /* Featured section is its own containing block so the shared .work-bg
+     (fixed inset:0) is contained to just this section rather than the whole
+     home page. position:relative would only contain :absolute descendants;
+     we override .work-bg to :absolute inside .featured-work below. */
+  .featured-work {
+    position: relative;
+    background: #0a0a0a;
+    /* +80px on desktop above the section headline (mobile overridden below). */
+    padding: calc(clamp(48px, 8vw, 100px) + 80px) 6% clamp(60px, 8vw, 120px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(24px, 3vw, 44px);
+  }
+
+  /* Scope the shared bg to this section only. Blobs + grain animate the
+     same way; hover-tint colour changes still target this same element. */
+  .featured-work :global(.work-bg) {
+    position: absolute;
+  }
+
+  /* Heading — matches other homepage section headlines. Shared clamp scaled
+     +30% site-wide across every homepage section (see also .intro-say and
+     .partners-label). Reference pink for this section's headline colour. */
+  .featured-work__label {
+    position: relative;
+    z-index: 2;
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(21px, 4.5vw, 70px);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: #f2c4ce;
+    /* Extra 30px below the headline before the grid on desktop
+       (adds to the flex `gap` — mobile overridden below). */
+    margin: 0 0 30px;
+  }
+
+  .featured-work-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Gap so each column resolves to 38vw — matching /work/ card size
+       (100vw − 12vw padding − 12vw gap) / 2 = 38vw. */
+    gap: 12vw;
+    width: 100%;
+  }
+
+  /* Cards flow in the grid — override /work's absolute positioning. */
+  .featured-work-grid :global(.work-card-wrap) {
+    position: relative;
+    width: 100%;
+    pointer-events: auto;
+  }
+  .featured-work-grid :global(.work-card) {
+    position: relative;
+    width: 100%;
+    /* aspect-ratio 16/9 inherited from the base .work-card rule in pages.css */
+  }
+
+  /* Hover: blur the other cards — mirrors /work's :has() interaction. */
+  @media (hover: hover) and (pointer: fine) {
+    .featured-work-grid:has(:global(.work-card):hover) :global(.work-card):not(:hover) {
+      filter: blur(4px);
+      opacity: 0.6;
+      transition:
+        transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.55s ease,
+        filter 0.55s ease,
+        opacity 0.55s ease;
+    }
+  }
+
+  /* ── See all work. — full-width CTA block ── */
+  .featured-work-cta {
+    position: relative;
+    z-index: 2;
+    /* Extra breathing space above the CTA — sits further from the grid. */
+    margin-top: clamp(32px, 5vw, 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(18px, 2vw, 32px);
+    /* Vertical padding controls height — reduced a further ~30%. */
+    padding: clamp(20px, 3vw, 40px) clamp(24px, 6vw, 80px);
+    background: #0a0a0a;
+    color: #986edf;
+    border: 2px solid #0a0a0a;
+    border-radius: 6px;
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    /* Type size reduced. */
+    font-size: clamp(10px, 1.4vw, 20px);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    white-space: nowrap;
+    /* Only colour, background and border animate. No motion of any kind. */
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+  }
+
+  .featured-work-cta svg {
+    width: clamp(14px, 1.7vw, 24px);
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  .featured-work-cta:hover {
+    background: #986edf;
+    color: #0a0a0a;
+    border-color: #986edf;
+  }
+
+  @media (max-width: 640px) {
+    .featured-work {
+      padding: clamp(40px, 8vw, 60px) 20px;
+      gap: 20px;
+    }
+    .featured-work__label {
+      font-size: clamp(26px, 7.5vw, 42px);
+      margin: 0;
+    }
+    .featured-work-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      width: 100%;
+    }
+    .featured-work-cta {
+      padding: clamp(20px, 6vw, 34px) 24px;
+      font-size: clamp(9px, 2.3vw, 14px);
+    }
+  }
+</style>
+
+<script>
+  // Featured-Work CTA — SPA navigation. Card interactions come from WorkScene.
+  document.addEventListener('astro:page-load', () => {
+    const cta = document.getElementById('featured-work-cta') as HTMLAnchorElement | null;
+    if (cta) {
+      cta.addEventListener('click', (e) => {
+        e.preventDefault();
+        import('astro:transitions/client').then(({ navigate }) => navigate('/work'));
+      });
+    }
+  });
+</script>

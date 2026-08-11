@@ -196,7 +196,12 @@ const ads = [
                 </div>
               </div>
               <p class="bigger-replace">It needs better.</p>
-              <a class="bigger-learn-btn" id="bigger-learn-btn" href="/about">LEARN MORE ABOUT REFERENCE</a>
+              <a class="bigger-learn-btn" id="bigger-learn-btn" href="/about">
+                <span>LEARN MORE ABOUT REFERENCE</span>
+                <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M23.354 7.354a.5.5 0 0 0 0-.708L18.5 1.79a.5.5 0 1 0-.707.707L22.293 7l-4.5 4.5a.5.5 0 0 0 .707.707l4.854-4.853zM0 7.5h23v-1H0v1z" fill="currentColor"/>
+                </svg>
+              </a>
               <span class="word-scroll-sr">{line1} {line2}</span>
             </div>
           : i === 5
@@ -207,7 +212,7 @@ const ads = [
               <div class="intro-blob intro-blob--4" aria-hidden="true"></div>
               <div class="intro-inner" data-reveal>
               <div class="intro-headline">
-                <span class="intro-say">What sets <span class="intro-say--dark">Reference</span> apart.</span>
+                <span class="intro-say">What sets us apart</span>
               </div>
               <div class="intro-slider">
                 <div class="intro-slides-track">
@@ -219,9 +224,17 @@ const ads = [
                   ))}
                 </div>
                 <div class="intro-slider-nav">
-                  <button class="intro-slider-btn intro-slider-prev" aria-label="Previous">&#8592;</button>
+                  <button class="intro-slider-btn intro-slider-prev" aria-label="Previous">
+                    <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M23.354 7.354a.5.5 0 0 0 0-.708L18.5 1.79a.5.5 0 1 0-.707.707L22.293 7l-4.5 4.5a.5.5 0 0 0 .707.707l4.854-4.853zM0 7.5h23v-1H0v1z" fill="currentColor"/>
+                    </svg>
+                  </button>
                   <span class="intro-slider-counter">01 / 04</span>
-                  <button class="intro-slider-btn intro-slider-next" aria-label="Next">&#8594;</button>
+                  <button class="intro-slider-btn intro-slider-next" aria-label="Next">
+                    <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M23.354 7.354a.5.5 0 0 0 0-.708L18.5 1.79a.5.5 0 1 0-.707.707L22.293 7l-4.5 4.5a.5.5 0 0 0 .707.707l4.854-4.853zM0 7.5h23v-1H0v1z" fill="currentColor"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
@@ -257,10 +270,13 @@ const ads = [
           </svg>
         )}
       </section>
+      {/* Slot renders between the "What sets Reference apart" slider and the
+          partners section — used by the home page to inject <FeaturedWork />. */}
+      {i === 5 && <slot />}
       {i === 5 && (
         <div class="partners-section">
           <div class="partners-header">
-            <p class="partners-label">Partner with <span class="partners-label--purple">Reference</span>.</p>
+            <p class="partners-label">Partner with <span class="partners-label--purple">Reference</span></p>
             <p class="partners-body">We've collaborated with some of the best out there. Different roles, different projects, but always the same goal. Make work that actually matters.</p>
           </div>
           <div class="partners-bar" aria-label="Our partners">
@@ -391,7 +407,9 @@ const ads = [
 
   .partners-label {
     font-family: "ObviouslyWide", system-ui, sans-serif;
-    font-size: clamp(16px, 3.5vw, 54px);
+    /* Homepage section-headline scale (+30%). Shared with .intro-say and
+       .featured-work__label so all section headlines stay consistent. */
+    font-size: clamp(21px, 4.5vw, 70px);
     font-weight: 500;
     line-height: 1.1;
     letter-spacing: -0.01em;
@@ -529,16 +547,20 @@ const ads = [
     color: #1a1a1a;
   }
 
-  /* ── Intro section (i===5): purple bg, "Say hello to" + slider ── */
+  /* ── Intro section (i===5): off-white bg, "What sets…" + slider ── */
   .manifesto-block--intro {
     position: relative;
-    background: #986edf;
+    background: #e8e4de;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: clamp(48px, 8vw, 100px) 0 0;
     overflow: hidden;
   }
+
+  /* Purple ambient blobs were designed for the previous purple bg — hide
+     on the off-white bg to keep the transition into Selected Work clean. */
+  .manifesto-block--intro .intro-blob { display: none; }
 
   .intro-blob {
     position: absolute;
@@ -610,15 +632,17 @@ const ads = [
   }
 
   .intro-say {
-    font-size: clamp(16px, 3.5vw, 54px);
+    /* Homepage section-headline scale (+30% vs original clamp(16, 3.5vw, 54)).
+       Shared with .partners-label and .featured-work__label. */
+    font-size: clamp(21px, 4.5vw, 70px);
     font-weight: 500;
     letter-spacing: -0.01em;
-    color: #e8e4de;
+    color: #1a1a1a;
     line-height: 0.9;
   }
 
   .intro-say--dark {
-    color: #1a1a1a;
+    color: #986edf;
   }
 
   .intro-say--brand {
@@ -646,7 +670,7 @@ const ads = [
     display: flex;
     align-items: flex-start;
     gap: clamp(24px, 5vw, 80px);
-    border-top: 1px solid rgba(232, 228, 222, 0.2);
+    border-top: 1px solid rgba(26, 26, 26, 0.15);
     box-sizing: border-box;
   }
 
@@ -655,7 +679,7 @@ const ads = [
     font-size: clamp(36px, 5vw, 80px);
     font-weight: 400;
     line-height: 0.82;
-    color: #e8e4de;
+    color: #1a1a1a;
     margin: 0;
     flex-shrink: 0;
     width: clamp(160px, 25vw, 380px);
@@ -722,12 +746,12 @@ const ads = [
     align-items: center;
     justify-content: space-between;
     padding: clamp(20px, 3vw, 40px) clamp(24px, 7vw, 100px);
-    border-top: 1px solid rgba(232, 228, 222, 0.2);
+    border-top: 1px solid rgba(26, 26, 26, 0.15);
   }
 
   .intro-slider-counter {
     font-size: clamp(12px, 1.2vw, 18px);
-    color: rgba(232, 228, 222, 0.5);
+    color: rgba(26, 26, 26, 0.5);
     letter-spacing: 0.1em;
     font-variant-numeric: tabular-nums;
     text-align: center;
@@ -736,11 +760,10 @@ const ads = [
   .intro-slider-btn {
     -webkit-appearance: none;
     appearance: none;
-    background: none;
-    border: 1px solid rgba(232, 228, 222, 0.35);
+    background: #0a0a0a;
+    border: 2px solid #0a0a0a;
     border-radius: 50%;
-    color: #e8e4de;
-    font-size: clamp(14px, 1.4vw, 20px);
+    color: #986edf;
     line-height: 1;
     width: clamp(36px, 3.5vw, 52px);
     height: clamp(36px, 3.5vw, 52px);
@@ -751,12 +774,23 @@ const ads = [
     padding: 0;
     flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
-    transition: background 0.2s, border-color 0.2s;
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+  }
+
+  .intro-slider-btn svg {
+    width: clamp(12px, 1.2vw, 18px);
+    height: auto;
+  }
+
+  /* Prev arrow: mirror the shared SVG so the arrow points left. */
+  .intro-slider-prev svg {
+    transform: scaleX(-1);
   }
 
   .intro-slider-btn:hover {
-    background: rgba(232, 228, 222, 0.1);
-    border-color: rgba(232, 228, 222, 0.7);
+    background: #986edf;
+    color: #0a0a0a;
+    border-color: #986edf;
   }
 
   .intro-slider-btn:disabled {
@@ -774,7 +808,7 @@ const ads = [
 
   .intro-slider-btn.arrow-pulse {
     animation: arrowPulse 0.7s ease-in-out 3;
-    border-color: rgba(232, 228, 222, 0.8);
+    border-color: rgba(26, 26, 26, 0.8);
   }
 
   /* ── Third section: dark green bg, purple text ── */
@@ -1200,36 +1234,47 @@ const ads = [
     pointer-events: none;
   }
 
+  /* Matches the .home-cta__btn / .featured-work-cta styling so it looks and
+     behaves the same. Spans the full width of the section (offset by the
+     .manifesto-block horizontal padding). Reveal opacity is still driven
+     by the scroll JS via inline style. */
   .bigger-learn-btn {
     position: absolute;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: "ObviouslyWide", system-ui, sans-serif;
-    font-size: clamp(8px, 0.7vw, 11px);
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    left: clamp(24px, 7vw, 100px);
+    right: clamp(24px, 7vw, 100px);
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(18px, 2vw, 32px);
+    padding: clamp(20px, 3vw, 40px) clamp(24px, 6vw, 80px);
+    border: 2px solid #0a0a0a;
+    border-radius: 6px;
+    background: #0a0a0a;
     color: #986edf;
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(10px, 1.4vw, 20px);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
     text-decoration: none;
     white-space: nowrap;
-    border: 1px solid rgba(152, 110, 223, 0.35);
-    border-radius: 4px;
-    background: #000;
-    padding: 14px 28px;
     opacity: 0;
     pointer-events: none;
-    transition:
-      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.25s ease,
-      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+  }
+
+  .bigger-learn-btn svg {
+    width: clamp(14px, 1.7vw, 24px);
+    height: auto;
+    flex-shrink: 0;
   }
 
   .bigger-learn-btn:hover {
-    background: #0d0318;
-    border-color: rgba(152, 110, 223, 0.7);
-    padding-left: 42px;
-    padding-right: 42px;
+    background: #986edf;
+    color: #0a0a0a;
+    border-color: #986edf;
   }
 
   /* ── Target cursor — active during BIGGER interactive phase ── */

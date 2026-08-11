@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import WorkScene from "../components/WorkScene.astro";
 ---
 
 <Layout title="Work — Reference | Brand Campaigns & Creative Projects" description="Selected work from Reference creative studio. Entertainment-led brand campaigns, social content, and integrated creative for Shahid, AXE, KFC, Rexona, and more.">
@@ -8,21 +9,7 @@ import Layout from "../layouts/Layout.astro";
     <p class="work-intro__text">Made with partners who back bold ideas. And fight for them until they exist.</p>
   </section>
   <div class="work-scene">
-    <!-- Sticky background — stays in viewport while cards scroll -->
-    <div class="work-bg">
-      <div class="work-blob work-blob--1"></div>
-      <div class="work-blob work-blob--2"></div>
-      <div class="work-blob work-blob--3"></div>
-      <div class="work-blob work-blob--4"></div>
-      <svg class="work-grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <filter id="wg">
-          <feTurbulence id="wg-turb" type="turbulence" baseFrequency="0.70" numOctaves="1" seed="0" stitchTiles="stitch"/>
-          <feColorMatrix type="saturate" values="0"/>
-        </filter>
-        <rect width="100%" height="100%" filter="url(#wg)"/>
-      </svg>
-    </div>
-
+    <WorkScene>
     <!-- Cards scroll over the sticky bg -->
     <div class="work-cards">
       <div class="work-card-wrap" data-href="/work/axe-evolution">
@@ -109,12 +96,17 @@ import Layout from "../layouts/Layout.astro";
         <span class="work-card__mobile-label">SHAHID — THE DEVIL'S PROMISE</span>
       </div>
     </div>
-    <div class="work-cursor-label" aria-hidden="true"></div>
+    </WorkScene>
   </div>
 
   <div class="work-cta">
     <p class="work-cta__headline">Like what you see?</p>
-    <a class="work-cta__btn" href="/contact" id="work-cta-btn">WORK WITH US</a>
+    <a class="work-cta__btn" href="/contact" id="work-cta-btn">
+      <span>WORK WITH US</span>
+      <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M23.354 7.354a.5.5 0 0 0 0-.708L18.5 1.79a.5.5 0 1 0-.707.707L22.293 7l-4.5 4.5a.5.5 0 0 0 .707.707l4.854-4.853zM0 7.5h23v-1H0v1z" fill="currentColor"/>
+      </svg>
+    </a>
   </div>
 </Layout>
 
@@ -166,32 +158,39 @@ import Layout from "../layouts/Layout.astro";
     text-align: center;
   }
 
+  /* Matches .home-cta__btn / .featured-work-cta — same look and hover flip,
+     full width via align-self:stretch inside the flex-column parent. */
   .work-cta__btn {
-    display: inline-flex;
+    display: flex;
+    align-self: stretch;
     align-items: center;
-    gap: 14px;
-    font-family: "ObviouslyWide", system-ui, sans-serif;
-    font-size: clamp(9px, 0.7vw, 11px);
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    justify-content: center;
+    gap: clamp(18px, 2vw, 32px);
+    padding: clamp(20px, 3vw, 40px) clamp(24px, 6vw, 80px);
+    border: 2px solid #0a0a0a;
+    border-radius: 6px;
+    background: #0a0a0a;
     color: #986edf;
+    font-family: "ObviouslyWide", system-ui, sans-serif;
+    font-size: clamp(10px, 1.4vw, 20px);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
     text-decoration: none;
-    border: 1px solid rgba(152, 110, 223, 0.35);
-    border-radius: 4px;
-    background: #000;
-    padding: 14px 28px;
-    transition:
-      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.25s ease,
-      padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+  }
+
+  .work-cta__btn svg {
+    width: clamp(14px, 1.7vw, 24px);
+    height: auto;
+    flex-shrink: 0;
   }
 
   .work-cta__btn:hover {
-    background: #0d0318;
-    border-color: rgba(152, 110, 223, 0.7);
-    padding-left: 42px;
-    padding-right: 42px;
+    background: #986edf;
+    color: #0a0a0a;
+    border-color: #986edf;
   }
 
   @media (max-width: 768px) {
@@ -214,127 +213,9 @@ import Layout from "../layouts/Layout.astro";
 </style>
 
 <script>
-  let _workAC: AbortController | null = null;
-
-  function initWork() {
-    if (!document.querySelector('.work-card')) return; // not on work page
-    _workAC?.abort();
-    _workAC = new AbortController();
-    const { signal } = _workAC;
-
-    // Grain animation loop — stops on navigation
-    const grainTurb = document.getElementById('wg-turb') as SVGFETurbulenceElement | null;
-    let grainSeed = 0;
-    function loop() {
-      if (signal.aborted) return;
-      if (grainTurb) {
-        grainSeed = (grainSeed + 1) % 9999;
-        grainTurb.setAttribute('seed', String(grainSeed));
-      }
-      requestAnimationFrame(loop);
-    }
-    requestAnimationFrame(loop);
-
-    // Work video cards
-    const workBg      = document.querySelector<HTMLElement>('.work-bg');
-    const workCardEls = document.querySelectorAll<HTMLElement>('.work-card');
-    const cursorLabel = document.querySelector<HTMLElement>('.work-cursor-label');
-    const workDefaultBg = '#1a4a6e';
-
-    const colorProbe = document.createElement('canvas');
-    colorProbe.width = 16; colorProbe.height = 16;
-    const colorCtx = colorProbe.getContext('2d', { willReadFrequently: true });
-
-    function sampleColor(source: HTMLVideoElement | HTMLImageElement): string {
-      if (!colorCtx) return workDefaultBg;
-      try {
-        colorCtx.drawImage(source, 0, 0, 16, 16);
-        const d = colorCtx.getImageData(0, 0, 16, 16).data;
-        let r = 0, g = 0, b = 0;
-        const n = d.length / 4;
-        for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
-        return `rgb(${Math.round(r/n)},${Math.round(g/n)},${Math.round(b/n)})`;
-      } catch { return workDefaultBg; }
-    }
-
-    // Lazy-assign a video's src from data-src the first time it's about to play.
-    // With src empty in HTML + preload="none", no bytes are fetched until this runs.
-    function ensureVideoSrc(video: HTMLVideoElement) {
-      if (video.src) return;
-      const ds = video.dataset.src;
-      if (ds) { video.src = ds; }
-    }
-
-    const isTouch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-    // On mobile: play only the video entering the viewport, pause others.
-    // On first intersection we also lazy-assign the video src so nothing loads offscreen.
-    let mobileObserver: IntersectionObserver | null = null;
-    if (isTouch) {
-      mobileObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          const vid = (entry.target as HTMLElement).querySelector<HTMLVideoElement>('.work-card__video');
-          if (!vid) return;
-          if (entry.isIntersecting) { ensureVideoSrc(vid); vid.play().catch(() => {}); }
-          else { vid.pause(); }
-        });
-      }, { threshold: 0.4 });
-    }
-
-    workCardEls.forEach((card) => {
-      const video  = card.querySelector<HTMLVideoElement>('.work-card__video');
-      const poster = card.querySelector<HTMLImageElement>('.work-card__poster, .work-card__img');
-      const wrap   = card.closest<HTMLElement>('.work-card-wrap');
-      const href   = wrap?.dataset.href;
-
-      // Sample the sticky-bg color from the poster image (loads before video plays,
-      // and works even if the video load is deferred). data-color on the card
-      // (set explicitly in HTML for card 12) takes precedence.
-      if (poster && !card.dataset.color) {
-        const applyColor = () => { card.dataset.color = sampleColor(poster); };
-        if (poster.complete && poster.naturalWidth > 0) applyColor();
-        else poster.addEventListener('load', applyColor, { once: true, signal });
-      }
-
-      if (isTouch) {
-        if (video) mobileObserver?.observe(card);
-        if (href) {
-          card.addEventListener('click', () => {
-            import('astro:transitions/client').then(({ navigate }) => navigate(href));
-          }, { signal });
-        }
-        return;
-      }
-
-      card.addEventListener('mouseenter', () => {
-        if (video) { ensureVideoSrc(video); video.muted = false; video.currentTime = 0; video.play().catch(() => {}); }
-        if (workBg) workBg.style.backgroundColor = card.dataset.color || workDefaultBg;
-        if (cursorLabel) { cursorLabel.textContent = card.dataset.label || ''; cursorLabel.classList.add('is-visible'); }
-      }, { signal });
-
-      card.addEventListener('mousemove', (e) => {
-        if (cursorLabel) { cursorLabel.style.left = `${e.clientX}px`; cursorLabel.style.top = `${e.clientY}px`; }
-      }, { signal });
-
-      card.addEventListener('mouseleave', () => {
-        if (video) { video.muted = true; video.pause(); video.currentTime = 0; }
-        if (workBg) workBg.style.backgroundColor = workDefaultBg;
-        if (cursorLabel) cursorLabel.classList.remove('is-visible');
-      }, { signal });
-
-      if (href) {
-        card.addEventListener('click', () => {
-          import('astro:transitions/client').then(({ navigate }) => navigate(href));
-        }, { signal });
-        if (wrap) wrap.style.cursor = 'none';
-      }
-    });
-
-    signal.addEventListener('abort', () => mobileObserver?.disconnect());
-  }
-
+  // Card / bg / cursor-label interactions live in <WorkScene>.
+  // Only the local page CTA hookup remains here.
   document.addEventListener('astro:page-load', () => {
-    initWork();
     const ctaBtn = document.getElementById('work-cta-btn') as HTMLAnchorElement | null;
     if (ctaBtn) {
       ctaBtn.addEventListener('click', (e) => {

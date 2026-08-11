@@ -597,14 +597,15 @@
     text-align: center;
   }
 
+  /* Matches the homepage .intro-slider-btn arrows: filled black circle,
+     purple SVG arrow, purple/black flip on hover-or-active. */
   .about-pillars-btn {
     -webkit-appearance: none;
     appearance: none;
-    background: none;
-    border: 1px solid rgba(232, 228, 222, 0.35);
+    background: #0a0a0a;
+    border: 2px solid #0a0a0a;
     border-radius: 50%;
-    color: #e8e4de;
-    font-size: 14px;
+    color: #986edf;
     width: 44px;
     height: 44px;
     cursor: pointer;
@@ -614,12 +615,24 @@
     padding: 0;
     flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
-    transition: background 0.2s, border-color 0.2s;
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
   }
 
+  .about-pillars-btn svg {
+    width: 14px;
+    height: auto;
+  }
+
+  /* Prev arrow: mirror the shared SVG so it points left. */
+  .about-pillars-prev svg {
+    transform: scaleX(-1);
+  }
+
+  .about-pillars-btn:hover,
   .about-pillars-btn:active {
-    background: rgba(232, 228, 222, 0.1);
-    border-color: rgba(232, 228, 222, 0.7);
+    background: #986edf;
+    color: #0a0a0a;
+    border-color: #986edf;
   }
 
   @keyframes pillarArrowPulse {
@@ -632,7 +645,6 @@
 
   .about-pillars-btn.arrow-pulse {
     animation: pillarArrowPulse 0.7s ease-in-out 3;
-    border-color: rgba(232, 228, 222, 0.8);
   }
 }
 
@@ -656,29 +668,40 @@
   text-align: center;
 }
 
+/* Matches .home-cta__btn / .featured-work-cta / .bigger-learn-btn — same
+   look and hover flip, full-width via align-self:stretch inside the
+   flex-column parent. */
 .about-work-cta__btn {
-  font-family: "ObviouslyWide", system-ui, sans-serif;
-  font-size: clamp(9px, 0.7vw, 11px);
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 2vw, 32px);
+  padding: clamp(20px, 3vw, 40px) clamp(24px, 6vw, 80px);
+  border: 2px solid #986edf;
+  border-radius: 6px;
+  background: #0a0a0a;
   color: #986edf;
+  font-family: "ObviouslyWide", system-ui, sans-serif;
+  font-size: clamp(10px, 1.4vw, 20px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
   text-decoration: none;
-  border: 1px solid rgba(152, 110, 223, 0.35);
-  border-radius: 4px;
-  background: #000;
-  padding: 14px 28px;
-  transition:
-    background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.25s ease,
-    padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+}
+
+.about-work-cta__btn svg {
+  width: clamp(14px, 1.7vw, 24px);
+  height: auto;
+  flex-shrink: 0;
 }
 
 .about-work-cta__btn:hover {
-  background: #0d0318;
-  border-color: rgba(152, 110, 223, 0.7);
-  padding-left: 42px;
-  padding-right: 42px;
+  background: #986edf;
+  color: #0a0a0a;
+  border-color: #986edf;
 }
 
 .about-parallax-full {
@@ -727,6 +750,15 @@
   margin-right: clamp(16px, 3vw, 40px);
   border-radius: 4px;
   overflow: hidden;
+  transform: translateY(100px);
+}
+
+/* The <picture> wrapper (added for responsive mobile source) is transparent to
+   layout — the <img> inside is the flex child, so its width:55% + the wrap's
+   align-items/justify-content behave the same as before the wrapper existed. */
+.about-image-wrap picture,
+.about-parallax-full picture {
+  display: contents;
 }
 
 .about-content {
@@ -757,6 +789,7 @@
     margin: 1em 24px;
     overflow: visible;
     justify-content: flex-start;
+    transform: none;
   }
 
   .about-img {
@@ -833,4 +866,22 @@
 .nav-tab {
   text-decoration: none;
   display: inline-block;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Homepage-only content container. Widens the horizontal padding of every
+   home section (~10% up from clamp(24px, 7vw, 100px)) so they align to the
+   same content column and feel more spacious. Uses padding-inline so each
+   section's vertical padding is preserved. Scoped to body[data-page="home"]
+   so no other page is affected. Full-bleed elements (hero, hand video,
+   the featured-work-grid inside its section) are untouched.
+   ───────────────────────────────────────────────────────────────────────── */
+body[data-page="home"] .studio-intro,
+body[data-page="home"] .intro-headline,
+body[data-page="home"] .intro-slide,
+body[data-page="home"] .intro-slider-nav,
+body[data-page="home"] .featured-work,
+body[data-page="home"] .partners-header,
+body[data-page="home"] .home-cta {
+  padding-inline: clamp(32px, 10vw, 165px);
 }

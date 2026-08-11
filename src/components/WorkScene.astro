@@ -1,0 +1,146 @@
+---
+// Shared work-page scene: fixed background with animated blobs + grain,
+// cursor-follow label, and the JS that drives hover-tint bg, video play,
+// lazy video src, and the "brand · title" cursor label.
+//
+// Consumed by /work (full 12-card layout) and by <FeaturedWork /> on the
+// home page (4-card 2×2 grid). Both pages share the same interactions —
+// only the cards container (passed via <slot />) differs.
+---
+
+<div class="work-bg">
+  <div class="work-blob work-blob--1"></div>
+  <div class="work-blob work-blob--2"></div>
+  <div class="work-blob work-blob--3"></div>
+  <div class="work-blob work-blob--4"></div>
+  <svg class="work-grain" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <filter id="wg">
+      <feTurbulence id="wg-turb" type="turbulence" baseFrequency="0.70" numOctaves="1" seed="0" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#wg)"/>
+  </svg>
+</div>
+
+<slot />
+
+<div class="work-cursor-label" aria-hidden="true"></div>
+
+<script>
+  let _workAC: AbortController | null = null;
+
+  function initWork() {
+    if (!document.querySelector('.work-card')) return; // no scene on this page
+    _workAC?.abort();
+    _workAC = new AbortController();
+    const { signal } = _workAC;
+
+    // Grain animation loop — stops on navigation
+    const grainTurb = document.getElementById('wg-turb') as SVGFETurbulenceElement | null;
+    let grainSeed = 0;
+    function loop() {
+      if (signal.aborted) return;
+      if (grainTurb) {
+        grainSeed = (grainSeed + 1) % 9999;
+        grainTurb.setAttribute('seed', String(grainSeed));
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    const workBg      = document.querySelector<HTMLElement>('.work-bg');
+    const workCardEls = document.querySelectorAll<HTMLElement>('.work-card');
+    const cursorLabel = document.querySelector<HTMLElement>('.work-cursor-label');
+    const workDefaultBg = '#1a4a6e';
+
+    const colorProbe = document.createElement('canvas');
+    colorProbe.width = 16; colorProbe.height = 16;
+    const colorCtx = colorProbe.getContext('2d', { willReadFrequently: true });
+
+    function sampleColor(source: HTMLVideoElement | HTMLImageElement): string {
+      if (!colorCtx) return workDefaultBg;
+      try {
+        colorCtx.drawImage(source, 0, 0, 16, 16);
+        const d = colorCtx.getImageData(0, 0, 16, 16).data;
+        let r = 0, g = 0, b = 0;
+        const n = d.length / 4;
+        for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
+        return `rgb(${Math.round(r/n)},${Math.round(g/n)},${Math.round(b/n)})`;
+      } catch { return workDefaultBg; }
+    }
+
+    // Lazy-assign a video's src from data-src the first time it's about to play.
+    // With src empty in HTML + preload="none", no bytes are fetched until this runs.
+    function ensureVideoSrc(video: HTMLVideoElement) {
+      if (video.src) return;
+      const ds = video.dataset.src;
+      if (ds) { video.src = ds; }
+    }
+
+    const isTouch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    // On mobile: play only the video entering the viewport, pause others.
+    let mobileObserver: IntersectionObserver | null = null;
+    if (isTouch) {
+      mobileObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const vid = (entry.target as HTMLElement).querySelector<HTMLVideoElement>('.work-card__video');
+          if (!vid) return;
+          if (entry.isIntersecting) { ensureVideoSrc(vid); vid.play().catch(() => {}); }
+          else { vid.pause(); }
+        });
+      }, { threshold: 0.4 });
+    }
+
+    workCardEls.forEach((card) => {
+      const video  = card.querySelector<HTMLVideoElement>('.work-card__video');
+      const poster = card.querySelector<HTMLImageElement>('.work-card__poster, .work-card__img');
+      const wrap   = card.closest<HTMLElement>('.work-card-wrap');
+      const href   = wrap?.dataset.href;
+
+      // Sample the sticky-bg color from the poster image (works before video plays).
+      if (poster && !card.dataset.color) {
+        const applyColor = () => { card.dataset.color = sampleColor(poster); };
+        if (poster.complete && poster.naturalWidth > 0) applyColor();
+        else poster.addEventListener('load', applyColor, { once: true, signal });
+      }
+
+      if (isTouch) {
+        if (video) mobileObserver?.observe(card);
+        if (href) {
+          card.addEventListener('click', () => {
+            import('astro:transitions/client').then(({ navigate }) => navigate(href));
+          }, { signal });
+        }
+        return;
+      }
+
+      card.addEventListener('mouseenter', () => {
+        if (video) { ensureVideoSrc(video); video.muted = false; video.currentTime = 0; video.play().catch(() => {}); }
+        if (workBg) workBg.style.backgroundColor = card.dataset.color || workDefaultBg;
+        if (cursorLabel) { cursorLabel.textContent = card.dataset.label || ''; cursorLabel.classList.add('is-visible'); }
+      }, { signal });
+
+      card.addEventListener('mousemove', (e) => {
+        if (cursorLabel) { cursorLabel.style.left = `${e.clientX}px`; cursorLabel.style.top = `${e.clientY}px`; }
+      }, { signal });
+
+      card.addEventListener('mouseleave', () => {
+        if (video) { video.muted = true; video.pause(); video.currentTime = 0; }
+        if (workBg) workBg.style.backgroundColor = workDefaultBg;
+        if (cursorLabel) cursorLabel.classList.remove('is-visible');
+      }, { signal });
+
+      if (href) {
+        card.addEventListener('click', () => {
+          import('astro:transitions/client').then(({ navigate }) => navigate(href));
+        }, { signal });
+        if (wrap) wrap.style.cursor = 'none';
+      }
+    });
+
+    signal.addEventListener('abort', () => mobileObserver?.disconnect());
+  }
+
+  document.addEventListener('astro:page-load', initWork);
+</script>

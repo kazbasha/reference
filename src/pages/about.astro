@@ -90,9 +90,17 @@ import Layout from "../layouts/Layout.astro";
         </div>
       </div>
       <div class="about-pillars-nav">
-        <button class="about-pillars-btn about-pillars-prev" aria-label="Previous">&#8592;</button>
+        <button class="about-pillars-btn about-pillars-prev" aria-label="Previous">
+          <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M23.354 7.354a.5.5 0 0 0 0-.708L18.5 1.79a.5.5 0 1 0-.707.707L22.293 7l-4.5 4.5a.5.5 0 0 0 .707.707l4.854-4.853zM0 7.5h23v-1H0v1z" fill="currentColor"/>
+          </svg>
+        </button>
         <span class="about-pillars-counter">01 / 04</span>
-        <button class="about-pillars-btn about-pillars-next" aria-label="Next">&#8594;</button>
+        <button class="about-pillars-btn about-pillars-next" aria-label="Next">
+          <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M23.354 7.354a.5.5 0 0 0 0-.708L18.5 1.79a.5.5 0 1 0-.707.707L22.293 7l-4.5 4.5a.5.5 0 0 0 .707.707l4.854-4.853zM0 7.5h23v-1H0v1z" fill="currentColor"/>
+          </svg>
+        </button>
       </div>
     </div>
   </section>
@@ -146,7 +154,12 @@ import Layout from "../layouts/Layout.astro";
 
   <div class="about-work-cta">
     <p class="about-work-cta__headline">We've said enough.</p>
-    <a class="about-work-cta__btn" href="/work" id="about-work-btn">SEE THE WORK</a>
+    <a class="about-work-cta__btn" href="/work" id="about-work-btn">
+      <span>SEE THE WORK</span>
+      <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M23.354 7.354a.5.5 0 0 0 0-.708L18.5 1.79a.5.5 0 1 0-.707.707L22.293 7l-4.5 4.5a.5.5 0 0 0 .707.707l4.854-4.853zM0 7.5h23v-1H0v1z" fill="currentColor"/>
+      </svg>
+    </a>
   </div>
 </Layout>
 
