@@ -146,7 +146,7 @@ const projects = [
     padding: clamp(20px, 3vw, 40px) clamp(24px, 6vw, 80px);
     background: #0a0a0a;
     color: #986edf;
-    border: 2px solid #0a0a0a;
+    border: 2px solid #986edf;
     border-radius: 6px;
     font-family: "ObviouslyWide", system-ui, sans-serif;
     /* Type size reduced. */
@@ -174,11 +174,16 @@ const projects = [
 
   @media (max-width: 640px) {
     .featured-work {
+      /* Match the /work page's mobile static background. */
+      background: #1a4a6e;
       padding: clamp(40px, 8vw, 60px) 20px;
+      /* +30px extra top space above the "Some of our work" headline. */
+      padding-top: calc(clamp(40px, 8vw, 60px) + 30px);
       gap: 20px;
     }
     .featured-work__label {
-      font-size: clamp(26px, 7.5vw, 42px);
+      /* Removed mobile size override so it matches .intro-say
+         ("What sets us apart") — both use clamp(21px, 4.5vw, 70px). */
       margin: 0;
     }
     .featured-work-grid {
@@ -189,6 +194,9 @@ const projects = [
     .featured-work-cta {
       padding: clamp(20px, 6vw, 34px) 24px;
       font-size: clamp(9px, 2.3vw, 14px);
+      /* No purple border on mobile — keep 2px width so the box size stays
+         consistent, just transparent. */
+      border-color: transparent;
     }
   }
 </style>
