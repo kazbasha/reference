@@ -155,7 +155,12 @@
     z-index: 10;
   }
 
-  .work-cards:has(.work-card:hover) .work-card:not(:hover) {
+  /* Blur other cards on hover — used by /work (.work-cards) and by the
+     homepage Featured Work section (.featured-work-grid). Kept in a global
+     stylesheet because Astro doesn't correctly unwrap `:global()` inside
+     `:has()` in a scoped component style block. */
+  .work-cards:has(.work-card:hover) .work-card:not(:hover),
+  .featured-work-grid:has(.work-card:hover) .work-card:not(:hover) {
     filter: blur(4px);
     opacity: 0.6;
     transition:

@@ -119,18 +119,9 @@ const projects = [
     /* aspect-ratio 16/9 inherited from the base .work-card rule in pages.css */
   }
 
-  /* Hover: blur the other cards — mirrors /work's :has() interaction. */
-  @media (hover: hover) and (pointer: fine) {
-    .featured-work-grid:has(:global(.work-card):hover) :global(.work-card):not(:hover) {
-      filter: blur(4px);
-      opacity: 0.6;
-      transition:
-        transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.55s ease,
-        filter 0.55s ease,
-        opacity 0.55s ease;
-    }
-  }
+  /* Hover-blur-others is defined globally in pages.css alongside /work's
+     equivalent rule (Astro can't unwrap `:global()` inside `:has()` in a
+     scoped block, so both rules live together in the global stylesheet). */
 
   /* ── See all work. — full-width CTA block ── */
   .featured-work-cta {
@@ -146,7 +137,7 @@ const projects = [
     padding: clamp(20px, 3vw, 40px) clamp(24px, 6vw, 80px);
     background: #0a0a0a;
     color: #986edf;
-    border: 2px solid #986edf;
+    border: 2px solid #0a0a0a;
     border-radius: 6px;
     font-family: "ObviouslyWide", system-ui, sans-serif;
     /* Type size reduced. */
